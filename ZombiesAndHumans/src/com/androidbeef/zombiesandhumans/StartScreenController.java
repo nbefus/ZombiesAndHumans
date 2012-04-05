@@ -24,7 +24,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
-
+//I made this.
 public class StartScreenController extends Activity implements OnClickListener {
     private JSONArray jArray;
 	//private List<? extends NameValuePair> nameValuePairs;
