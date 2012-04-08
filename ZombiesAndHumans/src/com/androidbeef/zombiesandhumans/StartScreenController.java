@@ -30,7 +30,7 @@ import android.widget.Toast;
 public class StartScreenController extends Activity implements OnClickListener {
     private JSONArray jArray;
 	//private List<? extends NameValuePair> nameValuePairs;
-
+    private ZombiesAndHumansBrain it = new ZombiesAndHumansBrain(this);
 	/** Called when the activity is first created. */
 	
     @Override
@@ -50,8 +50,8 @@ public class StartScreenController extends Activity implements OnClickListener {
 		if(v.getId() == R.id.Button_LogIn)
 		{
 			//TESTING FOR DATABASE CONNECTION
-			getPhoneAndID("test");
-			
+			getPhoneAndID("testing");
+			//it.postData();
 			// Go to server and check username and password and (in)validate 
 			
 		}
@@ -66,8 +66,7 @@ public class StartScreenController extends Activity implements OnClickListener {
 	{
 		int id = -99;
 
-        String phone = "BLAH";
-        InternetTools it = new InternetTools(this);
+        String phone = "Error";  
         
         try{
         	
@@ -80,6 +79,9 @@ public class StartScreenController extends Activity implements OnClickListener {
                 id=json_data.getInt("id");
                 phone=json_data.getString("phone");
         }
+        
+        Toast.makeText(this, "phone: " + phone + "  id: "+id, Toast.LENGTH_LONG).show();
+
          
         }catch(JSONException e1){
             Toast.makeText(this, "ERROR", Toast.LENGTH_LONG).show();
