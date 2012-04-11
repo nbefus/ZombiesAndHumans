@@ -1,37 +1,25 @@
 package com.androidbeef.zombiesandhumans;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.List;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.Activity;
-import android.net.ParseException;
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
-//I made this.
 
-// Nathaniel test
 public class StartScreenController extends Activity implements OnClickListener {
-    private JSONArray jArray;
-	//private List<? extends NameValuePair> nameValuePairs;
-    private ZombiesAndHumansBrain it = new ZombiesAndHumansBrain(this);
-	/** Called when the activity is first created. */
+	
+	private final String debugClass = "START_SCREEN_CONTROLLER";
+
+	private ZombiesAndHumansBrain brain = new ZombiesAndHumansBrain(this);
+	private EditText username;
+	private EditText password;
+	private ProgressDialog pd;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) 
@@ -40,54 +28,84 @@ public class StartScreenController extends Activity implements OnClickListener {
         setContentView(R.layout.main);
         
         ((Button) findViewById(R.id.Button_LogIn)).setOnClickListener(this);
+        ((Button) findViewById(R.id.Button_SignUp)).setOnClickListener(this);
+
+        username = (EditText) findViewById(R.id.EditText_Username);
+        password = (EditText) findViewById(R.id.EditText_Password);
     }
 
 	@Override
-	public void onClick(View v) 
-	{
-		System.out.println(v.getId());
-		System.out.println(R.id.Button_LogIn);
+	public void onClick(View v)
+	{		
 		if(v.getId() == R.id.Button_LogIn)
 		{
-			//TESTING FOR DATABASE CONNECTION
-			getPhoneAndID("testing");
-			//it.postData();
-			// Go to server and check username and password and (in)validate 
-			
-		}
+			String[] entities = {"USERNAME","PASSWORD"};
+			String filename = "testing";
+			String[] dataTypes = {"string","string"};
+			String query = "select * from Players where USERNAME = '"+username.getText().toString().trim()+"' AND PASSWORD = '"+password.getText().toString().trim()+"'";
+					
+			brain.setQueryVariables(entities, filename, dataTypes, query);
+			pd = ProgressDialog.show(this, "Processing...", "Trying to log in", true, true);
+			new performQuery().execute();
+		}	
 		else if(v.getId() == R.id.Button_SignUp)
 		{
-			// Go to sign up screen and form
+			Intent j = new Intent(StartScreenController.this, SignUpController.class);
+			startActivity(j);
 		}
-	}
+			
+	}	
 	
-	//TEST METHOD TO SEE HOW GETTING THINGS FROM MYSQL DATABASE WORKS
-	private void getPhoneAndID(String filename)
+	/*
+	 * A class which will do the actual searching of the database in the background. This
+	 * means that there will be no lag on the UI.
+	 * 
+	 * ****Must call ZombiesAndHumansBrain method setQueryVariables before calling this.****
+	 */
+	class performQuery extends AsyncTask<String, Integer, String>
 	{
-		int id = -99;
+		private Object[][] results;
+		
+		@Override
+		protected String doInBackground(String... parameters)
+		{
+			results = brain.performSearchWithResult();
+			
+			return "";
+		}
 
-        String phone = "Error";  
-        
-        try{
-        	
-        jArray = new JSONArray(it.getPHPPage("http://androidbeef.com/"+filename+".php"));
-        JSONObject json_data = null;
-        Toast.makeText(this, "Length is "+jArray.length(), Toast.LENGTH_LONG).show();
+		@Override
+		protected void onProgressUpdate(Integer... values)
+		{
+			super.onProgressUpdate(values);
+		}
 
-        for(int i=0;i<jArray.length();i++){
-                json_data = jArray.getJSONObject(i);
-                id=json_data.getInt("id");
-                phone=json_data.getString("phone");
-        }
-        
-        Toast.makeText(this, "phone: " + phone + "  id: "+id, Toast.LENGTH_LONG).show();
-
-         
-        }catch(JSONException e1){
-            Toast.makeText(this, "ERROR", Toast.LENGTH_LONG).show();
-        }catch (ParseException e1){
-            Toast.makeText(this, "ERROR", Toast.LENGTH_LONG).show();
-        }
-        
+		@Override
+		protected void onPostExecute(String result)
+		{
+			if(!(results == null))
+			{
+				if(results.length > 0)
+				{
+					Toast.makeText(StartScreenController.this, "User known",
+							Toast.LENGTH_LONG).show();
+					
+					Intent i = new Intent(StartScreenController.this, HomeScreenController.class);
+					startActivity(i);
+				}
+				else
+				{
+					Toast.makeText(StartScreenController.this, "User unknown!",
+							Toast.LENGTH_LONG).show();
+				}
+			}
+			else
+			{
+				Toast.makeText(StartScreenController.this, "User unknown!",
+						Toast.LENGTH_LONG).show();
+			}
+			pd.dismiss();
+			
+		}
 	}
 }
