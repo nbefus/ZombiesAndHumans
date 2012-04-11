@@ -34,7 +34,6 @@ public class StartScreenController extends Activity implements OnClickListener {
         password = (EditText) findViewById(R.id.EditText_Password);
     }
 
-	@Override
 	public void onClick(View v)
 	{		
 		if(v.getId() == R.id.Button_LogIn)
