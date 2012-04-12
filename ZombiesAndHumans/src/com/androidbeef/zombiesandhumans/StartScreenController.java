@@ -51,8 +51,7 @@ public class StartScreenController extends Activity implements OnClickListener {
 		{
 			Intent j = new Intent(StartScreenController.this, SignUpController.class);
 			startActivity(j);
-		}
-			
+		}	
 	}	
 	
 	/*
