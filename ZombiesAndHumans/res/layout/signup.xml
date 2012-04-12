@@ -65,7 +65,7 @@
         android:layout_above="@+id/Button_SignUpNow"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="35dp" >
-
+
         <RadioButton
             android:id="@+id/radio0"
             android:layout_width="wrap_content"
@@ -79,7 +79,7 @@
             android:layout_height="wrap_content"
             android:text="Human" />
     </RadioGroup>
-
+
     <TextView
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
@@ -87,7 +87,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="48dp"
-        android:text="Large Text"
+        android:text="@string/titleText"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>

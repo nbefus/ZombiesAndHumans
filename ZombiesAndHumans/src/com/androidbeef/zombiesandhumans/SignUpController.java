@@ -7,7 +7,7 @@ import android.view.View.OnClickListener;
 
 public class SignUpController extends Activity implements OnClickListener
 {
-	private final String debugClass = "SIGN_UP_CONTROLLER";
+	private final String something = "SIGN_UP_CONTROLLER";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 

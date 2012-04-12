@@ -3,5 +3,6 @@
 
     <string name="hello">Hello World, ZombiesAndHumansActivity!</string>
     <string name="app_name">ZombiesAndHumans</string>
+    <string name="titleText">New Sign In</string>
 
 </resources>
