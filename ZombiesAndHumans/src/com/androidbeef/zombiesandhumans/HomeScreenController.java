@@ -28,8 +28,7 @@ public class HomeScreenController extends Activity implements OnClickListener
 	{
 		if(v.getId() == R.id.character_button)
 		{
-			Intent a = new Intent(HomeScreenController.this, BattleController.class);
-			startActivity(a);
+			
 		}
 		else if(v.getId() == R.id.items_button)
 		{
@@ -37,7 +36,8 @@ public class HomeScreenController extends Activity implements OnClickListener
 		}
 		else if(v.getId() == R.id.battle_button)
 		{
-			
+			Intent a = new Intent(HomeScreenController.this, BattleController.class);
+			startActivity(a);
 		}
 		else if(v.getId() == R.id.logout_button)
 		{
