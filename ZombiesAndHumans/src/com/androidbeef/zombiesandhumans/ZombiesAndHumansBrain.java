@@ -23,6 +23,20 @@ import android.net.ParseException;
 
 // Sorry for all the commented out Toasts. Apparently an Async Task which will calls these methods cannot have anything which
 // runs on the main UI thread. Will have to handle/detect/make known errors a little differently.
+
+//Decided that for an error put "error" into the first result. Although for a Query with no variables, result will say invalid
+//even if it is successful. So will not know if the sql failed due to an invalid argument so we must check our sql statement well
+//before using it.
+
+/*
+ * Here are a list of example database commands
+ * 
+ * String query = "INSERT INTO `Players`(`COMPUTER_PLAYER`, `USERNAME`, `PASSWORD`) VALUES ('n', 'test', 'testpassword')";
+ * String query1 = "DELETE FROM `Players` WHERE USERNAME = 'user'";
+ * String query2 = "UPDATE `Players` SET `COMPUTER_PLAYER`='y' WHERE `USERNAME`='Nathaniel'";
+ * String query3 = "SELECT * from Players where USERNAME = 'Nathaniel'";
+ * 
+ */
 public class ZombiesAndHumansBrain
 {
 	private final String	debugClass	= "BRAIN";
@@ -41,16 +55,48 @@ public class ZombiesAndHumansBrain
 	public void setQueryVariables(String[] entities,
 			String filename, String[] dataTypes, String query)
 	{
-		this.entities = new String[entities.length];
-		this.dataTypes = new String[dataTypes.length];
-		System.arraycopy(entities, 0, this.entities, 0, entities.length);
+		if(entities != null)
+		{
+			this.entities = new String[entities.length];
+			System.arraycopy(entities, 0, this.entities, 0, entities.length);
+
+		}
+		if(dataTypes != null)
+		{
+			this.dataTypes = new String[dataTypes.length];
+			System.arraycopy(dataTypes, 0, this.dataTypes, 0, dataTypes.length);
+		}
 		this.filename = filename;
-		System.arraycopy(dataTypes, 0, this.dataTypes, 0, dataTypes.length);
 		this.query = query;
 	}
 	
-	public Object[][] performSearchWithResult()
+	public boolean performQueryWithNoResults()
+	{
+		try
+		{
+			String result = getPHPPage("http://androidbeef.com/" + filename
+				+ ".php", query);
+			if(result.equals("error"))
+			{
+				System.out.println("HERE"+result.contains("not a valid")+" "+result.equals("error"));
+				return false;
+			}
+				
+			
+			return true;
+		}
+		catch(Exception e)
+		{
+			System.out.println("THERE");
+			return false;
+		}
+		
+		
+	}
+	
+	public Object[][] performQueryWithResult()
 	{		
+		Object[][] results = null;
 		if(entities != null && dataTypes != null && query != null && filename != null)
 		{
 			if (dataTypes.length != entities.length)
@@ -64,7 +110,9 @@ public class ZombiesAndHumansBrain
 								+ "dataTypes and entities lengths are different!",
 						Toast.LENGTH_LONG).show();
 						*/
-				return null;
+				results = new Object[1][1];
+				results[0][0]="error";
+				return results;
 			}
 	
 			for (int i = 0; i < dataTypes.length; i++)
@@ -83,17 +131,19 @@ public class ZombiesAndHumansBrain
 									+ "there are some data types in dataTypes which are not allowed!",
 							Toast.LENGTH_LONG).show();
 							*/
-					return null;
+					results = new Object[1][1];
+					results[0][0]="error";
+					return results;
 				}
 	
-			Object[][] results = null;
+			
 	
 			try
 			{
 	
 				String result = getPHPPage("http://androidbeef.com/" + filename
 						+ ".php", query);
-				if (!result.contains("null"))
+				if (!result.contains("null") && !result.equals("error"))
 				{
 					jArray = new JSONArray(result);
 	
@@ -127,14 +177,19 @@ public class ZombiesAndHumansBrain
 							Toast.LENGTH_LONG).show();
 							*/
 				}
-				else
+				else if(result.equals("error"))
 				{
+					results = new Object[1][1];
+					results[0][0]="error";
 					return results;
 				}
 	
 			}
 			catch (JSONException e1)
 			{
+				results = new Object[1][1];
+				results[0][0]="error";
+				return results;
 				/*
 				Toast.makeText(
 						c,
@@ -146,6 +201,9 @@ public class ZombiesAndHumansBrain
 			}
 			catch (ParseException e1)
 			{
+				results = new Object[1][1];
+				results[0][0]="error";
+				return results;
 				/*
 				Toast.makeText(
 						c,
@@ -159,7 +217,12 @@ public class ZombiesAndHumansBrain
 			return results;
 		}
 		else
-			return null;
+		{
+			results = new Object[1][1];
+			results[0][0]="error";
+			return results;
+		}
+			
 	}
 
 	private String getPHPPage(String page, String query)
@@ -183,6 +246,7 @@ public class ZombiesAndHumansBrain
 		}
 		catch (Exception e)
 		{
+			result = "error";
 			/*
 			Toast.makeText(
 					c,
@@ -214,6 +278,7 @@ public class ZombiesAndHumansBrain
 		}
 		catch (Exception e)
 		{
+			result = "error";
 			/*
 			Toast.makeText(
 					c,

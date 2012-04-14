@@ -67,7 +67,7 @@ public class StartScreenController extends Activity implements OnClickListener {
 		@Override
 		protected String doInBackground(String... parameters)
 		{
-			results = brain.performSearchWithResult();
+			results = brain.performQueryWithResult();
 			
 			return "";
 		}
