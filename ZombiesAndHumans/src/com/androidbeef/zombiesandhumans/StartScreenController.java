@@ -88,8 +88,17 @@ public class StartScreenController extends Activity implements OnClickListener {
 					Toast.makeText(StartScreenController.this, "User known",
 							Toast.LENGTH_LONG).show();
 					
-					Intent i = new Intent(StartScreenController.this, HomeScreenController.class);
-					startActivity(i);
+					if(((String)results[0][0]).equals("DBAdmin") && ((String)results[0][1]).equals("DBAdminPassword"))
+					{
+						Intent i = new Intent(StartScreenController.this, DBAdminController.class);
+						startActivity(i);
+					}
+					else
+					{
+						Intent i = new Intent(StartScreenController.this, HomeScreenController.class);
+						startActivity(i);
+					}
+					
 				}
 				else
 				{
@@ -102,6 +111,7 @@ public class StartScreenController extends Activity implements OnClickListener {
 				Toast.makeText(StartScreenController.this, "User unknown!",
 						Toast.LENGTH_LONG).show();
 			}
+			
 			pd.dismiss();
 			
 		}

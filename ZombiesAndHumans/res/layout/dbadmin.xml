@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+      <ScrollView
+          android:id="@+id/scrollView1"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_above="@+id/multiAutoCompleteTextView1"
+          android:layout_alignParentLeft="true"
+          android:layout_alignParentRight="true"
+          android:layout_alignParentTop="true" >
+            
+            <HorizontalScrollView
+            android:id="@+id/horizontalScrollView1"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
+
+                <TableLayout
+                    android:id="@+id/tableLayoutwork"
+                    android:layout_height="fill_parent"
+                    android:layout_width="fill_parent">
+                </TableLayout>
+
+          </HorizontalScrollView>
+
+    </ScrollView>
+
+    <Button
+        android:id="@+id/Button_DBAdminSearch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:text="Button" />
+
+    <MultiAutoCompleteTextView
+        android:id="@+id/edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/Button_DBAdminSearch"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:ems="10"
+        android:text="MultiAutoCompleteTextView" >
+
+        <requestFocus />
+    </MultiAutoCompleteTextView>
+
+</RelativeLayout>
