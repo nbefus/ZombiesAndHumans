@@ -125,25 +125,13 @@ public class ItemController extends Activity implements OnClickListener
 			Object []keys = map.keySet().toArray();
 			Toast.makeText(this, keys.length + " "+map.size(),
 					Toast.LENGTH_LONG).show();
-			// String[] setOfItems = items.split(",");
 			for (int i = 0; i < map.size(); i++)
 			{
-				
 				adapter.add("[" + map.get((String)keys[i]) + "]   " + (String)keys[i]);
-				// String[] aFav = setOfFaves[i].split(";;;");
-				// if(aFav[0].trim().length() == 0)
-				// adapter.add(aFav[1].trim());
-				// else
-				// adapter.add(aFav[0].trim() + "\n"+aFav[1].trim());
 			}
 
 			v.invalidate();
-			/*
-			if(what.equals("backpack"))
-				backpackListView.invalidate();
-			else
-				storageListView.invalidate();
-				*/
+
 		}
 	}
 
@@ -161,11 +149,25 @@ public class ItemController extends Activity implements OnClickListener
 							{
 								if(what.contains("backpack"))
 								{
-									int num = alitems.remove(item).intValue();
+									int num;
+									if(alitems.containsKey(item) && alitems.get(item).intValue() > 1)
+										num = alitems.get(item).intValue();
+									else
+										num = alitems.remove(item).intValue();
+
+									
 									if(albackpackItems.containsKey(item))
-										albackpackItems.put(item, num+albackpackItems.remove(item).intValue());
+									{
+										if(alitems.containsKey(item) && alitems.get(item).intValue() > 1)
+										{
+											alitems.put(item, alitems.remove(item).intValue()-1);
+											
+										}
+										albackpackItems.put(item, albackpackItems.get(item).intValue()+1);
+									}
 									else
 										albackpackItems.put(item, num);
+									
 									v.invalidate();
 									setUpListView(backpackListView, albackpackItems,"storage");
 									setUpListView(storageListView,alitems, "backpack");
@@ -173,23 +175,26 @@ public class ItemController extends Activity implements OnClickListener
 								else
 								{
 									int num;
-									if(alitems.get(item).intValue() > 1)
+									if(albackpackItems.containsKey(item) && albackpackItems.get(item).intValue() > 1)
 										num = albackpackItems.get(item).intValue();
 									else
 										num = albackpackItems.remove(item).intValue();
+
 									
 									if(alitems.containsKey(item))
 									{
-										if(alitems.get(item).intValue() > 1)
-											alitems.put(item, num+alitems.remove(item).intValue());
-										else
-											alitems.put(item, num+alitems.remove(item).intValue());
+										if(albackpackItems.containsKey(item) && albackpackItems.get(item).intValue() > 1)
+										{
+											albackpackItems.put(item, albackpackItems.remove(item).intValue()-1);
+											
+										}
+										alitems.put(item, alitems.get(item).intValue()+1);					
 									}
 									else
 										alitems.put(item, num);
-									v.invalidate();
 									setUpListView(backpackListView, albackpackItems,"storage");
 									setUpListView(storageListView,alitems, "backpack");
+									
 								}
 
 							}
