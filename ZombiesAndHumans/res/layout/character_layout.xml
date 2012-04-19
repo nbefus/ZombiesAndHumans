@@ -218,5 +218,14 @@
         android:layout_alignTop="@+id/healthPlus"
         android:layout_toRightOf="@+id/textView1"
         android:text="-" />
+
+    <Button
+        android:id="@+id/done"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/TextView04"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="51dp"
+        android:text="DONE" />
 
 </RelativeLayout>
