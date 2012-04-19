@@ -10,7 +10,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
         <activity
-            android:name=".ItemController"
+            android:name=".StartScreenController"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,7 +23,7 @@
          <activity android:name=".SignUpController"/>
          <activity android:name=".HomeScreenController"/>
          <activity android:name=".CharacterController"/>
-        <!--    <activity android:name=".ItemController"/>-->
+         <activity android:name=".ItemController"/>
         <!--   <activity android:name=".DBAdminController"/>-->
     </application>
 
