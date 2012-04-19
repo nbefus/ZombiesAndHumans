@@ -130,43 +130,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Button
-        android:id="@+id/button1"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="30dp"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/textView8"
-        android:layout_toRightOf="@+id/textView1"
-        android:text="-" />
-
-    <Button
-        android:id="@+id/button2"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="30dp"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/button1"
-        android:layout_toRightOf="@+id/button1"
-        android:text="+" />
-
-    <Button
-        android:id="@+id/Button01"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="30dp"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/textView9"
-        android:layout_alignLeft="@+id/button1"
-        android:text="-" />
-
-    <Button
-        android:id="@+id/Button02"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="30dp"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/TextView01"
-        android:layout_toLeftOf="@+id/button2"
-        android:text="-" />
-
-    <Button
-        android:id="@+id/Button03"
+        android:id="@+id/defenseMinus"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
@@ -175,16 +139,7 @@
         android:text="-" />
 
     <Button
-        android:id="@+id/Button04"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="30dp"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/TextView03"
-        android:layout_alignLeft="@+id/Button03"
-        android:text="-" />
-
-    <Button
-        android:id="@+id/Button05"
+        android:id="@+id/evasionMinus"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
@@ -193,48 +148,75 @@
         android:text="-" />
 
     <Button
-        android:id="@+id/Button06"
+        android:id="@+id/evasionPlus"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/button2"
-        android:layout_alignTop="@+id/Button01"
+        android:layout_alignTop="@+id/evasionMinus"
+        android:layout_toRightOf="@+id/evasionMinus"
         android:text="+" />
 
     <Button
-        android:id="@+id/Button07"
+        android:id="@+id/accuracyMinus"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/Button06"
-        android:layout_alignTop="@+id/Button02"
+        android:layout_alignBottom="@+id/TextView03"
+        android:layout_toRightOf="@+id/textView1"
+        android:text="-" />
+
+    <Button
+        android:id="@+id/accuracyPlus"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/evasionPlus"
+        android:layout_alignTop="@+id/accuracyMinus"
         android:text="+" />
 
     <Button
-        android:id="@+id/Button08"
+        android:id="@+id/defensePlus"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/Button03"
-        android:layout_toRightOf="@+id/Button03"
+        android:layout_alignLeft="@+id/accuracyPlus"
+        android:layout_alignTop="@+id/defenseMinus"
         android:text="+" />
 
     <Button
-        android:id="@+id/Button09"
+        android:id="@+id/strengthMinus"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/Button04"
-        android:layout_toRightOf="@+id/Button04"
+        android:layout_alignBottom="@+id/TextView01"
+        android:layout_toRightOf="@+id/textView1"
+        android:text="-" />
+
+    <Button
+        android:id="@+id/strengthPlus"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/defensePlus"
+        android:layout_alignTop="@+id/strengthMinus"
         android:text="+" />
 
     <Button
-        android:id="@+id/Button10"
+        android:id="@+id/healthPlus"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/Button05"
-        android:layout_toRightOf="@+id/Button05"
+        android:layout_alignBottom="@+id/textView9"
+        android:layout_toRightOf="@+id/strengthMinus"
         android:text="+" />
+
+    <Button
+        android:id="@+id/healthMinus"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/healthPlus"
+        android:layout_toRightOf="@+id/textView1"
+        android:text="-" />
 
 </RelativeLayout>
