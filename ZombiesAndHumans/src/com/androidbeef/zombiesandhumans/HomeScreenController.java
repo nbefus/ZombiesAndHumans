@@ -43,7 +43,7 @@ public class HomeScreenController extends Activity implements OnClickListener
 		}
 		else if(v.getId() == R.id.logout_button)
 		{
-			Intent d = new Intent(HomeScreenController.this, SignUpController.class);
+			Intent d = new Intent(HomeScreenController.this, StartScreenController.class);
 			startActivity(d);
 		}
 	}

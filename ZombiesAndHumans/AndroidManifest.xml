@@ -24,7 +24,7 @@
          <activity android:name=".HomeScreenController"/>
          <activity android:name=".CharacterController"/>
          <activity android:name=".ItemController"/>
-        <!--   <activity android:name=".DBAdminController"/>-->
+         <!--   <activity android:name=".DBAdminController"/>-->
     </application>
 
 </manifest>
