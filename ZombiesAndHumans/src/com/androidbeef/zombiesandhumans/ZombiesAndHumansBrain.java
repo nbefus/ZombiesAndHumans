@@ -101,6 +101,8 @@ public class ZombiesAndHumansBrain
 		{
 			if (dataTypes.length != entities.length)
 			{
+				
+				System.out.println("1");
 				/*
 				Toast.makeText(
 						c,
@@ -111,7 +113,7 @@ public class ZombiesAndHumansBrain
 						Toast.LENGTH_LONG).show();
 						*/
 				results = new Object[1][1];
-				results[0][0]="error";
+				results[0][0]="error 1";
 				return results;
 			}
 	
@@ -131,8 +133,9 @@ public class ZombiesAndHumansBrain
 									+ "there are some data types in dataTypes which are not allowed!",
 							Toast.LENGTH_LONG).show();
 							*/
+					System.out.println("2");
 					results = new Object[1][1];
-					results[0][0]="error";
+					results[0][0]="error 2";
 					return results;
 				}
 	
@@ -143,7 +146,9 @@ public class ZombiesAndHumansBrain
 	
 				String result = getPHPPage("http://androidbeef.com/" + filename
 						+ ".php", query);
-				if (!result.contains("null") && !result.equals("error"))
+				System.out.println("RESULT "+result);
+				
+				if (!result.contains("error"))//!result.contains("null") && !result.contains("error"))
 				{
 					jArray = new JSONArray(result);
 	
@@ -154,6 +159,7 @@ public class ZombiesAndHumansBrain
 	
 					results = new Object[jArray.length()][entities.length];
 	
+					System.out.println("J"+jArray.length() + " e"+entities.length);
 					for (int i = 0; i < jArray.length(); i++)
 					{
 						json_data = jArray.getJSONObject(i);
@@ -177,18 +183,20 @@ public class ZombiesAndHumansBrain
 							Toast.LENGTH_LONG).show();
 							*/
 				}
-				else if(result.equals("error"))
+				else if(result.contains("error"))
 				{
+					System.out.println("3");
 					results = new Object[1][1];
-					results[0][0]="error";
+					results[0][0]="error 3";
 					return results;
 				}
 	
 			}
 			catch (JSONException e1)
 			{
+				System.out.println("4");
 				results = new Object[1][1];
-				results[0][0]="error";
+				results[0][0]="error 4";
 				return results;
 				/*
 				Toast.makeText(
@@ -201,8 +209,9 @@ public class ZombiesAndHumansBrain
 			}
 			catch (ParseException e1)
 			{
+				System.out.println("5");
 				results = new Object[1][1];
-				results[0][0]="error";
+				results[0][0]="error 5";
 				return results;
 				/*
 				Toast.makeText(
@@ -214,12 +223,16 @@ public class ZombiesAndHumansBrain
 								*/
 			}
 	
+			System.out.println("NORMAL "+(results == null));
+			if(results != null)
+				System.out.println("LKSJF" +results[0][0]);
 			return results;
 		}
 		else
 		{
+			System.out.println("6");
 			results = new Object[1][1];
-			results[0][0]="error";
+			results[0][0]="error 6";
 			return results;
 		}
 			
@@ -246,7 +259,8 @@ public class ZombiesAndHumansBrain
 		}
 		catch (Exception e)
 		{
-			result = "error";
+			System.out.println("7");
+			result = "error 7";
 			/*
 			Toast.makeText(
 					c,
@@ -278,7 +292,8 @@ public class ZombiesAndHumansBrain
 		}
 		catch (Exception e)
 		{
-			result = "error";
+			result = "error 8";
+			System.out.println("8");
 			/*
 			Toast.makeText(
 					c,

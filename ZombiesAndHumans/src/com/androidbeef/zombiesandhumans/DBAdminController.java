@@ -138,6 +138,8 @@ public class DBAdminController extends Activity implements OnClickListener
 		{
 			results = brain.performQueryWithResult();
 
+			if(results == null)
+				System.out.println("NULLL");
 			return "";
 		}
 
@@ -150,6 +152,13 @@ public class DBAdminController extends Activity implements OnClickListener
 		@Override
 		protected void onPostExecute(String result)
 		{
+			/*
+			for(int i=0; i<results.length; i++)
+				for(int j=0; j<results[i].length; j++)
+					System.out.println((String)results[i][j]);
+					*/
+			if(results == null)
+				System.out.println("NULLL bad");
 			if (!(results == null))
 			{
 				if (results.length > 0)
@@ -179,7 +188,7 @@ public class DBAdminController extends Activity implements OnClickListener
 			}
 			else
 			{
-				Toast.makeText(DBAdminController.this, "User unknown!",
+				Toast.makeText(DBAdminController.this, "User unknown!! null",
 						Toast.LENGTH_LONG).show();
 			}
 			pd.dismiss();

@@ -43,8 +43,7 @@
         android:layout_above="@+id/Button_DBAdminSearch"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:ems="10"
-        android:text="MultiAutoCompleteTextView" >
+        android:ems="10">
 
         <requestFocus />
     </MultiAutoCompleteTextView>
