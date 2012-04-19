@@ -43,9 +43,8 @@ public class HomeScreenController extends Activity implements OnClickListener
 		}
 		else if(v.getId() == R.id.logout_button)
 		{
-			//I'm not sure how to code this so I'll leave it to you Nate.  Presumably
-			//there is a way to do this...but I'm not sure how to terminate the access
-			//to the PHP.
+			Intent d = new Intent(HomeScreenController.this, SignUpController.class);
+			startActivity(d);
 		}
 	}
 }
