@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
+import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
@@ -24,11 +25,13 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
-public class PreBattleController extends Activity
+public class PreBattleController extends MapActivity
 {
 	private final String		debugClass	= "BATTLE_CONTROLLER";
 
@@ -53,6 +56,7 @@ public class PreBattleController extends Activity
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.prebattle);
+		setUpMap();
 	}
 
 	private void setUpMap()
@@ -71,29 +75,29 @@ public class PreBattleController extends Activity
 
 	}
 
-	private void putMeAndNearestBusStopsOnMap()
+	private void putMeAndEnemiesOnMap()
 	{
 		myGeoPoint = new GeoPoint((int) (myLat * 1E6), (int) (myLon * 1E6));
 
 		List<Overlay> mapOverlays = mapView.getOverlays();
-		Drawable drawable = this.getResources().getDrawable(R.drawable.stop2);
-		Drawable drawable2 = this.getResources().getDrawable(R.drawable.you);
-		enemyOverlay itemizedoverlay = new enemyOverlay(drawable,
+		Drawable enemyDrawable = this.getResources().getDrawable(R.drawable.enemy);
+		Drawable me = this.getResources().getDrawable(R.drawable.you);
+		enemyOverlay itemizedoverlay2 = new enemyOverlay(me,
 				PreBattleController.this);
-		enemyOverlay itemizedoverlay2 = new enemyOverlay(drawable2,
+		enemyOverlay itemizedoverlay = new enemyOverlay(enemyDrawable,
 				PreBattleController.this);
 
 		OverlayItem[] ois = new OverlayItem[enemies.size()];
 		for (int i = 0; i < enemies.size(); i++)
 		{
-			ois[i] = new OverlayItem(stops[i], name[i], stopIDs[i]);
+			ois[i] = new OverlayItem(enemies.get(i), "Enemy", "Not sure what to say here");
 			itemizedoverlay.addOverlay(ois[i]);
 		}
 
 		OverlayItem overlayitem = new OverlayItem(
 				myGeoPoint,
-				"You are (around) here",
-				"Remember: This could be inaccurate depending on which location provider you used");
+				"You are here",
+				"Not sure what to say here either");
 
 		itemizedoverlay2.addOverlay(overlayitem);
 		mapOverlays.add(itemizedoverlay);
@@ -104,6 +108,7 @@ public class PreBattleController extends Activity
 		mapView.invalidate();
 		Toast.makeText(PreBattleController.this, "Done Loading Enemies",
 				Toast.LENGTH_SHORT).show();
+		handler.sendEmptyMessage(0);
 
 	}
 
@@ -113,8 +118,8 @@ public class PreBattleController extends Activity
 		enemies = new ArrayList<GeoPoint>();
 
 		for (int i = 0; i < longitude.length; i++)
-			if (Math.abs(latitude[i] - myLat) <= latPrec
-					&& Math.abs(longitude[i] - myLon) <= lonPrec)
+			//if (Math.abs(latitude[i] - myLat) <= latPrec
+				//	&& Math.abs(longitude[i] - myLon) <= lonPrec)
 				enemies.add(new GeoPoint((int) (latitude[i] * 1E6),
 						(int) (longitude[i] * 1E6)));
 		return "";
@@ -176,6 +181,8 @@ public class PreBattleController extends Activity
 			{
 				OverlayItem item = mOverlays.get(index);
 
+				Toast.makeText(PreBattleController.this, item.getSnippet() + ":"+item.getTitle() +":"+ item.getPoint(),
+						Toast.LENGTH_SHORT).show();
 				/*
 				 * AlertDialog.Builder dialog = new
 				 * AlertDialog.Builder(mContext);
@@ -238,6 +245,15 @@ public class PreBattleController extends Activity
 		}
 
 	}
+	
+	private Handler handler = new Handler() 
+	{
+		@Override
+        public void handleMessage(Message msg) 
+		{
+			
+        }
+	};
 
 	class BusStop extends AsyncTask<String, Integer, String>
 	{
@@ -257,9 +273,16 @@ public class PreBattleController extends Activity
 		@Override
 		protected void onPostExecute(String result)
 		{
-			if (result.length() > 0)
-				putMeAndNearestBusStopsOnMap();
+			//if (result.length() > 0)
+				putMeAndEnemiesOnMap();
 		}
+	}
+
+	@Override
+	protected boolean isRouteDisplayed()
+	{
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
