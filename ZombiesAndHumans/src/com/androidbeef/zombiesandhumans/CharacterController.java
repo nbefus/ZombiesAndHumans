@@ -50,7 +50,7 @@ public class CharacterController extends Activity implements OnClickListener
 		{
 			nameDisplay=(TextView) findViewById(R.id.textView1);
 		}
-		return healthDisplay;
+		return nameDisplay;
 	}
 	public TextView getLevelDisplay()
 	{
