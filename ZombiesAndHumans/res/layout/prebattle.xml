@@ -3,6 +3,15 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
 
+    <com.google.android.maps.MapView
+        android:id="@+id/mapView"
+                 android:layout_width="fill_parent"
+                 android:layout_alignParentTop="true"
+                 android:layout_height="fill_parent"
+                 android:layout_above="@+id/textView1"
+                 android:apiKey="0_rCfFzDbEB3vf8x-8nvAlsZVS5yJXZ0IfMAuDg"
+                 />
+    
     <TextView
         android:id="@+id/textView1"
         android:layout_width="wrap_content"

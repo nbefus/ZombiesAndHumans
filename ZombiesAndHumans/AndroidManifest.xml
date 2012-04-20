@@ -19,7 +19,7 @@
             </intent-filter>
         </activity>
         
-         <activity android:name=".BattleController"/>
+         <activity android:name=".PreBattleController"/>
          <activity android:name=".SignUpController"/>
          <activity android:name=".HomeScreenController"/>
          <activity android:name=".CharacterController"/>

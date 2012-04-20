@@ -38,7 +38,7 @@ public class HomeScreenController extends Activity implements OnClickListener
 		}
 		else if(v.getId() == R.id.battle_button)
 		{
-			Intent a = new Intent(HomeScreenController.this, BattleController.class);
+			Intent a = new Intent(HomeScreenController.this, PreBattleController.class);
 			startActivity(a);
 		}
 		else if(v.getId() == R.id.logout_button)

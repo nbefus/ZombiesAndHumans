@@ -37,11 +37,12 @@ public class CharacterController extends Activity implements OnClickListener
 		((Button) findViewById(R.id.accuracyPlus)).setOnClickListener(this);
 		((Button) findViewById(R.id.evasionMinus)).setOnClickListener(this);
 		((Button) findViewById(R.id.evasionPlus)).setOnClickListener(this);
-		this.getHealthDisplay().setText(health);
-		this.getStrengthDisplay().setText(strength);
-		this.getDefenseDisplay().setText(defense);
-		this.getAccuracyDisplay().setText(accuracy);
-		this.getEvasionDisplay().setText(evasion);
+				
+		this.getHealthDisplay().setText(""+health);
+		this.getStrengthDisplay().setText(""+strength);
+		this.getDefenseDisplay().setText(""+defense);
+		this.getAccuracyDisplay().setText(""+accuracy);
+		this.getEvasionDisplay().setText(""+evasion);
 	}
 	public TextView getNameDisplay()
 	{
@@ -107,12 +108,12 @@ public class CharacterController extends Activity implements OnClickListener
 			{
 				health--;
 			}
-			this.getHealthDisplay().setText(health);
+			this.getHealthDisplay().setText(""+health);
 		}
 		else if(v.getId()==R.id.healthPlus)
 		{
 			health++;
-			this.getHealthDisplay().setText(health);
+			this.getHealthDisplay().setText(""+health);
 		}
 		else if(v.getId()==R.id.strengthMinus)
 		{
@@ -120,12 +121,12 @@ public class CharacterController extends Activity implements OnClickListener
 			{
 				strength--;
 			}
-			this.getStrengthDisplay().setText(strength);
+			this.getStrengthDisplay().setText(""+strength);
 		}
 		else if(v.getId()==R.id.strengthPlus)
 		{
 			strength++;
-			this.getStrengthDisplay().setText(strength);
+			this.getStrengthDisplay().setText(""+strength);
 		}
 		else if(v.getId()==R.id.defenseMinus)
 		{
@@ -133,12 +134,12 @@ public class CharacterController extends Activity implements OnClickListener
 			{
 				defense--;
 			}
-			this.getDefenseDisplay().setText(defense);
+			this.getDefenseDisplay().setText(""+defense);
 		}
 		else if(v.getId()==R.id.defensePlus)
 		{
 			defense++;
-			this.getDefenseDisplay().setText(defense);
+			this.getDefenseDisplay().setText(""+defense);
 		}
 		else if(v.getId()==R.id.accuracyMinus)
 		{
@@ -146,12 +147,12 @@ public class CharacterController extends Activity implements OnClickListener
 			{
 				accuracy--;
 			}
-			this.getAccuracyDisplay().setText(accuracy);
+			this.getAccuracyDisplay().setText(""+accuracy);
 		}
 		else if(v.getId()==R.id.accuracyPlus)
 		{
 			accuracy++;
-			this.getAccuracyDisplay().setText(accuracy);
+			this.getAccuracyDisplay().setText(""+accuracy);
 		}
 		else if(v.getId()==R.id.evasionMinus)
 		{
@@ -159,12 +160,12 @@ public class CharacterController extends Activity implements OnClickListener
 			{
 				evasion--;
 			}
-			this.getEvasionDisplay().setText(evasion);
+			this.getEvasionDisplay().setText(""+evasion);
 		}
 		else if(v.getId()==R.id.evasionPlus)
 		{
 			evasion++;
-			this.getEvasionDisplay().setText(evasion);
+			this.getEvasionDisplay().setText(""+evasion);
 		}
 	}
 
