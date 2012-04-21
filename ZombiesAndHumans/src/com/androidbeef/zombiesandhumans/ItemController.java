@@ -73,8 +73,8 @@ public class ItemController extends Activity implements OnClickListener
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id)
 			{
-				Toast.makeText(ItemController.this, "PRESSED",
-						Toast.LENGTH_LONG).show();
+				//Toast.makeText(ItemController.this, "PRESSED",
+				//		Toast.LENGTH_LONG).show();
 				Object []keys = map.keySet().toArray();
 				itemDialog(v, (String)keys[position], what);
 			}
@@ -123,8 +123,8 @@ public class ItemController extends Activity implements OnClickListener
 		if (map.size() > 0)
 		{
 			Object []keys = map.keySet().toArray();
-			Toast.makeText(this, keys.length + " "+map.size(),
-					Toast.LENGTH_LONG).show();
+			//Toast.makeText(this, keys.length + " "+map.size(),
+			//		Toast.LENGTH_LONG).show();
 			for (int i = 0; i < map.size(); i++)
 			{
 				adapter.add("[" + map.get((String)keys[i]) + "]   " + (String)keys[i]);
@@ -149,24 +149,29 @@ public class ItemController extends Activity implements OnClickListener
 							{
 								if(what.contains("backpack"))
 								{
+									/*
 									int num;
 									if(alitems.containsKey(item) && alitems.get(item).intValue() > 1)
 										num = alitems.get(item).intValue();
 									else
 										num = alitems.remove(item).intValue();
 
+*/
 									
-									if(albackpackItems.containsKey(item))
-									{
+									
 										if(alitems.containsKey(item) && alitems.get(item).intValue() > 1)
 										{
 											alitems.put(item, alitems.remove(item).intValue()-1);
-											
 										}
-										albackpackItems.put(item, albackpackItems.get(item).intValue()+1);
-									}
-									else
-										albackpackItems.put(item, 1);
+										else
+										{
+											alitems.remove(item);
+										}
+										if(albackpackItems.containsKey(item))
+											albackpackItems.put(item, albackpackItems.get(item).intValue()+1);
+										else
+											albackpackItems.put(item, 1);
+										
 									
 									v.invalidate();
 									setUpListView(backpackListView, albackpackItems,"storage");
@@ -174,24 +179,27 @@ public class ItemController extends Activity implements OnClickListener
 								}
 								else
 								{
+									/*
 									int num;
 									if(albackpackItems.containsKey(item) && albackpackItems.get(item).intValue() > 1)
 										num = albackpackItems.get(item).intValue();
 									else
 										num = albackpackItems.remove(item).intValue();
-
+*/
 									
-									if(alitems.containsKey(item))
+									if(albackpackItems.containsKey(item) && albackpackItems.get(item).intValue() > 1)
 									{
-										if(albackpackItems.containsKey(item) && albackpackItems.get(item).intValue() > 1)
-										{
-											albackpackItems.put(item, albackpackItems.remove(item).intValue()-1);
-											
-										}
-										alitems.put(item, alitems.get(item).intValue()+1);					
+										albackpackItems.put(item, albackpackItems.remove(item).intValue()-1);
 									}
 									else
+									{
+										albackpackItems.remove(item);
+									}
+									if(alitems.containsKey(item))
+										alitems.put(item, alitems.get(item).intValue()+1);
+									else
 										alitems.put(item, 1);
+										
 									setUpListView(backpackListView, albackpackItems,"storage");
 									setUpListView(storageListView,alitems, "backpack");
 									
