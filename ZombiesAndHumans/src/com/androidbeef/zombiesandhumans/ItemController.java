@@ -166,7 +166,7 @@ public class ItemController extends Activity implements OnClickListener
 										albackpackItems.put(item, albackpackItems.get(item).intValue()+1);
 									}
 									else
-										albackpackItems.put(item, num);
+										albackpackItems.put(item, 1);
 									
 									v.invalidate();
 									setUpListView(backpackListView, albackpackItems,"storage");
@@ -191,7 +191,7 @@ public class ItemController extends Activity implements OnClickListener
 										alitems.put(item, alitems.get(item).intValue()+1);					
 									}
 									else
-										alitems.put(item, num);
+										alitems.put(item, 1);
 									setUpListView(backpackListView, albackpackItems,"storage");
 									setUpListView(storageListView,alitems, "backpack");
 									

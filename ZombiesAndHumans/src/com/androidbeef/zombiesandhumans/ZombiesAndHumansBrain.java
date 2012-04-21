@@ -17,8 +17,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.android.maps.GeoPoint;
+import com.google.android.maps.ItemizedOverlay;
+import com.google.android.maps.MapView;
+import com.google.android.maps.OverlayItem;
+
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.net.ParseException;
+import android.os.Build;
+import android.view.MotionEvent;
+import android.widget.Toast;
 
 
 // Sorry for all the commented out Toasts. Apparently an Async Task which will calls these methods cannot have anything which
@@ -42,267 +51,83 @@ public class ZombiesAndHumansBrain
 	private final String	debugClass	= "BRAIN";
 
 	private Context			c;
-	private JSONArray		jArray;
-	private String[]		entities, dataTypes;
-	private String			filename, query;
+	private ArrayList<GeoPoint>	enemies;
+	private Query search;
+	private Object[][] searchResults;
+	
+	private double[]			latitude	= { 21.2613, 12, 21.2636, 21.2663,
+			21.2679, 21.2702, 21.2723, 21.2731, 21.2721, 21.2738, 21.2758,
+			21.277, 21.2783, 21.2793		};
+	private double[]			longitude	= { -157.8181, -157.8185,
+			-157.8168, -157.816, -157.816, -157.8164, -157.8172, -157.8199,
+			-157.8211, -157.8226, -157.8237, -157.8248, -157.826 };
+	
+	private double				myLat;
+	private double				myLon;
 
 	public ZombiesAndHumansBrain(Context c)
 	{
 		this.c = c;
 	}
 	
-	//Must call this method before performing a search
-	public void setQueryVariables(String[] entities,
+	public void prepareForQuery(String[] entities,
 			String filename, String[] dataTypes, String query)
 	{
-		if(entities != null)
-		{
-			this.entities = new String[entities.length];
-			System.arraycopy(entities, 0, this.entities, 0, entities.length);
-
-		}
-		if(dataTypes != null)
-		{
-			this.dataTypes = new String[dataTypes.length];
-			System.arraycopy(dataTypes, 0, this.dataTypes, 0, dataTypes.length);
-		}
-		this.filename = filename;
-		this.query = query;
+		search = new Query(entities, filename, dataTypes, query);
 	}
 	
-	public boolean performQueryWithNoResults()
+	public boolean performQuery(boolean withResults)
 	{
-		try
+		if(search != null)
 		{
-			String result = getPHPPage("http://androidbeef.com/" + filename
-				+ ".php", query);
-			if(result.equals("error"))
-			{
-				System.out.println("HERE"+result.contains("not a valid")+" "+result.equals("error"));
+			if(withResults)
+				searchResults = search.performQueryWithResult();
+			else
+				return search.performQueryWithNoResults();
+			
+			if(searchResults[0][0] instanceof String && !((String)searchResults[0][0]).contains("error"))
+				return true;
+			else if(!(searchResults[0][0] instanceof String))
+				return true;
+			else
 				return false;
-			}
-				
-			
-			return true;
-		}
-		catch(Exception e)
-		{
-			System.out.println("THERE");
-			return false;
 		}
 		
-		
+		return false;
 	}
 	
-	public Object[][] performQueryWithResult()
-	{		
-		Object[][] results = null;
-		if(entities != null && dataTypes != null && query != null && filename != null)
-		{
-			if (dataTypes.length != entities.length)
-			{
-				
-				System.out.println("1");
-				/*
-				Toast.makeText(
-						c,
-						"ERROR: "
-								+ debugClass
-								+ " in PerformSearchWithResults() with error message: "
-								+ "dataTypes and entities lengths are different!",
-						Toast.LENGTH_LONG).show();
-						*/
-				results = new Object[1][1];
-				results[0][0]="error 1";
-				return results;
-			}
-	
-			for (int i = 0; i < dataTypes.length; i++)
-				if (!(dataTypes[i].equalsIgnoreCase("int")
-						|| dataTypes[i].equalsIgnoreCase("double")
-						|| dataTypes[i].equalsIgnoreCase("long")
-						|| dataTypes[i].equalsIgnoreCase("boolean") || dataTypes[i]
-							.equalsIgnoreCase("string")))
-				{
-					/*
-					Toast.makeText(
-							c,
-							"ERROR: "
-									+ debugClass
-									+ " in PerformSearchWithResults() with error message: "
-									+ "there are some data types in dataTypes which are not allowed!",
-							Toast.LENGTH_LONG).show();
-							*/
-					System.out.println("2");
-					results = new Object[1][1];
-					results[0][0]="error 2";
-					return results;
-				}
-	
-			
-	
-			try
-			{
-	
-				String result = getPHPPage("http://androidbeef.com/" + filename
-						+ ".php", query);
-				System.out.println("RESULT "+result);
-				
-				if (!result.contains("error"))//!result.contains("null") && !result.contains("error"))
-				{
-					jArray = new JSONArray(result);
-	
-					JSONObject json_data = null;
-	
-					//Toast.makeText(c, "There are " + jArray.length() + "results",
-					//		Toast.LENGTH_LONG).show();
-	
-					results = new Object[jArray.length()][entities.length];
-	
-					System.out.println("J"+jArray.length() + " e"+entities.length);
-					for (int i = 0; i < jArray.length(); i++)
-					{
-						json_data = jArray.getJSONObject(i);
-						for (int j = 0; j < entities.length; j++)
-						{
-							if (dataTypes[j].equalsIgnoreCase("int"))
-								results[i][j] = json_data.getInt(entities[j]);
-							else if (dataTypes[j].equalsIgnoreCase("string"))
-								results[i][j] = json_data.getString(entities[j]);
-							else if (dataTypes[j].equalsIgnoreCase("boolean"))
-								results[i][j] = json_data.getBoolean(entities[j]);
-							else if (dataTypes[j].equalsIgnoreCase("double"))
-								results[i][j] = json_data.getDouble(entities[j]);
-							else if (dataTypes[j].equalsIgnoreCase("long"))
-								results[i][j] = json_data.getLong(entities[j]);
-						}
-					}
-	
-					/*
-					Toast.makeText(c, "Done with loading results from query",
-							Toast.LENGTH_LONG).show();
-							*/
-				}
-				else if(result.contains("error"))
-				{
-					System.out.println("3");
-					results = new Object[1][1];
-					results[0][0]="error 3";
-					return results;
-				}
-	
-			}
-			catch (JSONException e1)
-			{
-				System.out.println("4");
-				results = new Object[1][1];
-				results[0][0]="error 4";
-				return results;
-				/*
-				Toast.makeText(
-						c,
-						"JSON ERROR: "
-								+ debugClass
-								+ " in PerformSearchWithResults() with error message: "
-								+ e1.getMessage(), Toast.LENGTH_LONG).show();
-								*/
-			}
-			catch (ParseException e1)
-			{
-				System.out.println("5");
-				results = new Object[1][1];
-				results[0][0]="error 5";
-				return results;
-				/*
-				Toast.makeText(
-						c,
-						"PARSE ERROR: "
-								+ debugClass
-								+ " in PerformSearchWithResults() with error message: "
-								+ e1.getMessage(), Toast.LENGTH_LONG).show();
-								*/
-			}
-	
-			System.out.println("NORMAL "+(results == null));
-			if(results != null)
-				System.out.println("LKSJF" +results[0][0]);
-			return results;
-		}
-		else
-		{
-			System.out.println("6");
-			results = new Object[1][1];
-			results[0][0]="error 6";
-			return results;
-		}
-			
-	}
-
-	private String getPHPPage(String page, String query)
+	public void findEnemies()
 	{
-		InputStream is = null;
-		StringBuilder sb = null;
-		String result = null;
+		myLat = 21.2500;
+		myLon = -157.8100;
+		//double latPrec = .005, lonPrec = .005;
+		enemies = new ArrayList<GeoPoint>();
 
-		try
-		{
-			System.out.println("Making client");
-			HttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost(page);
-			List nameValuePairs = new ArrayList(1);
-			nameValuePairs.add(new BasicNameValuePair("query", query));
-			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-			HttpResponse response = httpclient.execute(httppost);
-			HttpEntity entity = response.getEntity();
-			is = entity.getContent();
-
-		}
-		catch (Exception e)
-		{
-			System.out.println("7");
-			result = "error 7";
-			/*
-			Toast.makeText(
-					c,
-					"ERROR 1: " + debugClass
-							+ " in getPHPPage() with error message: "
-							+ e.getMessage(), Toast.LENGTH_LONG).show();
-							*/
-		}
-
-		try
-		{
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					is, "iso-8859-1"), 8);
-			sb = new StringBuilder();
-			sb.append(reader.readLine() + "\n");
-			String line = "0";
-
-			System.out.println("Making the string");
-			while ((line = reader.readLine()) != null)
-			{
-				sb.append(line + "\n");
-			}
-
-			is.close();
-			result = sb.toString();
-			System.out.println("String is : " + result);
-			//Toast.makeText(c, ":" + result + ":", Toast.LENGTH_LONG).show();
-
-		}
-		catch (Exception e)
-		{
-			result = "error 8";
-			System.out.println("8");
-			/*
-			Toast.makeText(
-					c,
-					"ERROR 2: " + debugClass
-							+ " in getPHPPage() with error message: "
-							+ e.getMessage(), Toast.LENGTH_LONG).show();
-							*/
-		}
-
-		return result;
+		for (int i = 0; i < longitude.length; i++)
+			//if (Math.abs(latitude[i] - myLat) <= latPrec
+				//	&& Math.abs(longitude[i] - myLon) <= lonPrec)
+				enemies.add(new GeoPoint((int) (latitude[i] * 1E6),
+						(int) (longitude[i] * 1E6)));
 	}
+	
+	public ArrayList<GeoPoint> getEnemies()
+	{
+		return enemies;
+	}
+	
+	public double getMyLat()
+	{
+		return myLat;
+	}
+	
+	public double getMyLon()
+	{
+		return myLon;
+	}
+	
+	public Object[][] getSearchResults()
+	{
+		return searchResults;
+	}
+	
 }

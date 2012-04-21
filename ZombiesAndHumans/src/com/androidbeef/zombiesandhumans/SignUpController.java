@@ -40,42 +40,40 @@ public class SignUpController extends Activity implements OnClickListener
 		}
 		else if(v.getId() == R.id.Button_SignUpNow)
 		{
-			doInsert();
-			
+			doCheck("0");
+			//doInsert();
 		}
 	}
 	
 	private void doInsert()
 	{
 		String filename = "testing";
-		String query2 = "INSERT INTO `Players` (`COMPUTER_PLAYER`, `USERNAME`, `PASSWORD`) VALUES ('y', 'comp', 'player')";
-		String query = "INSERT INTO `Players`(`COMPUTER_PLAYER`, `USERNAME`, `PASSWORD`) VALUES ('n', 'test', 'testpassword')";
+		//String query2 = "INSERT INTO `Players` (`COMPUTER_PLAYER`, `USERNAME`, `PASSWORD`) VALUES ('y', 'comp', 'player')";
+		//String query = "INSERT INTO `Players`(`COMPUTER_PLAYER`, `USERNAME`, `PASSWORD`) VALUES ('n', 'test', 'testpassword')";
 		
-		String query3 = "DELETE FROM `Players` WHERE USERNAME = 'user'";
+		//String query3 = "DELETE FROM `Players` WHERE USERNAME = 'user'";
 		
-		String query4 = "UPDATE `Players` SET `COMPUTER_PLAYER`='y' WHERE `USERNAME`='Nathaniel'";
+		//String query4 = "UPDATE `Players` SET `COMPUTER_PLAYER`='y' WHERE `USERNAME`='Nathaniel'";
 		
 		String query6 = "INSERT INTO `Players`(`COMPUTER_PLAYER`, `USERNAME`, `PASSWORD`) VALUES ('n', '"+username.getText().toString().trim()+"', '"+password.getText().toString().trim()+"')";
 				
-		brain.setQueryVariables(null, filename, null, query6);
+		brain.prepareForQuery(null, filename, null, query6);
 		pd = ProgressDialog.show(this, "Processing...", "Inserting into database", true, true);
-		new performQuery().execute();
+		new performQuery().execute("1");
 	}
 	
-	private void doCheck()
+	private void doCheck(String num)
 	{
-		checkingResult = true;
 		String[] entities = {"USERNAME"};
 		String filename = "testing";
 		String[] dataTypes = {"string"};
 		String query = "select * from Players where USERNAME = '"+username.getText().toString().trim()+"'";
 				
-		brain.setQueryVariables(entities, filename, dataTypes, query);
+		brain.prepareForQuery(entities, filename, dataTypes, query);
 		pd = ProgressDialog.show(this, "Processing...", "Checking with database", true, true);
-		new performQuery().execute();
+		new performQuery().execute(num);
 	}
 	
-	private boolean checkingResult = false;
 	/*
 	 * A class which will do the actual searching of the database in the background. This
 	 * means that there will be no lag on the UI.
@@ -84,17 +82,16 @@ public class SignUpController extends Activity implements OnClickListener
 	 */
 	class performQuery extends AsyncTask<String, Integer, String>
 	{
-		boolean updated = false;
-		private Object[][] results;
+		boolean updated;
 		@Override
 		protected String doInBackground(String... parameters)
 		{
-			if(!checkingResult)
-				updated = brain.performQueryWithNoResults();
+			if(parameters[0].equals("0") || parameters[0].equals("2"))
+				updated = brain.performQuery(true);
 			else
-				results = brain.performQueryWithResult();
+				updated = brain.performQuery(false);
 			
-			return "";
+			return parameters[0];
 		}
 
 		@Override
@@ -106,7 +103,7 @@ public class SignUpController extends Activity implements OnClickListener
 		@Override
 		protected void onPostExecute(String result)
 		{
-			if(!checkingResult)
+			if(result.equals("1"))
 			{
 				if(updated)
 					Toast.makeText(SignUpController.this, "Updating worked",
@@ -115,13 +112,41 @@ public class SignUpController extends Activity implements OnClickListener
 					Toast.makeText(SignUpController.this, "Updating failed",
 							Toast.LENGTH_LONG).show();
 				pd.dismiss();
-				doCheck();
+				doCheck("2");
 			}
-			else
+			else if(result.equals("0"))
 			{
-				if(!(results == null) && !results[0][0].equals("error"))
+				if(updated)
 				{
-					if(results.length > 0)
+					if(brain.getSearchResults().length > 0 && brain.getSearchResults()[0][0] instanceof String && !((String)brain.getSearchResults()[0][0]).equals("NO RESULTS"))
+					{
+						Toast.makeText(SignUpController.this, "User is already in database",
+								Toast.LENGTH_LONG).show();
+
+						//pd.dismiss();
+					}
+					else
+					{
+						Toast.makeText(SignUpController.this, "Username not in database.",
+								Toast.LENGTH_LONG).show();
+						
+						pd.dismiss();
+						doInsert();
+						//Intent i = new Intent(SignUpController.this, HomeScreenController.class);
+						//startActivity(i);
+					}
+				}
+				else
+				{
+					Toast.makeText(SignUpController.this, "Error when trying to get data",
+							Toast.LENGTH_LONG).show();
+				}
+				pd.dismiss();
+				
+				/*
+				if(!(brain.getSearchResults() == null) && !brain.getSearchResults()[0][0].equals("error"))
+				{
+					if(brain.getSearchResults().length > 0)
 					{
 						Toast.makeText(SignUpController.this, "User is now successfully in database",
 								Toast.LENGTH_LONG).show();
@@ -135,7 +160,7 @@ public class SignUpController extends Activity implements OnClickListener
 						//startActivity(i);
 					}
 				}
-				else if(results == null)
+				else if(brain.getSearchResults() == null)
 				{
 					Toast.makeText(SignUpController.this, "Username not in database.",
 							Toast.LENGTH_LONG).show();
@@ -149,9 +174,33 @@ public class SignUpController extends Activity implements OnClickListener
 							Toast.LENGTH_LONG).show();
 				}
 				pd.dismiss();
+				*/
 			}
-
-			
+			else if(result.equals("2"))
+			{
+				if(updated)
+				{
+					if(brain.getSearchResults().length > 0)
+					{
+						Toast.makeText(SignUpController.this, "User is now successfully in database",
+								Toast.LENGTH_LONG).show();
+					}
+					else
+					{
+						Toast.makeText(SignUpController.this, "Username not in database. Error happened",
+								Toast.LENGTH_LONG).show();
+						
+						//Intent i = new Intent(SignUpController.this, HomeScreenController.class);
+						//startActivity(i);
+					}
+				}
+				else
+				{
+					Toast.makeText(SignUpController.this, "Error when trying to get data from database",
+							Toast.LENGTH_LONG).show();
+				}
+				pd.dismiss();
+			}				
 			
 		}
 	}

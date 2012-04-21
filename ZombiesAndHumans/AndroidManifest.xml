@@ -24,6 +24,7 @@
          <activity android:name=".HomeScreenController"/>
          <activity android:name=".CharacterController"/>
          <activity android:name=".ItemController"/>
+         <activity android:name=".BattleController"/>
          <!--   <activity android:name=".DBAdminController"/>-->
     </application>
 

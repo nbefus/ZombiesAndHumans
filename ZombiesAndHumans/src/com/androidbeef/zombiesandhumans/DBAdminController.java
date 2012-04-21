@@ -31,7 +31,7 @@ public class DBAdminController extends Activity implements OnClickListener
 	private TableLayout				tl;
 	private EditText				query;
 	private static final String[]	KEYWORDS	= new String[] { "select",
-			"from", "datatypes", "string", "int", "players", "characters",
+			"from", "datatypes", "string", "int", "player", "characters",
 			"abilities", "characterabilities", "item", "backpack",
 			"backpackitems", "abilityid", "aname", "effect",
 			"alevelrestriction", "alevel", "multiplierperlevel", "backpackid",
@@ -86,7 +86,7 @@ public class DBAdminController extends Activity implements OnClickListener
 			String query = (search.substring(0, search.indexOf("datatypes"))
 					.trim());
 			System.out.println(":" + query + ":");
-			brain.setQueryVariables(entities, filename, dataTypes, query);
+			brain.prepareForQuery(entities, filename, dataTypes, query);
 			pd = ProgressDialog.show(this, "Processing...",
 					"Getting data from database", true, true);
 			new performQuery().execute();
@@ -131,15 +131,12 @@ public class DBAdminController extends Activity implements OnClickListener
 
 	class performQuery extends AsyncTask<String, Integer, String>
 	{
-		private Object[][]	results;
-
+		private boolean freeOfErrors;
 		@Override
 		protected String doInBackground(String... parameters)
 		{
-			results = brain.performQueryWithResult();
+			freeOfErrors = brain.performQuery(true);
 
-			if(results == null)
-				System.out.println("NULLL");
 			return "";
 		}
 
@@ -152,28 +149,49 @@ public class DBAdminController extends Activity implements OnClickListener
 		@Override
 		protected void onPostExecute(String result)
 		{
-			/*
-			for(int i=0; i<results.length; i++)
-				for(int j=0; j<results[i].length; j++)
-					System.out.println((String)results[i][j]);
-					*/
-			if(results == null)
-				System.out.println("NULLL bad");
-			if (!(results == null))
+			if (freeOfErrors)
 			{
-				if (results.length > 0)
+				String[] theStuff;
+				Toast.makeText(DBAdminController.this, "User known",
+						Toast.LENGTH_LONG).show();
+
+				for (int i = 0; i < brain.getSearchResults().length; i++)
+				{
+					theStuff = new String[brain.getSearchResults().length];
+
+					for (int j = 0; j < brain.getSearchResults()[i].length; j++)
+					{
+						theStuff[j] = (String) brain.getSearchResults()[i][j];
+						System.out.println(":" + theStuff[j] + ":");
+					}
+
+					addRowToTable(theStuff);
+				}
+			}
+			else
+			{
+				Toast.makeText(DBAdminController.this, "User unknown!",
+						Toast.LENGTH_LONG).show();
+			}
+			
+			/*
+			if(brain.getSearchResults() == null)
+				System.out.println("NULLL bad");
+			if (!(brain.getSearchResults() == null))
+			{
+				if (brain.getSearchResults().length > 0)
 				{
 					String[] theStuff;
 					Toast.makeText(DBAdminController.this, "User known",
 							Toast.LENGTH_LONG).show();
 
-					for (int i = 0; i < results.length; i++)
+					for (int i = 0; i < brain.getSearchResults().length; i++)
 					{
-						theStuff = new String[results.length];
+						theStuff = new String[brain.getSearchResults().length];
 
-						for (int j = 0; j < results[i].length; j++)
+						for (int j = 0; j < brain.getSearchResults()[i].length; j++)
 						{
-							theStuff[j] = (String) results[i][j];
+							theStuff[j] = (String) brain.getSearchResults()[i][j];
 							System.out.println(":" + theStuff[j] + ":");
 						}
 
@@ -191,6 +209,7 @@ public class DBAdminController extends Activity implements OnClickListener
 				Toast.makeText(DBAdminController.this, "User unknown!! null",
 						Toast.LENGTH_LONG).show();
 			}
+			*/
 			pd.dismiss();
 
 		}

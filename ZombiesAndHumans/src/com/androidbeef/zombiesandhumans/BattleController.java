@@ -7,7 +7,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class battleController extends Activity implements OnClickListener
+public class BattleController extends Activity implements OnClickListener
 {
 	private TextView eHealthDisplay;
 	private TextView eNameDisplay;
