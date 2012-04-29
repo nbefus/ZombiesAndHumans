@@ -87,4 +87,13 @@
         android:text="Infected and Humans"
         android:textSize="30dp" />
 
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:text="For development purposes a blank username and password is an actual user in the database"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
 </RelativeLayout>

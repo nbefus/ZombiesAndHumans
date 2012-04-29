@@ -1,265 +1,187 @@
 package com.androidbeef.zombiesandhumans;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
+
 import com.google.android.maps.GeoPoint;
-import com.google.android.maps.ItemizedOverlay;
+import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.Toast;
-
-public class PreBattleController extends Activity
+public class PreBattleController extends MapActivity
 {
-	private final String		debugClass	= "BATTLE_CONTROLLER";
-
-	private double[]			latitude	= { 21.2613, 12, 21.2636, 21.2663,
-			21.2679, 21.2702, 21.2723, 21.2731, 21.2721, 21.2738, 21.2758,
-			21.277, 21.2783, 21.2793		};
-	private double[]			longitude	= { -157.8181, -157.8185,
-			-157.8168, -157.816, -157.816, -157.8164, -157.8172, -157.8199,
-			-157.8211, -157.8226, -157.8237, -157.8248, -157.826 };
-
-	private MapView				mapView;
-	private MapController		mc;
-	private double				myLat;
-	private double				myLon;
-	private GeoPoint			myGeoPoint;
-	private ArrayList<GeoPoint>	enemies;
-
-	private int					numOfEnemies;
+	private ZombiesAndHumansBrain	brain		= new ZombiesAndHumansBrain(this);
+	private MapView					mapView;
+	private MapController			mc;
+	private GeoPoint				myGeoPoint;
+	private String[]				enemyNames = {"diablo20","nevaLrndNEthing","gamer","Coolio","maya","doomsday2012"};
+	private int[]					level = {1,2,3,4,5,6};
+	private ListView				lv;
+	private HashMap<String, Number>	nameandlevel;
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.prebattle);
-	}
-
-	private void setUpMap()
-	{
 		mapView = (MapView) findViewById(R.id.mapView);
-
+		lv = (ListView) findViewById(R.id.listView2);
 		mapView.setBuiltInZoomControls(true);
 		mc = mapView.getController();
-		myLat = 21.2500;
-		myLon = -157.8100;
-		// GeoPoint hawaii = new GeoPoint((int)(21.469684 * 1E6), (int)
-		// (-157.975159 * 1E6));
-
-		// processNearBusStops();
-		new BusStop().execute("here");
+		nameandlevel = new HashMap<String,Number>();
+		for (int i = 0; i < level.length; i++)
+		{
+			nameandlevel.put(enemyNames[i], level[i]);
+		}
+		new FindEnemiesInBackground().execute("here");
+		setUpListView(lv, nameandlevel);
 
 	}
 
-	private void putMeAndNearestBusStopsOnMap()
+	private void setUpListView(final ListView v, final HashMap<String,Number> map)
 	{
-		myGeoPoint = new GeoPoint((int) (myLat * 1E6), (int) (myLon * 1E6));
+		ArrayAdapter<String> adapter;
+
+		adapter = new ArrayAdapter<String>(this, R.layout.itemrow,
+				new ArrayList<String>());
+		
+		v.setAdapter(adapter);
+		//registerForContextMenu(backpackListView);
+		//backpackListView.setOnCreateContextMenuListener(this);
+
+		v.setOnItemClickListener(new OnItemClickListener()
+		{
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id)
+			{
+				Object []keys = map.keySet().toArray();
+				
+				battleDialog(v, (String)keys[position], map.get((String)keys[position]).intValue());
+			}
+		});
+
+		if (map.size() > 0)
+		{
+			Object []keys = map.keySet().toArray();
+			Toast.makeText(this, keys.length + " "+map.size(),
+					Toast.LENGTH_LONG).show();
+			for (int i = 0; i < map.size(); i++)
+			{
+				adapter.add("[" + map.get((String)keys[i]) + "]   " + (String)keys[i]);
+			}
+
+			v.invalidate();
+		}
+	}
+	
+	private void battleDialog(final ListView v, final String name, final int level)
+	{
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage("Are you sure you want to battle "+name + " at level "+level)
+				.setTitle("Battle Confirmation")
+				.setCancelable(true)
+				.setPositiveButton("Battle " + name,
+						new DialogInterface.OnClickListener()
+						{
+							public void onClick(DialogInterface dialog, int id)
+							{
+								Intent a = new Intent(PreBattleController.this, BattleController.class);
+								startActivity(a);
+							}
+						})
+				.setNegativeButton("No",
+						new DialogInterface.OnClickListener()
+						{
+							public void onClick(DialogInterface dialog, int id)
+							{
+								dialog.cancel();
+							}
+						});
+
+		AlertDialog alert = builder.create();
+		alert.show();
+	}
+	
+	private void putMeAndEnemiesOnMap()
+	{
+		myGeoPoint = new GeoPoint((int) (brain.getMyLat() * 1E6),
+				(int) (brain.getMyLon() * 1E6));
 
 		List<Overlay> mapOverlays = mapView.getOverlays();
-		Drawable drawable = this.getResources().getDrawable(R.drawable.stop2);
-		Drawable drawable2 = this.getResources().getDrawable(R.drawable.you);
-		enemyOverlay itemizedoverlay = new enemyOverlay(drawable,
+		Drawable enemyDrawable = this.getResources().getDrawable(
+				R.drawable.enemy);
+		Drawable me = this.getResources().getDrawable(R.drawable.you);
+		CustomMapOverlay itemizedoverlay2 = new CustomMapOverlay(me,
 				PreBattleController.this);
-		enemyOverlay itemizedoverlay2 = new enemyOverlay(drawable2,
+		CustomMapOverlay itemizedoverlay = new CustomMapOverlay(enemyDrawable,
 				PreBattleController.this);
 
-		OverlayItem[] ois = new OverlayItem[enemies.size()];
-		for (int i = 0; i < enemies.size(); i++)
+		OverlayItem[] ois = new OverlayItem[brain.getEnemies().size()];
+		for (int i = 0; i < brain.getEnemies().size(); i++)
 		{
-			ois[i] = new OverlayItem(stops[i], name[i], stopIDs[i]);
+			ois[i] = new OverlayItem(brain.getEnemies().get(i), "Enemy",
+					"Not sure what to say here");
 			itemizedoverlay.addOverlay(ois[i]);
 		}
 
-		OverlayItem overlayitem = new OverlayItem(
-				myGeoPoint,
-				"You are (around) here",
-				"Remember: This could be inaccurate depending on which location provider you used");
+		OverlayItem overlayitem = new OverlayItem(myGeoPoint, "You are here",
+				"Not sure what to say here either");
 
 		itemizedoverlay2.addOverlay(overlayitem);
 		mapOverlays.add(itemizedoverlay);
 		mapOverlays.add(itemizedoverlay2);
 
-		mc.animateTo(myGeoPoint);
-		mc.setZoom(15);
-		mapView.invalidate();
 		Toast.makeText(PreBattleController.this, "Done Loading Enemies",
 				Toast.LENGTH_SHORT).show();
 
 	}
 
-	private String findEnemies()
-	{
-		double latPrec = .005, lonPrec = .005;
-		enemies = new ArrayList<GeoPoint>();
-
-		for (int i = 0; i < longitude.length; i++)
-			if (Math.abs(latitude[i] - myLat) <= latPrec
-					&& Math.abs(longitude[i] - myLon) <= lonPrec)
-				enemies.add(new GeoPoint((int) (latitude[i] * 1E6),
-						(int) (longitude[i] * 1E6)));
-		return "";
-	}
-
-	private class enemyOverlay extends ItemizedOverlay
-	{
-
-		private boolean					isPinch		= false;
-		private Context					mContext;
-
-		private ArrayList<OverlayItem>	mOverlays	= new ArrayList<OverlayItem>();
-
-		public enemyOverlay(Drawable defaultMarker, Context context)
-		{
-			super(boundCenterBottom(defaultMarker));
-			mContext = context;
-		}
-
-		@Override
-		protected OverlayItem createItem(int i)
-		{
-			return mOverlays.get(i);
-		}
-
-		public void addOverlay(OverlayItem overlay)
-		{
-			mOverlays.add(overlay);
-			populate();
-		}
-
-		@Override
-		public boolean onTouchEvent(MotionEvent e, MapView mapView)
-		{
-
-			if (!(Build.VERSION.SDK_INT == Build.VERSION_CODES.DONUT))
-			{
-				if (e.getAction() == MotionEvent.ACTION_DOWN)
-				{
-					isPinch = false; // Touch DOWN don't know if it's a pinch
-										// yet
-				}
-				if (e.getAction() == MotionEvent.ACTION_MOVE)
-				{
-					isPinch = true; // Two fingers a pinch
-				}
-			}
-			else
-			{
-				// Is donut device
-			}
-			return super.onTouchEvent(e, mapView);
-		}
-
-		@Override
-		protected boolean onTap(int index)
-		{
-			if (!isPinch)
-			{
-				OverlayItem item = mOverlays.get(index);
-
-				/*
-				 * AlertDialog.Builder dialog = new
-				 * AlertDialog.Builder(mContext);
-				 * 
-				 * dialog.setTitle(item.getTitle());
-				 * dialog.setMessage(item.getSnippet());
-				 * 
-				 * if (!item.getTitle().equals("You are (around) here")) {
-				 * i.putExtra(MapsActivity.STOP_ID, item.getSnippet());
-				 * System.out.println(MapsActivity.STOP_ID + " " +
-				 * item.getSnippet());
-				 * 
-				 * if (!event.equals("bus")) {
-				 * dialog.setPositiveButton(R.string.loadStop, new
-				 * OnClickListener() {
-				 * 
-				 * @Override public void onClick(DialogInterface dialog, int
-				 * which) { startActivity(i);
-				 * 
-				 * } }); } else { dialog.setPositiveButton(R.string.pos_button,
-				 * new OnClickListener() {
-				 * 
-				 * @Override public void onClick(DialogInterface dialog, int
-				 * which) { dialog.cancel(); } }); }
-				 * 
-				 * if (!event.equals("bus")) {
-				 * dialog.setNegativeButton(R.string.neg_button, new
-				 * OnClickListener() {
-				 * 
-				 * @Override public void onClick(DialogInterface dialog, int
-				 * which) { dialog.cancel();
-				 * 
-				 * } }); } } else {
-				 * dialog.setPositiveButton(R.string.pos_button, new
-				 * OnClickListener() {
-				 * 
-				 * @Override public void onClick(DialogInterface dialog, int
-				 * which) { // TODO Auto-generated method stub dialog.cancel();
-				 * } }); }
-				 * 
-				 * dialog.show(); return true;
-				 */
-			}
-
-			return false;
-
-		}
-
-		@Override
-		public int size()
-		{
-			return mOverlays.size();
-		}
-
-		public void clear()
-		{
-			mOverlays.clear();
-			setLastFocusedIndex(-1);
-			populate();
-		}
-
-	}
-
-	class BusStop extends AsyncTask<String, Integer, String>
+	class FindEnemiesInBackground extends AsyncTask<String, Integer, String>
 	{
 		@Override
 		protected String doInBackground(String... stopInfo)
 		{
-			return findEnemies();
+			brain.findEnemies();
+			return "";
 		}
 
 		@Override
 		protected void onProgressUpdate(Integer... values)
 		{
-			// setProgress(values[0]);
 			super.onProgressUpdate(values);
 		}
 
 		@Override
 		protected void onPostExecute(String result)
 		{
-			if (result.length() > 0)
-				putMeAndNearestBusStopsOnMap();
+			putMeAndEnemiesOnMap();
+			mc.animateTo(myGeoPoint);
+			mc.setZoom(15);
+			mapView.invalidate();
 		}
+	}
+
+	@Override
+	protected boolean isRouteDisplayed()
+	{
+		return false;
 	}
 
 }

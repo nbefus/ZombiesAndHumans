@@ -43,7 +43,7 @@ public class StartScreenController extends Activity implements OnClickListener {
 			String[] dataTypes = {"string","string"};
 			String query = "select * from Players where USERNAME = '"+username.getText().toString().trim()+"' AND PASSWORD = '"+password.getText().toString().trim()+"'";
 					
-			brain.setQueryVariables(entities, filename, dataTypes, query);
+			brain.prepareForQuery(entities, filename, dataTypes, query);
 			pd = ProgressDialog.show(this, "Processing...", "Trying to log in", true, true);
 			new performQuery().execute();
 		}	
@@ -62,12 +62,12 @@ public class StartScreenController extends Activity implements OnClickListener {
 	 */
 	class performQuery extends AsyncTask<String, Integer, String>
 	{
-		private Object[][] results;
+		private boolean errorFree;
 		
 		@Override
 		protected String doInBackground(String... parameters)
 		{
-			results = brain.performQueryWithResult();
+			errorFree = brain.performQuery(true);
 			
 			return "";
 		}
@@ -81,6 +81,37 @@ public class StartScreenController extends Activity implements OnClickListener {
 		@Override
 		protected void onPostExecute(String result)
 		{
+			if(errorFree)
+			{
+				if(brain.getSearchResults().length > 0&& brain.getSearchResults()[0][0] instanceof String && !((String)brain.getSearchResults()[0][0]).equals("NO RESULTS"))
+				{
+					Toast.makeText(StartScreenController.this, "User known" + brain.getSearchResults()[0][0],
+							Toast.LENGTH_LONG).show();
+					
+					if(((String)brain.getSearchResults()[0][0]).equals("DBAdmin") && ((String)brain.getSearchResults()[0][1]).equals("DBAdminPassword"))
+					{
+						Intent i = new Intent(StartScreenController.this, DBAdminController.class);
+						startActivity(i);
+					}
+					else
+					{
+						Intent i = new Intent(StartScreenController.this, HomeScreenController.class);
+						startActivity(i);
+					}
+				}
+				else
+				{
+					Toast.makeText(StartScreenController.this, "User unknown!",
+							Toast.LENGTH_LONG).show();
+				}
+			}
+			else
+			{
+				Toast.makeText(StartScreenController.this, "User unknown!",
+						Toast.LENGTH_LONG).show();
+			}
+			
+			/*
 			if(!(results == null))
 			{
 				if(results.length > 0)
@@ -111,6 +142,7 @@ public class StartScreenController extends Activity implements OnClickListener {
 				Toast.makeText(StartScreenController.this, "User unknown!",
 						Toast.LENGTH_LONG).show();
 			}
+			*/
 			
 			pd.dismiss();
 			
