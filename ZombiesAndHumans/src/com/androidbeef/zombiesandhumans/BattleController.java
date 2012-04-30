@@ -1,11 +1,15 @@
 package com.androidbeef.zombiesandhumans;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class BattleController extends Activity implements OnClickListener
 {
@@ -20,6 +24,7 @@ public class BattleController extends Activity implements OnClickListener
 	private Button attack;
 	private Button retreat;
 	private Button items;
+	private ListView itemsView;
 	
 	private int userLevel=1;
 	private int enemyLevel=1;
@@ -34,6 +39,8 @@ public class BattleController extends Activity implements OnClickListener
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.battle);
+		
+		//setListAdapter(new ArrayAdapter<String>(this,R.layout.battle,))
 		
 		((Button) findViewById(R.id.attackButton)).setOnClickListener(this);
 		((Button) findViewById(R.id.retreatButton)).setOnClickListener(this);
@@ -56,11 +63,19 @@ public class BattleController extends Activity implements OnClickListener
 		}
 		else if(v.getId()==R.id.retreatButton)
 		{
-			//flee
+			//Intent a = new Intent(PreBattleController.this, CharacterController.class);
+			//startActivity(a);
+			//create a toast that the user will take automatic damage for leaving the battle
+			Context context=getApplicationContext();
+			CharSequence fleeText="You are now leaving the battle and will take "+enemyBP;
+			int duration=Toast.LENGTH_SHORT;
+			Toast fleeToast=Toast.makeText(context, fleeText, duration);
 		}
 		else if(v.getId()==R.id.itemsButton)
 		{
-			
+			//I'm not real sure how to implement this but we have a few options that we could explore here
+			//we could either implement a list like we had done before for real-time use of items and maybe
+			//the items button can be used to activate the items from a stack
 		}
 	}
 	public Button getAttackButton()

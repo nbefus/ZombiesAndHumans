@@ -159,5 +159,15 @@
         android:layout_below="@+id/currentItemLabel"
         android:layout_marginTop="115dp"
         android:text="TextView" />
+
+    <ListView
+        android:id="@+id/listView1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/linearLayout1"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/currentItemLabel" >
+
+    </ListView>
 
 </RelativeLayout>
