@@ -1,15 +1,25 @@
 package com.androidbeef.zombiesandhumans;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import com.androidbeef.zombiesandhumans.PreBattleController.FindEnemiesInBackground;
+
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
 
 public class BattleController extends Activity implements OnClickListener
 {
@@ -23,7 +33,7 @@ public class BattleController extends Activity implements OnClickListener
 	private TextView uCurrentIDisplay;
 	private Button attack;
 	private Button retreat;
-	private Button items;
+	private Button reload;
 	private ListView itemsView;
 	
 	private int userLevel=1;
@@ -34,23 +44,91 @@ public class BattleController extends Activity implements OnClickListener
 	private int enemyBP=5;
 	private String userItem="bat";
 	private String enemyItem="none";
+	private String[]				itemNames = {"medkit","waterbottle","canned food"};
+	private int[]					numOfItem = {1,3,4};
+	private HashMap<String, Number>	itemNameAndNum;
 	
 	protected void onCreate(Bundle savedInstanceState) 
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.battle);
 		
-		//setListAdapter(new ArrayAdapter<String>(this,R.layout.battle,))
-		
 		((Button) findViewById(R.id.attackButton)).setOnClickListener(this);
 		((Button) findViewById(R.id.retreatButton)).setOnClickListener(this);
-		((Button) findViewById(R.id.itemsButton)).setOnClickListener(this);
+		((Button) findViewById(R.id.reloadButton)).setOnClickListener(this);
 		this.getULevelDisplay().setText(""+userLevel);
 		this.getUHealthDisplay().setText(""+userHealth);
 		this.getUCurrentIDisplay().setText(userItem);
 		this.getELevelDisplay().setText(""+enemyLevel);
 		this.getEHealthDisplay().setText(""+enemyHealth);
 		this.getECurrentIDisplay().setText(enemyItem);
+		
+		itemNameAndNum = new HashMap<String,Number>();
+		for (int i = 0; i < itemNames.length; i++)
+		{
+			itemNameAndNum.put(itemNames[i], numOfItem[i]);
+		}
+		createListView(itemsView, itemNameAndNum);
+	}
+	private void createListView(final ListView v, final HashMap<String,Number> map)
+	{
+		ArrayAdapter<String> adapter;
+
+		adapter = new ArrayAdapter<String>(this, R.layout.itemrow,
+				new ArrayList<String>());
+		
+		v.setAdapter(adapter);
+
+		v.setOnItemClickListener(new OnItemClickListener()
+		{
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id)
+			{
+				Object []keys = map.keySet().toArray();
+				
+				itemDialog(v, (String)keys[position], map.get((String)keys[position]).intValue());
+			}
+		});
+
+		if (map.size() > 0)
+		{
+			Object []keys = map.keySet().toArray();
+			Toast.makeText(this, keys.length + " "+map.size(),
+					Toast.LENGTH_LONG).show();
+			for (int i = 0; i < map.size(); i++)
+			{
+				adapter.add("[" + map.get((String)keys[i]) + "]   " + (String)keys[i]);
+			}
+
+			v.invalidate();
+		}
+	}
+	private void itemDialog(final ListView v, final String name, final int level)
+	{
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage("Are you sure you want to equip "+name)
+				.setTitle("Confirmation")
+				.setCancelable(true)
+				.setPositiveButton("Use " + name,
+						new DialogInterface.OnClickListener()
+						{
+							public void onClick(DialogInterface dialog, int id)
+							{
+								//right now there are only medkit type items so they can only add
+								//to health
+							}
+						})
+				.setNegativeButton("No",
+						new DialogInterface.OnClickListener()
+						{
+							public void onClick(DialogInterface dialog, int id)
+							{
+								dialog.cancel();
+							}
+						});
+
+		AlertDialog alert = builder.create();
+		alert.show();
 	}
 	public void onClick(View v)
 	{
@@ -60,6 +138,9 @@ public class BattleController extends Activity implements OnClickListener
 			//get user's attack info and then deal damage to the enemy's health
 			enemyHealth=Integer.parseInt((String) getECurrentIDisplay().getText());
 			this.getEHealthDisplay().setText(""+(enemyHealth-userBP));
+			//I want to make a toast here telling the user how much damage has been done to the enemy.
+			
+			//I also need to use the acync class here to make the button unpressable
 		}
 		else if(v.getId()==R.id.retreatButton)
 		{
@@ -71,11 +152,9 @@ public class BattleController extends Activity implements OnClickListener
 			int duration=Toast.LENGTH_SHORT;
 			Toast fleeToast=Toast.makeText(context, fleeText, duration);
 		}
-		else if(v.getId()==R.id.itemsButton)
+		else if(v.getId()==R.id.reloadButton)
 		{
-			//I'm not real sure how to implement this but we have a few options that we could explore here
-			//we could either implement a list like we had done before for real-time use of items and maybe
-			//the items button can be used to activate the items from a stack
+			//this will eventually be used to reload the selected weapon
 		}
 	}
 	public Button getAttackButton()
@@ -86,13 +165,13 @@ public class BattleController extends Activity implements OnClickListener
 		}
 		return attack;
 	}
-	public Button getItemsButton()
+	public Button getReloadButton()
 	{
-		if(items==null)
+		if(reload==null)
 		{
-			items=(Button) findViewById(R.id.itemsButton);
+			reload=(Button) findViewById(R.id.reloadButton);
 		}
-		return items;
+		return reload;
 	}
 	public TextView getEHealthDisplay()
 	{

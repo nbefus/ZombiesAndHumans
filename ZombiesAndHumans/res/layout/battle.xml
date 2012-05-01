@@ -72,11 +72,11 @@
             android:text="ATTACK" />
 
         <Button
-            android:id="@+id/itemsButton"
+            android:id="@+id/reloadButton"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.10"
-            android:text="ITEMS" />
+            android:text="RELOAD" />
 
         <Button
             android:id="@+id/retreatButton"
