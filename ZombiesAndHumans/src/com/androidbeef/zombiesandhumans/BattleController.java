@@ -10,6 +10,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -35,6 +36,7 @@ public class BattleController extends Activity implements OnClickListener
 	private Button retreat;
 	private Button reload;
 	private ListView itemsView;
+	private ButtonDisabled attackDisabled;
 	
 	private int userLevel=1;
 	private int enemyLevel=1;
@@ -45,8 +47,9 @@ public class BattleController extends Activity implements OnClickListener
 	private String userItem="bat";
 	private String enemyItem="none";
 	private String[]				itemNames = {"medkit","waterbottle","canned food"};
-	private int[]					numOfItem = {1,3,4};
+	private double[]					numOfItem = {0.2,0.1,0.1};
 	private HashMap<String, Number>	itemNameAndNum;
+	private String attackCooldown="10000"; //in miliseconds
 	
 	protected void onCreate(Bundle savedInstanceState) 
 	{
@@ -85,8 +88,7 @@ public class BattleController extends Activity implements OnClickListener
 					int position, long id)
 			{
 				Object []keys = map.keySet().toArray();
-				
-				itemDialog(v, (String)keys[position], map.get((String)keys[position]).intValue());
+				itemDialog(v, (String)keys[position], map.get((String)keys[position]).doubleValue());
 			}
 		});
 
@@ -97,13 +99,13 @@ public class BattleController extends Activity implements OnClickListener
 					Toast.LENGTH_LONG).show();
 			for (int i = 0; i < map.size(); i++)
 			{
-				adapter.add("[" + map.get((String)keys[i]) + "]   " + (String)keys[i]);
+				adapter.add(""+ (String)keys[i]+" heals "+map.get((String)keys[i]) + " of health.");
 			}
 
 			v.invalidate();
 		}
 	}
-	private void itemDialog(final ListView v, final String name, final int level)
+	private void itemDialog(final ListView v, final String name, final double amount)
 	{
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage("Are you sure you want to equip "+name)
@@ -116,6 +118,7 @@ public class BattleController extends Activity implements OnClickListener
 							{
 								//right now there are only medkit type items so they can only add
 								//to health
+								
 							}
 						})
 				.setNegativeButton("No",
@@ -138,9 +141,8 @@ public class BattleController extends Activity implements OnClickListener
 			//get user's attack info and then deal damage to the enemy's health
 			enemyHealth=Integer.parseInt((String) getECurrentIDisplay().getText());
 			this.getEHealthDisplay().setText(""+(enemyHealth-userBP));
-			//I want to make a toast here telling the user how much damage has been done to the enemy.
-			
-			//I also need to use the acync class here to make the button unpressable
+			attack.setEnabled(false);
+			attackDisabled.execute(attackCooldown);
 		}
 		else if(v.getId()==R.id.retreatButton)
 		{
@@ -236,5 +238,31 @@ public class BattleController extends Activity implements OnClickListener
 			uCurrentIDisplay=(TextView) findViewById(R.id.userCIDisplay);
 		}
 		return uCurrentIDisplay;
+	}
+	private class ButtonDisabled extends AsyncTask<String,Integer,String>
+	{
+		@Override
+		protected String doInBackground(final String... toDo)
+		{
+			// TODO Auto-generated method stub
+			new Thread(new Runnable() {
+			    public void run()
+			    {
+			    	try {
+						Thread.sleep(Integer.parseInt(toDo[0]));
+					}
+			    	catch (InterruptedException e) {
+					}
+			    }
+			  }).start();
+
+			return null;
+		}
+		@Override
+		protected void onPostExecute(String result)
+		{
+			attack.setEnabled(true);
+		}
+		
 	}
 }

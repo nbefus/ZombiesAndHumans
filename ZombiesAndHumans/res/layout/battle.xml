@@ -52,8 +52,7 @@
         android:layout_below="@+id/healthLabel"
         android:layout_marginTop="20dp"
         android:text="Current Item"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
+        android:textAppearance="?android:attr/textAppearanceMedium" />
     <LinearLayout
         android:id="@+id/linearLayout1"
         android:layout_width="150dp"
