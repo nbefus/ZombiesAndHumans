@@ -3,6 +3,7 @@ package com.androidbeef.zombiesandhumans;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +51,7 @@ public class ZombiesAndHumansBrain
 {
 	private final String	debugClass	= "BRAIN";
 
+	private Player self;
 	private Context			c;
 	private ArrayList<GeoPoint>	enemies;
 	private Query search;
@@ -65,9 +67,10 @@ public class ZombiesAndHumansBrain
 	private double				myLat;
 	private double				myLon;
 
-	public ZombiesAndHumansBrain(Context c)
+	public ZombiesAndHumansBrain(Context c, Player self)
 	{
 		this.c = c;
+		this.self = self;
 	}
 	
 	public void prepareForQuery(String[] entities,
@@ -108,6 +111,15 @@ public class ZombiesAndHumansBrain
 				//	&& Math.abs(longitude[i] - myLon) <= lonPrec)
 				enemies.add(new GeoPoint((int) (latitude[i] * 1E6),
 						(int) (longitude[i] * 1E6)));
+	}
+	
+	public void setSelf(Player self)
+	{
+		this.self = self;
+	}
+	public Player getSelf()
+	{
+		return self;
 	}
 	
 	public ArrayList<GeoPoint> getEnemies()

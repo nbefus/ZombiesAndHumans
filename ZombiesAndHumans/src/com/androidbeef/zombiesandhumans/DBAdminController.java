@@ -26,13 +26,13 @@ import android.widget.Toast;
 public class DBAdminController extends Activity implements OnClickListener
 {
 	private ZombiesAndHumansBrain	brain		= new ZombiesAndHumansBrain(
-														this);
+														this,null);
 	private ProgressDialog			pd;
 	private TableLayout				tl;
 	private EditText				query;
 	private static final String[]	KEYWORDS	= new String[] { "select",
-			"from", "datatypes", "string", "int", "player", "characters",
-			"abilities", "characterabilities", "item", "backpack",
+			"from", "datatypes", "string", "int", "player", "character",
+			"abilitie", "characterabilities", "item", "backpack",
 			"backpackitems", "abilityid", "aname", "effect",
 			"alevelrestriction", "alevel", "multiplierperlevel", "backpackid",
 			"itemweightcount", "capacity", "itemid", "characterid", "cname",

@@ -16,7 +16,8 @@ public class StartScreenController extends Activity implements OnClickListener {
 	
 	private final String debugClass = "START_SCREEN_CONTROLLER";
 
-	private ZombiesAndHumansBrain brain = new ZombiesAndHumansBrain(this);
+	public static final String SELF = "self";
+	private ZombiesAndHumansBrain brain = new ZombiesAndHumansBrain(this, null);
 	private EditText username;
 	private EditText password;
 	private ProgressDialog pd;
@@ -38,10 +39,10 @@ public class StartScreenController extends Activity implements OnClickListener {
 	{		
 		if(v.getId() == R.id.Button_LogIn)
 		{
-			String[] entities = {"USERNAME","PASSWORD"};
+			String[] entities = {"playerid","computerplayer","username","password","locationx","locationy","safehousex","safehousey","backpackid","characterid"};
 			String filename = "testing";
-			String[] dataTypes = {"string","string"};
-			String query = "select * from Players where USERNAME = '"+username.getText().toString().trim()+"' AND PASSWORD = '"+password.getText().toString().trim()+"'";
+			String[] dataTypes = {"int","string","string","string","double","double","double","double","int","int"};
+			String query = "select * from player where username = '"+username.getText().toString().trim()+"' AND password = '"+password.getText().toString().trim()+"'";
 					
 			brain.prepareForQuery(entities, filename, dataTypes, query);
 			pd = ProgressDialog.show(this, "Processing...", "Trying to log in", true, true);
@@ -83,19 +84,23 @@ public class StartScreenController extends Activity implements OnClickListener {
 		{
 			if(errorFree)
 			{
-				if(brain.getSearchResults().length > 0&& brain.getSearchResults()[0][0] instanceof String && !((String)brain.getSearchResults()[0][0]).equals("NO RESULTS"))
+				if(brain.getSearchResults().length > 0&& !(brain.getSearchResults()[0][0] instanceof String && ((String)brain.getSearchResults()[0][0]).equals("NO RESULTS")))
 				{
 					Toast.makeText(StartScreenController.this, "User known" + brain.getSearchResults()[0][0],
 							Toast.LENGTH_LONG).show();
 					
-					if(((String)brain.getSearchResults()[0][0]).equals("DBAdmin") && ((String)brain.getSearchResults()[0][1]).equals("DBAdminPassword"))
+					if(((String)brain.getSearchResults()[0][2]).equals("DBAdmin") && ((String)brain.getSearchResults()[0][3]).equals("DBAdminPassword"))
 					{
 						Intent i = new Intent(StartScreenController.this, DBAdminController.class);
 						startActivity(i);
 					}
 					else
 					{
+						Object[][] results = brain.getSearchResults();
+						Player self = new Player(((Integer)results[0][8]).intValue(), ((String)results[0][1]).charAt(0), (String)results[0][2], (String)results[0][3], ((Double)results[0][4]).doubleValue(), ((Double)results[0][5]).doubleValue(), ((Double)results[0][6]).doubleValue(), ((Double)results[0][7]).doubleValue(), ((Integer)results[0][8]).intValue(), ((Integer)results[0][9]).intValue());
+						brain.setSelf(self);
 						Intent i = new Intent(StartScreenController.this, HomeScreenController.class);
+						i.putExtra("self", brain.getSelf());
 						startActivity(i);
 					}
 				}

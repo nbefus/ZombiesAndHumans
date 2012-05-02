@@ -26,7 +26,7 @@ import com.google.android.maps.OverlayItem;
 
 public class PreBattleController extends MapActivity
 {
-	private ZombiesAndHumansBrain	brain		= new ZombiesAndHumansBrain(this);
+	private ZombiesAndHumansBrain	brain		= new ZombiesAndHumansBrain(this,null);
 	private MapView					mapView;
 	private MapController			mc;
 	private GeoPoint				myGeoPoint;
