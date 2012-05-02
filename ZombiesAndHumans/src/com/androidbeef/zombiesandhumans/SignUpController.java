@@ -17,7 +17,7 @@ public class SignUpController extends Activity implements OnClickListener
 {
 	private final String debugRandom = "SIGN_UP_CONTROLLER";
 	public static final String SELF = "self";
-	private ZombiesAndHumansBrain brain = new ZombiesAndHumansBrain(this,null);
+	private ZombiesAndHumansBrain brain = new ZombiesAndHumansBrain(this);
 	private EditText	username;
 	private EditText	password;
 	private ProgressDialog	pd;
@@ -45,14 +45,13 @@ public class SignUpController extends Activity implements OnClickListener
 		else if(v.getId() == R.id.Button_SignUpNow)
 		{
 			doCheck("Unique User Check");
-			//doInsert();
 		}
 	}
 	
 	private void databaseCount()
 	{
-		Toast.makeText(SignUpController.this, "COUNTING USERS",
-				Toast.LENGTH_LONG).show();
+		//Toast.makeText(SignUpController.this, "COUNTING USERS",
+		//		Toast.LENGTH_LONG).show();
 		String[] entities = {"COUNT(playerid)","COUNT(b.backpackid)","COUNT(c.characterid)"};
 		String filename = "testing";
 		String[] dataTypes = {"string","string","string"};
@@ -66,13 +65,7 @@ public class SignUpController extends Activity implements OnClickListener
 	private void doInsert()
 	{
 		String filename = "testing";
-		//String query2 = "INSERT INTO `Players` (`COMPUTER_PLAYER`, `USERNAME`, `PASSWORD`) VALUES ('y', 'comp', 'player')";
-		//String query = "INSERT INTO `Players`(`COMPUTER_PLAYER`, `USERNAME`, `PASSWORD`) VALUES ('n', 'test', 'testpassword')";
-		
-		//String query3 = "DELETE FROM `Players` WHERE USERNAME = 'user'"; TO_DATE('"+(day)+"-0"+(month+1)+"-"+year+"','DD-MM-YYYY')
-		
-		//String query4 = "UPDATE `Players` SET `COMPUTER_PLAYER`='y' WHERE `USERNAME`='Nathaniel'";"+"0"+(day+1)+"-"+month+"-"+year+"
-		
+
 		Calendar cal = Calendar.getInstance(); 
 		int month = cal.get(Calendar.MONTH);
 		int year = cal.get(Calendar.YEAR);
@@ -93,8 +86,8 @@ public class SignUpController extends Activity implements OnClickListener
 		else
 			date+="-"+day;
 		
-		Toast.makeText(SignUpController.this, "DATE IS: "+date,
-				Toast.LENGTH_LONG).show();
+		//Toast.makeText(SignUpController.this, "DATE IS: "+date,
+		//		Toast.LENGTH_LONG).show();
 		
 		String query6 = "INSERT INTO `player`(`playerid`,`computerplayer`,`username`,`password`,`datejoined`,`locationx`,`locationy`,`safehousex`,`safehousey`,`backpackid`,`characterid`) VALUES" +
 				" ("+(numOfPlayers+1)+",'n', '"+username.getText().toString().trim()+"', '"+password.getText().toString().trim()+"','"+date+"',21.2500,-157.8100,21.2500,-157.8100,"+(numOfBackpacks+1)+","+(numOfCharacters+1)+")";
@@ -210,8 +203,8 @@ public class SignUpController extends Activity implements OnClickListener
 			{
 				if(updated)
 				{
-					Toast.makeText(SignUpController.this, "Updating Character worked",
-							Toast.LENGTH_LONG).show();
+					//Toast.makeText(SignUpController.this, "Updating Character worked",
+					//		Toast.LENGTH_LONG).show();
 					doCheck("Insert Check");
 				}
 				pd.dismiss();
@@ -220,8 +213,8 @@ public class SignUpController extends Activity implements OnClickListener
 			{
 				if(updated)
 				{
-					Toast.makeText(SignUpController.this, "Updating Backpack worked",
-							Toast.LENGTH_LONG).show();
+					//Toast.makeText(SignUpController.this, "Updating Backpack worked",
+					//		Toast.LENGTH_LONG).show();
 					newBackpackItems(1,1);
 				}
 				pd.dismiss();
@@ -236,8 +229,8 @@ public class SignUpController extends Activity implements OnClickListener
 						numOfCharacters = Integer.parseInt((String)brain.getSearchResults()[0][2]);
 						numOfBackpacks = Integer.parseInt((String)brain.getSearchResults()[0][1]);
 						
-						Toast.makeText(SignUpController.this, "NUMBERS: "+numOfPlayers+"  "+numOfCharacters+"  "+numOfBackpacks,
-								Toast.LENGTH_LONG).show();
+						//Toast.makeText(SignUpController.this, "NUMBERS: "+numOfPlayers+"  "+numOfCharacters+"  "+numOfBackpacks,
+						//		Toast.LENGTH_LONG).show();
 						doInsert();
 					}
 					else
@@ -249,9 +242,7 @@ public class SignUpController extends Activity implements OnClickListener
 				}
 				else
 					Toast.makeText(SignUpController.this, "Updated is false",
-							Toast.LENGTH_LONG).show();
-				
-					
+							Toast.LENGTH_LONG).show();	
 			}
 			else if(result.equals("Unique User Check") || result.equals("Insert Check"))
 			{

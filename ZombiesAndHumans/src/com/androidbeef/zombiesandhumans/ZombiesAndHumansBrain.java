@@ -52,25 +52,26 @@ public class ZombiesAndHumansBrain
 	private final String	debugClass	= "BRAIN";
 
 	private Player self;
+	private ArrayList<Item> items;
+	private ArrayList<Player> enemies;
 	private Context			c;
-	private ArrayList<GeoPoint>	enemies;
+	private ArrayList<GeoPoint>	enemyLoc;
 	private Query search;
 	private Object[][] searchResults;
 	
-	private double[]			latitude	= { 21.2613, 12, 21.2636, 21.2663,
-			21.2679, 21.2702, 21.2723, 21.2731, 21.2721, 21.2738, 21.2758,
-			21.277, 21.2783, 21.2793		};
-	private double[]			longitude	= { -157.8181, -157.8185,
-			-157.8168, -157.816, -157.816, -157.8164, -157.8172, -157.8199,
-			-157.8211, -157.8226, -157.8237, -157.8248, -157.826 };
+	//private double[]			latitude	= { 21.2613, 12, 21.2636, 21.2663,
+	//		21.2679, 21.2702, 21.2723, 21.2731, 21.2721, 21.2738, 21.2758,
+	//		21.277, 21.2783, 21.2793		};
+	//private double[]			longitude	= { -157.8181, -157.8185,
+	//		-157.8168, -157.816, -157.816, -157.8164, -157.8172, -157.8199,
+	//		-157.8211, -157.8226, -157.8237, -157.8248, -157.826 };
 	
-	private double				myLat;
-	private double				myLon;
+	//private double				myLat;
+	//private double				myLon;
 
-	public ZombiesAndHumansBrain(Context c, Player self)
+	public ZombiesAndHumansBrain(Context c)
 	{
 		this.c = c;
-		this.self = self;
 	}
 	
 	public void prepareForQuery(String[] entities,
@@ -99,43 +100,70 @@ public class ZombiesAndHumansBrain
 		return false;
 	}
 	
+	/*
 	public void findEnemies()
 	{
 		myLat = 21.2500;
 		myLon = -157.8100;
 		//double latPrec = .005, lonPrec = .005;
-		enemies = new ArrayList<GeoPoint>();
+		enemyLoc = new ArrayList<GeoPoint>();
 
 		for (int i = 0; i < longitude.length; i++)
 			//if (Math.abs(latitude[i] - myLat) <= latPrec
 				//	&& Math.abs(longitude[i] - myLon) <= lonPrec)
-				enemies.add(new GeoPoint((int) (latitude[i] * 1E6),
+				enemyLoc.add(new GeoPoint((int) (latitude[i] * 1E6),
 						(int) (longitude[i] * 1E6)));
+	}
+	*/
+	
+	public void setEnemies(ArrayList<Player> enemies)
+	{
+		this.enemies = enemies;
+		System.out.println("ENEMY SIZE : "+enemies.size());
+		enemyLoc = new ArrayList<GeoPoint>();
+		for(int i=0; i<enemies.size(); i++)
+			enemyLoc.add(new GeoPoint((int) (enemies.get(i).getLocationx() * 1E6),
+					(int) (enemies.get(i).getLocationy() * 1E6)));
+	}
+	
+	public ArrayList<Player> getEnemies()
+	{
+		return enemies;
 	}
 	
 	public void setSelf(Player self)
 	{
 		this.self = self;
 	}
+	
+	public void setItems(ArrayList<Item> items)
+	{
+		this.items = items;
+	}
+	
+	public ArrayList<Item> getItems()
+	{
+		return items;
+	}
 	public Player getSelf()
 	{
 		return self;
 	}
 	
-	public ArrayList<GeoPoint> getEnemies()
+	public ArrayList<GeoPoint> getEnemyLoc()
 	{
-		return enemies;
+		return enemyLoc;
 	}
 	
-	public double getMyLat()
-	{
-		return myLat;
-	}
+	//public double getMyLat()
+	//{
+	//	return myLat;
+	//}
 	
-	public double getMyLon()
-	{
-		return myLon;
-	}
+	//public double getMyLon()
+	//{
+	//	return myLon;
+	//}
 	
 	public Object[][] getSearchResults()
 	{

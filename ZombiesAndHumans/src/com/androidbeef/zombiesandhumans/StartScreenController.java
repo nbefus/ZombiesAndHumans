@@ -17,7 +17,7 @@ public class StartScreenController extends Activity implements OnClickListener {
 	private final String debugClass = "START_SCREEN_CONTROLLER";
 
 	public static final String SELF = "self";
-	private ZombiesAndHumansBrain brain = new ZombiesAndHumansBrain(this, null);
+	private ZombiesAndHumansBrain brain = new ZombiesAndHumansBrain(this);
 	private EditText username;
 	private EditText password;
 	private ProgressDialog pd;

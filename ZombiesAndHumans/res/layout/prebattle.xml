@@ -10,7 +10,7 @@
                  android:clickable="true"
                  android:layout_height="fill_parent"
                  android:layout_above="@+id/textView1"
-                 android:apiKey="0_rCfFzDbEB3vf8x-8nvAlsZVS5yJXZ0IfMAuDg"
+                 android:apiKey="0_rCfFzDbEB16mIRDVBD4ywgx-otKwWB010jfdg"
                  />
     
     <TextView
@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:text="TextView" />
+        android:text="Enemies" />
 
     <ListView
         android:id="@+id/listView2"

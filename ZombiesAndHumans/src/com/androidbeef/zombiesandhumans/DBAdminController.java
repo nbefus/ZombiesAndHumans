@@ -26,7 +26,7 @@ import android.widget.Toast;
 public class DBAdminController extends Activity implements OnClickListener
 {
 	private ZombiesAndHumansBrain	brain		= new ZombiesAndHumansBrain(
-														this,null);
+														this);
 	private ProgressDialog			pd;
 	private TableLayout				tl;
 	private EditText				query;

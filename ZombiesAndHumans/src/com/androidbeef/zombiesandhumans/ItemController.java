@@ -38,7 +38,7 @@ public class ItemController extends Activity implements OnClickListener
 	//private int[]					itemscount			= { 1, 2, 3, 4, 5, 6 };
 	//private int[]					backpackitemscount	= { 1, 2, 3, 4, 5 };
 	public ProgressDialog	pd;
-	public ZombiesAndHumansBrain	brain = new ZombiesAndHumansBrain(this,null);
+	public ZombiesAndHumansBrain	brain = new ZombiesAndHumansBrain(this);
 
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -64,9 +64,11 @@ public class ItemController extends Activity implements OnClickListener
 		backpackListView = (ListView) findViewById(R.id.ListView_backpack);
 		storageListView = (ListView) findViewById(R.id.ListView_itemStorage);
 		
-		doGetItems("Get Backpack Items", 'n');
+		getAllItems();
+		//doGetItems("Get Backpack Items", 'n');
 	}
 	
+	/*
 	private void getBackpackItems(Object[][] bpItems)
 	{
 		if(bpItems.length > 0 && !(bpItems[0][0] instanceof String && ((String)bpItems[0][0]).equals("NO RESULTS")))
@@ -86,7 +88,6 @@ public class ItemController extends Activity implements OnClickListener
 			alitems.put((String)sItems[i][0], sItems.length);
 		}
 		setUpListView(storageListView,alitems, "backpack");
-		
 	}
 	
 	private void doGetItems(String what, char instorage)
@@ -103,7 +104,33 @@ public class ItemController extends Activity implements OnClickListener
 		//if(what.equals("Get Backpack Items"))
 			
 	}
+	*/
+
+	private void setItems()
+	{
+		for(int i=0; i<brain.getItems().size(); i++)
+		{
+			if(brain.getItems().get(i).getInstorage() == 'y')
+				alitems.put(brain.getItems().get(i).getIname(), brain.getItems().get(i).getItemcount());
+			else
+				albackpackItems.put(brain.getItems().get(i).getIname(), brain.getItems().get(i).getItemcount());
+		}
+		
+		setUpListView(storageListView,alitems, "backpack");
+		setUpListView(backpackListView, albackpackItems,"storage");
+	}
 	
+	private void getAllItems()
+	{
+		String[] entities = {"itemid","iname","itemcount","instorage"};
+		String filename = "testing";
+		String[] dataTypes = {"int","string","int","string"};
+		String query = "SELECT i.itemid, iname, itemcount, instorage FROM backpack b JOIN backpackitems p ON b.backpackid = p.backpackid JOIN item i ON p.itemid = i.itemid WHERE b.backpackid="+brain.getSelf().getBackpackid();
+				
+		brain.prepareForQuery(entities, filename, dataTypes, query);
+		pd = ProgressDialog.show(this, "Processing...", "Checking with database", true, true);
+		new performQuery().execute("Get All Items");
+	}
 	
 	private void doInsert()
 	{
@@ -155,7 +182,6 @@ public class ItemController extends Activity implements OnClickListener
 			}
 
 			v.invalidate();
-
 		}
 	}
 	
@@ -250,7 +276,7 @@ public class ItemController extends Activity implements OnClickListener
 		@Override
 		protected String doInBackground(String... parameters)
 		{
-			if(parameters[0].equals("Get Backpack Items") || parameters[0].equals("Get Storage Items"))
+			if(parameters[0].equals("Get Backpack Items") || parameters[0].equals("Get Storage Items") || parameters[0].equals("Get All Items"))
 				updated = brain .performQuery(true);
 			else
 				updated = brain.performQuery(false);
@@ -276,8 +302,28 @@ public class ItemController extends Activity implements OnClickListener
 					Toast.makeText(ItemController.this, "Updating failed",
 							Toast.LENGTH_LONG).show();
 				pd.dismiss();
-				//doCheck("2");
 			}
+			else if(result.equals("Get All Items"))
+			{
+				if(updated)
+				{
+					if(brain.getSearchResults().length > 0 && !(brain.getSearchResults()[0][0] instanceof String && ((String)brain.getSearchResults()[0][0]).equals("NO RESULTS")))
+					{
+						Object[][] dbItems = brain.getSearchResults();
+						ArrayList<Item> items = new ArrayList<Item>();
+						
+						for(int i=0; i<dbItems.length; i++)
+						{
+							items.add(new Item(((Integer)dbItems[i][0]).intValue(), (String)dbItems[i][1], ((Integer)dbItems[i][2]).intValue(), ((String)dbItems[i][3]).charAt(0)));
+						}
+						
+						brain.setItems(items);
+						setItems();
+					}
+				}
+				pd.dismiss();
+			}
+			/*
 			else if(result.equals("Get Backpack Items") || result.equals("Get Storage Items"))
 			{
 				if(updated)
@@ -326,6 +372,7 @@ public class ItemController extends Activity implements OnClickListener
 						//doInsert();
 					}
 				}
+				
 				else
 				{
 					Toast.makeText(ItemController.this, "Error when trying to get data",
@@ -333,7 +380,7 @@ public class ItemController extends Activity implements OnClickListener
 				}
 				pd.dismiss();
 				
-			}			
+			}*/			
 		}
 	}
 	

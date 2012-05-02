@@ -6,7 +6,7 @@ public class Item
 	private String iname;
 	private char instorage;
 	
-	public Item(int itemid, int itemcount, String iname, char instorage)
+	public Item(int itemid, String iname, int itemcount, char instorage)
 	{
 		this.itemid = itemid;
 		this.itemcount = itemcount;
