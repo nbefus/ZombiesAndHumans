@@ -44,6 +44,8 @@ public class PreBattleController extends MapActivity
 		setContentView(R.layout.prebattle);
 		brain.setSelf((Player) getIntent().getExtras().getSerializable(
 				StartScreenController.SELF));
+		brain.setCharacter((Character) getIntent().getExtras().getSerializable(
+				"char"));
 		mapView = (MapView) findViewById(R.id.mapView);
 		lv = (ListView) findViewById(R.id.listView2);
 		mapView.setBuiltInZoomControls(true);
@@ -58,7 +60,7 @@ public class PreBattleController extends MapActivity
 		for (int i = 0; i < brain.getEnemies().size(); i++)
 		{
 			//System.out.println("USER: "+brain.getEnemies().get(i).getUsername());
-			nameandlevel.put(brain.getEnemies().get(i).getUsername(), level[i]);
+			nameandlevel.put(brain.getEnemies().get(i).getUsername(), brain.getEnemiesCharacters().get(i).getClevel());
 		}
 		
 		setUpListView(lv, nameandlevel);
@@ -169,11 +171,11 @@ public class PreBattleController extends MapActivity
 	
 	private void getEnemies()
 	{
-		String[] entities = {"playerid","computerplayer","username","password","locationx","locationy","safehousex","safehousey","backpackid","characterid"};
+		String[] entities = {"playerid","computerplayer","username","password","locationx","locationy","safehousex","safehousey","backpackid","characterid","characterid","cname","clevel","health","strength","defense","accuracy","evasion"};
 		String filename = "testing";
-		String[] dataTypes = {"int","string","string","string","double","double","double","double","int","int"};
-		String query = "select * from player where (locationx BETWEEN "+(brain.getSelf().getLocationx()-5)+" and "+(brain.getSelf().getLocationx()+5)+" AND locationy BETWEEN "+(brain.getSelf().getLocationy()-5)+" and "+(brain.getSelf().getLocationy()+5+") AND locationx <> "+brain.getSelf().getLocationx() +" AND locationy <> "+brain.getSelf().getLocationy());
-				
+		String[] dataTypes = {"int","string","string","string","double","double","double","double","int","int","int","string","int","int","int","int","int","int"};
+		String query = "select * from player p join `character` c on p.characterid = c.characterid where (locationx BETWEEN "+(brain.getSelf().getLocationx()-5)+" and "+(brain.getSelf().getLocationx()+5)+" AND locationy BETWEEN "+(brain.getSelf().getLocationy()-5)+" and "+(brain.getSelf().getLocationy()+5+") AND locationx <> "+brain.getSelf().getLocationx() +" AND locationy <> "+brain.getSelf().getLocationy());
+		
 		brain.prepareForQuery(entities, filename, dataTypes, query);
 		pd = ProgressDialog.show(this, "Processing...", "Finding Enemies", true, true);
 		new FindEnemiesInBackground().execute("Find Enemies");
@@ -181,19 +183,14 @@ public class PreBattleController extends MapActivity
 	}
 
 	class FindEnemiesInBackground extends AsyncTask<String, Integer, String>
-	{boolean updated;
+	{
+		boolean updated;
 		@Override
 		protected String doInBackground(String... parameters)
 		{
 			//brain.findEnemies();
 			updated = brain.performQuery(true);
 			return "";
-		}
-
-		@Override
-		protected void onProgressUpdate(Integer... values)
-		{
-			super.onProgressUpdate(values);
 		}
 
 		@Override
@@ -205,12 +202,15 @@ public class PreBattleController extends MapActivity
 				{
 					Object[][] results = brain.getSearchResults();
 					ArrayList<Player> enemies = new ArrayList<Player>();
+					ArrayList<Character> enemiesCharacters = new ArrayList<Character>();
 					for(int i=0; i<results.length; i++)
 					{
-						enemies.add(new Player(((Integer)results[i][8]).intValue(), ((String)results[i][1]).charAt(0), (String)results[i][2], (String)results[i][3], ((Double)results[i][4]).doubleValue(), ((Double)results[i][5]).doubleValue(), ((Double)results[i][6]).doubleValue(), ((Double)results[i][7]).doubleValue(), ((Integer)results[i][8]).intValue(), ((Integer)results[i][9]).intValue()));
+						enemies.add(new Player(((Integer)results[i][0]).intValue(), ((String)results[i][1]).charAt(0), (String)results[i][2], (String)results[i][3], ((Double)results[i][4]).doubleValue(), ((Double)results[i][5]).doubleValue(), ((Double)results[i][6]).doubleValue(), ((Double)results[i][7]).doubleValue(), ((Integer)results[i][8]).intValue(), ((Integer)results[i][9]).intValue()));
+						enemiesCharacters.add(new Character(((Integer)results[i][10]).intValue(), ((String)results[i][11]), ((Integer)results[i][12]).intValue(),((Integer)results[i][13]).intValue(),((Integer)results[i][14]).intValue(),((Integer)results[i][15]).intValue(),((Integer)results[i][16]).intValue(),((Integer)results[i][17])));
 					}
 					pd.dismiss();
 					brain.setEnemies(enemies);
+					brain.setEnemiesCharacters(enemiesCharacters);
 					setNameAndLevel();
 				}
 			}

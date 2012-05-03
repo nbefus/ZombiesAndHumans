@@ -57,7 +57,7 @@ public class SignUpController extends Activity implements OnClickListener
 		String[] dataTypes = {"string","string","string"};
 		String query6 = "SELECT COUNT(playerid), COUNT(b.backpackid), COUNT(c.characterid) FROM `backpack` b RIGHT JOIN player p ON b.backpackid = p.backpackid LEFT JOIN `character` c ON c.characterid = p.characterid";
 		brain.prepareForQuery(entities, filename, dataTypes, query6);
-		pd = ProgressDialog.show(this, "Processing...", "Checking stuff", true, true);
+		//pd = ProgressDialog.show(this, "Processing...", "Checking stuff", true, true);
 		
 		new performQuery().execute("Count Users");
 	}
@@ -93,7 +93,7 @@ public class SignUpController extends Activity implements OnClickListener
 				" ("+(numOfPlayers+1)+",'n', '"+username.getText().toString().trim()+"', '"+password.getText().toString().trim()+"','"+date+"',21.2500,-157.8100,21.2500,-157.8100,"+(numOfBackpacks+1)+","+(numOfCharacters+1)+")";
 				
 		brain.prepareForQuery(null, filename, null, query6);
-		pd = ProgressDialog.show(this, "Processing...", "Inserting into database", true, true);
+		//pd = ProgressDialog.show(this, "Processing...", "Inserting into database", true, true);
 		new performQuery().execute("Insert User");
 	}
 	
@@ -105,7 +105,8 @@ public class SignUpController extends Activity implements OnClickListener
 		String query = "select * from player where username = '"+username.getText().toString().trim()+"'";
 				
 		brain.prepareForQuery(entities, filename, dataTypes, query);
-		pd = ProgressDialog.show(this, "Processing...", "Checking with database", true, true);
+		if(what.equals("Unique User Check"))
+			pd = ProgressDialog.show(this, "Processing...", "Checking with database", true, true);
 		new performQuery().execute(what);
 	}
 	
@@ -116,7 +117,7 @@ public class SignUpController extends Activity implements OnClickListener
 				" ("+(numOfBackpacks+1)+",50,100)";
 				
 		brain.prepareForQuery(null, filename, null, query6);
-		pd = ProgressDialog.show(this, "Processing...", "Inserting into database", true, true);
+		//pd = ProgressDialog.show(this, "Processing...", "Inserting into database", true, true);
 		new performQuery().execute("Insert Backpack");
 	}
 	
@@ -124,11 +125,12 @@ public class SignUpController extends Activity implements OnClickListener
 	{
 		String filename = "testing";
 		
-		String query6 = "INSERT INTO `backpackitems`(`backpackid`,`itemid`,`itemcount`) VALUES" +
+		String query6 = "INSERT INTO `backpackitems`(`backpackid`,`itemid`,`itemcount`,`instorage`) VALUES" +
 				" ("+(numOfBackpacks+1)+","+itemid+","+itemcount+",'y')";
 				
+		//System.out.println("NUM OF BACKPACKS: "+numOfBackpacks);
 		brain.prepareForQuery(null, filename, null, query6);
-		pd = ProgressDialog.show(this, "Processing...", "Inserting into database", true, true);
+		//pd = ProgressDialog.show(this, "Processing...", "Inserting into database", true, true);
 		new performQuery().execute("Insert Item "+itemid+" Into Backpack");
 	}
 	
@@ -138,8 +140,11 @@ public class SignUpController extends Activity implements OnClickListener
 		String query6 = "INSERT INTO `character`(`characterid`,`cname`,`clevel`,`health`,`strength`,`defense`,`accuracy`,`evasion`) VALUES" +
 				" ("+(numOfCharacters+1)+",'Unamed',1,1,1,1,1,1)";
 				
+		Character character = new Character((numOfCharacters+1), "Unamed", 1,1,1,1,1,1);
+		brain.setCharacter(character);
+		
 		brain.prepareForQuery(null, filename, null, query6);
-		pd = ProgressDialog.show(this, "Processing...", "Inserting into database", true, true);
+		// = ProgressDialog.show(this, "Processing...", "Inserting into database", true, true);
 		new performQuery().execute("Insert Character");
 	}
 	/*
@@ -178,7 +183,7 @@ public class SignUpController extends Activity implements OnClickListener
 					Toast.makeText(SignUpController.this, "Updating worked",
 						Toast.LENGTH_LONG).show();
 					
-					pd.dismiss();
+					//pd.dismiss();
 					newBackpack();	
 				}
 					
@@ -186,7 +191,7 @@ public class SignUpController extends Activity implements OnClickListener
 					Toast.makeText(SignUpController.this, "Updating failed",
 							Toast.LENGTH_LONG).show();
 				
-				pd.dismiss();
+				//pd.dismiss();
 			}
 			else if(result.equals("Insert Item 1 Into Backpack") || result.equals("Insert Item 2 Into Backpack") || result.equals("Insert Item 3 Into Backpack"))
 			{
@@ -197,7 +202,7 @@ public class SignUpController extends Activity implements OnClickListener
 				else
 					newCharacter();
 				
-				pd.dismiss();
+				//pd.dismiss();
 			}
 			else if(result.equals("Insert Character"))
 			{
@@ -207,7 +212,7 @@ public class SignUpController extends Activity implements OnClickListener
 					//		Toast.LENGTH_LONG).show();
 					doCheck("Insert Check");
 				}
-				pd.dismiss();
+				//pd.dismiss();
 			}
 			else if(result.equals("Insert Backpack"))
 			{
@@ -217,7 +222,7 @@ public class SignUpController extends Activity implements OnClickListener
 					//		Toast.LENGTH_LONG).show();
 					newBackpackItems(1,1);
 				}
-				pd.dismiss();
+				//pd.dismiss();
 			}
 			else if(result.equals("Count Users"))
 			{
@@ -261,14 +266,15 @@ public class SignUpController extends Activity implements OnClickListener
 							
 							Toast.makeText(SignUpController.this, "User is now successfully in database",
 									Toast.LENGTH_LONG).show();
-							
+							pd.dismiss();
 							Intent i = new Intent(SignUpController.this, HomeScreenController.class);
-							i.putExtra(SELF, brain.getSelf());
+							i.putExtra("self", brain.getSelf());
+							i.putExtra("char", brain.getCharacter());
 							startActivity(i);
 						}
 							
 
-						pd.dismiss();
+						//pd.dismiss();
 					}
 					else
 					{
@@ -276,14 +282,14 @@ public class SignUpController extends Activity implements OnClickListener
 						{
 							Toast.makeText(SignUpController.this, "Username not in database.",
 								Toast.LENGTH_LONG).show();
-							pd.dismiss();
+							//pd.dismiss();
 							databaseCount();
 						}
 						else
 							Toast.makeText(SignUpController.this, "Username not in database. Error happened "+result,
 									Toast.LENGTH_LONG).show();
 						
-						pd.dismiss();
+						//pd.dismiss();
 						
 					}
 				}
@@ -292,7 +298,7 @@ public class SignUpController extends Activity implements OnClickListener
 					Toast.makeText(SignUpController.this, "Error when trying to get data",
 							Toast.LENGTH_LONG).show();
 				}
-				pd.dismiss();
+				//pd.dismiss();
 				
 			}			
 		}

@@ -39,10 +39,10 @@ public class StartScreenController extends Activity implements OnClickListener {
 	{		
 		if(v.getId() == R.id.Button_LogIn)
 		{
-			String[] entities = {"playerid","computerplayer","username","password","locationx","locationy","safehousex","safehousey","backpackid","characterid"};
+			String[] entities = {"playerid","computerplayer","username","password","locationx","locationy","safehousex","safehousey","backpackid","characterid","characterid","cname","clevel","health","strength","defense","accuracy","evasion"};
 			String filename = "testing";
-			String[] dataTypes = {"int","string","string","string","double","double","double","double","int","int"};
-			String query = "select * from player where username = '"+username.getText().toString().trim()+"' AND password = '"+password.getText().toString().trim()+"'";
+			String[] dataTypes = {"int","string","string","string","double","double","double","double","int","int","int","string","int","int","int","int","int","int"};
+			String query = "select * from player p join `character` c on p.characterid = c.characterid where username = '"+username.getText().toString().trim()+"' AND password = '"+password.getText().toString().trim()+"'";
 					
 			brain.prepareForQuery(entities, filename, dataTypes, query);
 			pd = ProgressDialog.show(this, "Processing...", "Trying to log in", true, true);
@@ -97,10 +97,15 @@ public class StartScreenController extends Activity implements OnClickListener {
 					else
 					{
 						Object[][] results = brain.getSearchResults();
-						Player self = new Player(((Integer)results[0][8]).intValue(), ((String)results[0][1]).charAt(0), (String)results[0][2], (String)results[0][3], ((Double)results[0][4]).doubleValue(), ((Double)results[0][5]).doubleValue(), ((Double)results[0][6]).doubleValue(), ((Double)results[0][7]).doubleValue(), ((Integer)results[0][8]).intValue(), ((Integer)results[0][9]).intValue());
+						Player self = new Player(((Integer)results[0][0]).intValue(), ((String)results[0][1]).charAt(0), (String)results[0][2], (String)results[0][3], ((Double)results[0][4]).doubleValue(), ((Double)results[0][5]).doubleValue(), ((Double)results[0][6]).doubleValue(), ((Double)results[0][7]).doubleValue(), ((Integer)results[0][8]).intValue(), ((Integer)results[0][9]).intValue());
 						brain.setSelf(self);
+						Character character = new Character(((Integer)results[0][10]).intValue(), ((String)results[0][11]), ((Integer)results[0][12]).intValue(),((Integer)results[0][13]).intValue(),((Integer)results[0][14]).intValue(),((Integer)results[0][15]).intValue(),((Integer)results[0][16]).intValue(),((Integer)results[0][17]));
+						brain.setCharacter(character);
+						
 						Intent i = new Intent(StartScreenController.this, HomeScreenController.class);
 						i.putExtra("self", brain.getSelf());
+						i.putExtra("char", brain.getCharacter());
+						
 						startActivity(i);
 					}
 				}

@@ -51,9 +51,11 @@ public class ZombiesAndHumansBrain
 {
 	private final String	debugClass	= "BRAIN";
 
+	private Character character;
 	private Player self;
 	private ArrayList<Item> items;
 	private ArrayList<Player> enemies;
+	private ArrayList<Character> enemiesCharacters;
 	private Context			c;
 	private ArrayList<GeoPoint>	enemyLoc;
 	private Query search;
@@ -131,9 +133,29 @@ public class ZombiesAndHumansBrain
 		return enemies;
 	}
 	
+	public void setEnemiesCharacters(ArrayList<Character> enemiesCharacters)
+	{
+		this.enemiesCharacters = enemiesCharacters;
+	}
+	
+	public ArrayList<Character> getEnemiesCharacters()
+	{
+		return enemiesCharacters;
+	}
+	
 	public void setSelf(Player self)
 	{
 		this.self = self;
+	}
+	
+	public Character getCharacter()
+	{
+		return character;
+	}
+	
+	public void setCharacter(Character character)
+	{
+		this.character = character;
 	}
 	
 	public void setItems(ArrayList<Item> items)
