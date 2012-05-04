@@ -49,7 +49,8 @@ public class BattleController extends Activity implements OnClickListener
 	private String[]				itemNames = {"medkit","waterbottle","canned food"};
 	private double[]					numOfItem = {0.2,0.1,0.1};
 	private HashMap<String, Number>	itemNameAndNum;
-	private String attackCooldown="10000"; //in miliseconds
+	private String attackCooldown="5000"; //in miliseconds
+	private String enemyAttackTime="1000";
 	
 	protected void onCreate(Bundle savedInstanceState) 
 	{
@@ -105,7 +106,7 @@ public class BattleController extends Activity implements OnClickListener
 			v.invalidate();
 		}
 	}
-	private void itemDialog(final ListView v, final String name, final double amount)
+	private void itemDialog(final ListView v, final String name, final double abilityAmt)
 	{
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage("Are you sure you want to equip "+name)
@@ -116,9 +117,9 @@ public class BattleController extends Activity implements OnClickListener
 						{
 							public void onClick(DialogInterface dialog, int id)
 							{
-								//right now there are only medkit type items so they can only add
-								//to health
-								
+								int currentUHealth=0;
+								currentUHealth=Integer.parseInt((String) getUHealthDisplay().getText());
+								getUHealthDisplay().setText(""+currentUHealth+abilityAmt);
 							}
 						})
 				.setNegativeButton("No",
@@ -143,6 +144,7 @@ public class BattleController extends Activity implements OnClickListener
 			this.getEHealthDisplay().setText(""+(enemyHealth-userBP));
 			attack.setEnabled(false);
 			attackDisabled.execute(attackCooldown);
+			
 		}
 		else if(v.getId()==R.id.retreatButton)
 		{
@@ -239,6 +241,7 @@ public class BattleController extends Activity implements OnClickListener
 		}
 		return uCurrentIDisplay;
 	}
+	//to disable the attackButton
 	private class ButtonDisabled extends AsyncTask<String,Integer,String>
 	{
 		@Override
@@ -263,6 +266,33 @@ public class BattleController extends Activity implements OnClickListener
 		{
 			attack.setEnabled(true);
 		}
-		
+	}
+	public class computerPlayer extends AsyncTask<String,Integer,String>
+	{
+		//The enemy will attack 3 second after the user has attacked.
+		@Override
+		protected String doInBackground(final String... cmd)
+		{
+			// TODO Auto-generated method stub
+			new Thread(new Runnable() {
+			    public void run()
+			    {
+			    	try {
+						Thread.sleep(Integer.parseInt(cmd[0]));
+					}
+			    	catch (InterruptedException e) {
+					}
+			    }
+			  }).start();
+
+			return null;
+		}
+		@Override
+		protected void onPostExecute(String result)
+		{
+			int currentUHealth=0;
+			currentUHealth=Integer.parseInt((String) getEHealthDisplay().getText());
+			getEHealthDisplay().setText(""+(currentUHealth-enemyBP));
+		}
 	}
 }
