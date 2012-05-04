@@ -10,7 +10,7 @@ import android.widget.Button;
 public class HomeScreenController extends Activity implements OnClickListener
 {
 	private Player p;
-	private Character c;
+	private Character character;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
@@ -19,7 +19,7 @@ public class HomeScreenController extends Activity implements OnClickListener
 		setContentView(R.layout.home);
 		p = (Player) getIntent().getExtras().getSerializable(
 				StartScreenController.SELF);
-		c = (Character) getIntent().getExtras().getSerializable(
+		character = (Character) getIntent().getExtras().getSerializable(
 				"char");
 		((Button) findViewById(R.id.character_button)).setOnClickListener(this);
 		((Button) findViewById(R.id.items_button)).setOnClickListener(this);
@@ -34,21 +34,21 @@ public class HomeScreenController extends Activity implements OnClickListener
 		{
 			Intent c = new Intent(HomeScreenController.this, CharacterController.class);
 			c.putExtra("self", p);
-			c.putExtra("char", c);
+			c.putExtra("char", character);
 			startActivity(c);
 		}
 		else if(v.getId() == R.id.items_button)
 		{
 			Intent b = new Intent(HomeScreenController.this, ItemController.class);
 			b.putExtra("self", p);
-			b.putExtra("char", c);
+			b.putExtra("char", character);
 			startActivity(b);
 		}
 		else if(v.getId() == R.id.battle_button)
 		{
 			Intent a = new Intent(HomeScreenController.this, PreBattleController.class);
 			a.putExtra("self", p);
-			a.putExtra("char", c);
+			a.putExtra("char", character);
 			startActivity(a);
 		}
 		else if(v.getId() == R.id.logout_button)

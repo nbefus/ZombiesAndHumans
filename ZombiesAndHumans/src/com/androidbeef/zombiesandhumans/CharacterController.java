@@ -26,7 +26,9 @@ public class CharacterController extends Activity implements OnClickListener
 	
 	protected void onCreate(Bundle savedInstanceState) 
 	{
+		System.out.println("BEGIN");
 		super.onCreate(savedInstanceState);
+		
 		setContentView(R.layout.character_layout);
 		
 		brain.setSelf((Player) getIntent().getExtras().getSerializable(
@@ -44,18 +46,20 @@ public class CharacterController extends Activity implements OnClickListener
 		((Button) findViewById(R.id.accuracyPlus)).setOnClickListener(this);
 		((Button) findViewById(R.id.evasionMinus)).setOnClickListener(this);
 		((Button) findViewById(R.id.evasionPlus)).setOnClickListener(this);
-				
+		
 		health = brain.getCharacter().getHealth();
 		strength = brain.getCharacter().getStrength();
 		defense = brain.getCharacter().getDefense();
 		accuracy = brain.getCharacter().getAccuracy();
 		evasion = brain.getCharacter().getEvasion();
 		
+		
 		this.getHealthDisplay().setText(""+health);
 		this.getStrengthDisplay().setText(""+strength);
 		this.getDefenseDisplay().setText(""+defense);
 		this.getAccuracyDisplay().setText(""+accuracy);
 		this.getEvasionDisplay().setText(""+evasion);
+		
 	}
 	public TextView getNameDisplay()
 	{
