@@ -3,13 +3,10 @@ package com.androidbeef.zombiesandhumans;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.androidbeef.zombiesandhumans.PreBattleController.FindEnemiesInBackground;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -152,13 +149,14 @@ public class BattleController extends Activity implements OnClickListener
 			Context context=getApplicationContext();
 			CharSequence fleeText="You are now leaving the battle and will take "+enemyBP;
 			int duration=Toast.LENGTH_SHORT;
-			Toast fleeToast=Toast.makeText(context, fleeText, duration);
+			Toast.makeText(context, fleeText, duration);
 		}
 		else if(v.getId()==R.id.reloadButton)
 		{
 			//this will eventually be used to reload the selected weapon
 		}
 	}
+	
 	public Button getAttackButton()
 	{
 		if(attack==null)
@@ -244,11 +242,11 @@ public class BattleController extends Activity implements OnClickListener
 		@Override
 		protected String doInBackground(final String... toDo)
 		{
-			// TODO Auto-generated method stub
 			new Thread(new Runnable() {
 			    public void run()
 			    {
-			    	try {
+			    	try 
+			    	{
 						Thread.sleep(Integer.parseInt(toDo[0]));
 					}
 			    	catch (InterruptedException e) {

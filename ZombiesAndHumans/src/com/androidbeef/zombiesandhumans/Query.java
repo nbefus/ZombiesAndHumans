@@ -80,15 +80,6 @@ public class Query
 			{
 				
 				System.out.println("1");
-				/*
-				Toast.makeText(
-						c,
-						"ERROR: "
-								+ debugClass
-								+ " in PerformSearchWithResults() with error message: "
-								+ "dataTypes and entities lengths are different!",
-						Toast.LENGTH_LONG).show();
-						*/
 				results = new Object[1][1];
 				results[0][0]="error 1";
 				return results;
@@ -101,15 +92,6 @@ public class Query
 						|| dataTypes[i].equalsIgnoreCase("boolean") || dataTypes[i]
 							.equalsIgnoreCase("string")))
 				{
-					/*
-					Toast.makeText(
-							c,
-							"ERROR: "
-									+ debugClass
-									+ " in PerformSearchWithResults() with error message: "
-									+ "there are some data types in dataTypes which are not allowed!",
-							Toast.LENGTH_LONG).show();
-							*/
 					System.out.println("2");
 					results = new Object[1][1];
 					results[0][0]="error 2";
@@ -139,10 +121,7 @@ public class Query
 					jArray = new JSONArray(result);
 	
 					JSONObject json_data = null;
-	
-					//Toast.makeText(c, "There are " + jArray.length() + "results",
-					//		Toast.LENGTH_LONG).show();
-	
+
 					results = new Object[jArray.length()][entities.length];
 	
 					System.out.println("J"+jArray.length() + " e"+entities.length);
@@ -163,11 +142,6 @@ public class Query
 								results[i][j] = json_data.getLong(entities[j]);
 						}
 					}
-	
-					/*
-					Toast.makeText(c, "Done with loading results from query",
-							Toast.LENGTH_LONG).show();
-							*/
 				}
 				else if(result.contains("error"))
 				{
@@ -184,14 +158,6 @@ public class Query
 				results = new Object[1][1];
 				results[0][0]="error 4";
 				return results;
-				/*
-				Toast.makeText(
-						c,
-						"JSON ERROR: "
-								+ debugClass
-								+ " in PerformSearchWithResults() with error message: "
-								+ e1.getMessage(), Toast.LENGTH_LONG).show();
-								*/
 			}
 			catch (ParseException e1)
 			{
@@ -199,14 +165,6 @@ public class Query
 				results = new Object[1][1];
 				results[0][0]="error 5";
 				return results;
-				/*
-				Toast.makeText(
-						c,
-						"PARSE ERROR: "
-								+ debugClass
-								+ " in PerformSearchWithResults() with error message: "
-								+ e1.getMessage(), Toast.LENGTH_LONG).show();
-								*/
 			}
 	
 			System.out.println("NORMAL "+(results == null));
@@ -235,7 +193,7 @@ public class Query
 			System.out.println("Making client");
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpPost httppost = new HttpPost(page);
-			List nameValuePairs = new ArrayList(1);
+			List<BasicNameValuePair> nameValuePairs = new ArrayList<BasicNameValuePair>(1);
 			nameValuePairs.add(new BasicNameValuePair("query", query));
 			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 			HttpResponse response = httpclient.execute(httppost);
@@ -247,13 +205,6 @@ public class Query
 		{
 			System.out.println("7");
 			result = "error 7";
-			/*
-			Toast.makeText(
-					c,
-					"ERROR 1: " + debugClass
-							+ " in getPHPPage() with error message: "
-							+ e.getMessage(), Toast.LENGTH_LONG).show();
-							*/
 		}
 
 		try
@@ -273,20 +224,12 @@ public class Query
 			is.close();
 			result = sb.toString();
 			System.out.println("String is : " + result);
-			//Toast.makeText(c, ":" + result + ":", Toast.LENGTH_LONG).show();
 
 		}
 		catch (Exception e)
 		{
 			result = "error 8";
 			System.out.println("8");
-			/*
-			Toast.makeText(
-					c,
-					"ERROR 2: " + debugClass
-							+ " in getPHPPage() with error message: "
-							+ e.getMessage(), Toast.LENGTH_LONG).show();
-							*/
 		}
 
 		return result;

@@ -9,7 +9,6 @@ import android.widget.Button;
 
 public class HomeScreenController extends Activity implements OnClickListener
 {
-	private final String debugClass = "HOME_SCREEN_CONTROLLER";
 	private Player p;
 	private Character c;
 	
