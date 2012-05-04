@@ -32,7 +32,7 @@ public class PreBattleController extends MapActivity
 	private MapController			mc;
 	private GeoPoint				myGeoPoint;
 	//private String[]				enemyNames = {"diablo20","nevaLrndNEthing","gamer","Coolio","maya","doomsday2012"};
-	private int[]					level = {1,2,3,4,5,6,7,8,9,10};
+	//private int[]					level = {1,2,3,4,5,6,7,8,9,10};
 	private ListView				lv;
 	private HashMap<String, Number>	nameandlevel;
 	private ProgressDialog	pd;

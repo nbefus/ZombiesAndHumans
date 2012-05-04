@@ -9,11 +9,13 @@ import android.widget.TextView;
 
 public class CharacterController extends Activity implements OnClickListener
 {
-	private int health=100;
-	private int strength=1;
-	private int defense=1;
-	private int accuracy=30;
-	private int evasion=30;
+	private ZombiesAndHumansBrain	brain		= new ZombiesAndHumansBrain(this);
+	private int health;
+	private int strength;
+	private int defense;
+	private int accuracy;
+	private int evasion;
+	
 	private TextView nameDisplay;
 	private TextView levelDisplay;
 	private TextView healthDisplay;
@@ -27,6 +29,11 @@ public class CharacterController extends Activity implements OnClickListener
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.character_layout);
 		
+		brain.setSelf((Player) getIntent().getExtras().getSerializable(
+				StartScreenController.SELF));
+		brain.setCharacter((Character) getIntent().getExtras().getSerializable(
+				"char"));
+		
 		((Button) findViewById(R.id.healthMinus)).setOnClickListener(this);
 		((Button) findViewById(R.id.healthPlus)).setOnClickListener(this);
 		((Button) findViewById(R.id.strengthMinus)).setOnClickListener(this);
@@ -38,6 +45,12 @@ public class CharacterController extends Activity implements OnClickListener
 		((Button) findViewById(R.id.evasionMinus)).setOnClickListener(this);
 		((Button) findViewById(R.id.evasionPlus)).setOnClickListener(this);
 				
+		health = brain.getCharacter().getHealth();
+		strength = brain.getCharacter().getStrength();
+		defense = brain.getCharacter().getDefense();
+		accuracy = brain.getCharacter().getAccuracy();
+		evasion = brain.getCharacter().getEvasion();
+		
 		this.getHealthDisplay().setText(""+health);
 		this.getStrengthDisplay().setText(""+strength);
 		this.getDefenseDisplay().setText(""+defense);
