@@ -31,7 +31,8 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/enemyLabel"
         android:layout_marginTop="20dp"
-        android:text="Level"
+        android:padding="5dp"
+        android:text="LEVEL:"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -41,7 +42,8 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/levelLabel"
         android:layout_marginTop="20dp"
-        android:text="Health"
+        android:padding="5dp"
+        android:text="HEALTH:"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -51,8 +53,10 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/healthLabel"
         android:layout_marginTop="20dp"
-        android:text="Current Item"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:padding="5dp"
+        android:text="ITEM:"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
     <LinearLayout
         android:id="@+id/linearLayout1"
         android:layout_width="150dp"
@@ -60,7 +64,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/textView1"
+        android:layout_alignTop="@+id/textView1"
         android:orientation="vertical" >
 
         <Button
@@ -96,30 +100,30 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
-        android:id="@+id/userLvlDisplay"
+        android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/userTitle"
-        android:layout_alignTop="@+id/levelLabel"
-        android:layout_marginLeft="18dp"
-        android:text="0"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/currentItemLabel"
+        android:layout_marginTop="115dp"
+        android:text="TextView"
+        android:visibility="invisible" />
 
-    <TextView
-        android:id="@+id/userHpDisplay"
-        android:layout_width="wrap_content"
+    <ListView
+        android:id="@+id/itemsView"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/userLvlDisplay"
-        android:layout_alignTop="@+id/healthLabel"
-        android:text="0"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:layout_above="@+id/linearLayout1"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/currentItemLabel" >
+    </ListView>
 
     <TextView
         android:id="@+id/levelDisplay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/userHpDisplay"
-        android:layout_centerHorizontal="true"
+        android:layout_alignLeft="@+id/enemyLabel"
+        android:layout_alignTop="@+id/levelLabel"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -128,7 +132,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/levelDisplay"
-        android:layout_alignTop="@+id/userLvlDisplay"
+        android:layout_alignTop="@+id/healthLabel"
+        android:text="0"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/userLvlDisplay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/userTitle"
+        android:layout_alignTop="@+id/levelDisplay"
         android:text="0"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -136,37 +149,27 @@
         android:id="@+id/userCIDisplay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/healthDisplay"
         android:layout_alignTop="@+id/currentItemLabel"
-        android:layout_centerHorizontal="true"
-        android:text="ItemName"
+        android:text="Item"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
+        android:layout_alignLeft="@+id/userLvlDisplay"
         android:layout_alignTop="@+id/userCIDisplay"
-        android:text="ItemName"
+        android:text="Item"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/userHpDisplay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/currentItemLabel"
-        android:layout_marginTop="115dp"
-        android:text="TextView" />
-
-    <ListView
-        android:id="@+id/listView1"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/linearLayout1"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/currentItemLabel" >
-
-    </ListView>
+        android:layout_alignLeft="@+id/textView4"
+        android:layout_alignTop="@+id/healthDisplay"
+        android:text="0"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>

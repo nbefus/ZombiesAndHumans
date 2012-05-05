@@ -63,6 +63,8 @@ public class BattleController extends Activity implements OnClickListener
 		this.getELevelDisplay().setText(""+enemyLevel);
 		this.getEHealthDisplay().setText(""+enemyHealth);
 		this.getECurrentIDisplay().setText(enemyItem);
+		itemsView=(ListView) findViewById(R.id.itemsView);
+		attackDisabled=new ButtonDisabled();
 		
 		itemNameAndNum = new HashMap<String,Number>();
 		for (int i = 0; i < itemNames.length; i++)
@@ -97,7 +99,7 @@ public class BattleController extends Activity implements OnClickListener
 					Toast.LENGTH_LONG).show();
 			for (int i = 0; i < map.size(); i++)
 			{
-				adapter.add(""+ (String)keys[i]+" heals "+map.get((String)keys[i]) + " of health.");
+				adapter.add(""+ (String)keys[i]);
 			}
 
 			v.invalidate();
@@ -106,7 +108,8 @@ public class BattleController extends Activity implements OnClickListener
 	private void itemDialog(final ListView v, final String name, final double abilityAmt)
 	{
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("Are you sure you want to equip "+name)
+		builder.setMessage("The "+name+" adds "+abilityAmt+" of health. " +
+				"Are you sure you want to equip "+name+"?")
 				.setTitle("Confirmation")
 				.setCancelable(true)
 				.setPositiveButton("Use " + name,
@@ -116,7 +119,19 @@ public class BattleController extends Activity implements OnClickListener
 							{
 								int currentUHealth=0;
 								currentUHealth=Integer.parseInt((String) getUHealthDisplay().getText());
-								getUHealthDisplay().setText(""+currentUHealth+abilityAmt);
+								currentUHealth=(int) (currentUHealth*(1+abilityAmt));
+								if(currentUHealth<150)
+								{
+									getUHealthDisplay().setText(""+currentUHealth);
+								}
+								else
+								{
+									Context context=getApplicationContext();
+									CharSequence fleeText="Sorry, but you can't use anymore health" +
+											" boosts beyond 150 HP.";
+									int duration=Toast.LENGTH_SHORT;
+									Toast.makeText(context, fleeText, duration);
+								}
 							}
 						})
 				.setNegativeButton("No",
@@ -136,20 +151,20 @@ public class BattleController extends Activity implements OnClickListener
 		int enemyHealth=0;
 		if(v.getId()==R.id.attackButton)
 		{
-			//get user's attack info and then deal damage to the enemy's health
-			enemyHealth=Integer.parseInt((String) getECurrentIDisplay().getText());
-			this.getEHealthDisplay().setText(""+(enemyHealth-userBP));
-			attack.setEnabled(false);
-			attackDisabled.execute(attackCooldown);
-			
+			enemyHealth=Integer.parseInt((String) getEHealthDisplay().getText());
+			if((enemyHealth-userBP)>=0)
+			{
+				getEHealthDisplay().setText(""+(enemyHealth-userBP));
+				getAttackButton().setEnabled(false);
+				attackDisabled.execute(attackCooldown);
+			}
 		}
 		else if(v.getId()==R.id.retreatButton)
 		{
 			//Intent a = new Intent(PreBattleController.this, CharacterController.class);
 			//startActivity(a);
-			//create a toast that the user will take automatic damage for leaving the battle
 			Context context=getApplicationContext();
-			CharSequence fleeText="You are now leaving the battle and will take "+enemyBP;
+			CharSequence fleeText="You are now leaving the battle and will take "+enemyBP+" of damage.";
 			int duration=Toast.LENGTH_SHORT;
 			Toast.makeText(context, fleeText, duration);
 		}
@@ -158,7 +173,6 @@ public class BattleController extends Activity implements OnClickListener
 			//this will eventually be used to reload the selected weapon
 		}
 	}
-	
 	public Button getAttackButton()
 	{
 		if(attack==null)
@@ -290,7 +304,10 @@ public class BattleController extends Activity implements OnClickListener
 		{
 			int currentUHealth=0;
 			currentUHealth=Integer.parseInt((String) getEHealthDisplay().getText());
-			getEHealthDisplay().setText(""+(currentUHealth-enemyBP));
+			if((currentUHealth-enemyBP)>=0)
+			{
+				getEHealthDisplay().setText(""+(currentUHealth-enemyBP));
+			}
 		}
 	}
 }
