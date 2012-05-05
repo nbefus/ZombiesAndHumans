@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -130,7 +131,7 @@ public class BattleController extends Activity implements OnClickListener
 									CharSequence fleeText="Sorry, but you can't use anymore health" +
 											" boosts beyond 150 HP.";
 									int duration=Toast.LENGTH_SHORT;
-									Toast.makeText(context, fleeText, duration);
+									Toast.makeText(context, fleeText, duration).show();
 								}
 							}
 						})
@@ -166,7 +167,10 @@ public class BattleController extends Activity implements OnClickListener
 			Context context=getApplicationContext();
 			CharSequence fleeText="You are now leaving the battle and will take "+enemyBP+" of damage.";
 			int duration=Toast.LENGTH_SHORT;
-			Toast.makeText(context, fleeText, duration);
+			Toast.makeText(context, fleeText, duration).show();
+			Intent a = new Intent(BattleController.this,
+					HomeScreenController.class);
+			startActivity(a);
 		}
 		else if(v.getId()==R.id.reloadButton)
 		{
