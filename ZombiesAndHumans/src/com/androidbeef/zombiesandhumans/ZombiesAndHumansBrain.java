@@ -11,7 +11,9 @@ import android.content.Context;
 public class ZombiesAndHumansBrain
 {
 	private Character character;
+	private Character enemyCharacter;
 	private Player self;
+	private Player enemy;
 	private ArrayList<Item> items;
 	private ArrayList<Player> enemies;
 	private ArrayList<Character> enemiesCharacters;
@@ -50,6 +52,24 @@ public class ZombiesAndHumansBrain
 		
 		return false;
 	}
+	
+	public int findEnemyPosByUsername(String username)
+	{
+		for(int i=0; i<enemies.size(); i++)
+			if(enemies.get(i).getUsername().trim().equals(username.trim()))
+				return i;
+		return -1;
+	}
+	
+	public int findEnemyCharPosByUsername(String username)
+	{
+		for(int i=0; i<enemies.size(); i++)
+			if(enemies.get(i).getUsername().trim().equals(username.trim()))
+				for(int j=0; j<enemiesCharacters.size(); j++)
+					if(enemies.get(i).getCharacterid() == enemiesCharacters.get(j).getCharacterid())
+						return j;
+		return -1;
+	}
 
 	public void setEnemies(ArrayList<Player> enemies)
 	{
@@ -76,9 +96,29 @@ public class ZombiesAndHumansBrain
 		return enemiesCharacters;
 	}
 	
+	public void setEnemy(Player enemy)
+	{
+		this.enemy = enemy;
+	}
+	
+	public Player getEnemy()
+	{
+		return enemy;
+	}
+	
 	public void setSelf(Player self)
 	{
 		this.self = self;
+	}
+	
+	public Character getEnemyCharacter()
+	{
+		return enemyCharacter;
+	}
+	
+	public void setEnemyCharacter(Character enemyCharacter)
+	{
+		this.enemyCharacter = enemyCharacter;
 	}
 	
 	public Character getCharacter()

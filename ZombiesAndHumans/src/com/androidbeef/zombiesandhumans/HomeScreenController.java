@@ -12,6 +12,7 @@ public class HomeScreenController extends Activity implements OnClickListener
 	private Player p;
 	private Character character;
 	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
 	{

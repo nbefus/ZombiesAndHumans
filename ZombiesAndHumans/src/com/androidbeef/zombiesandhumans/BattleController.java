@@ -3,8 +3,11 @@ package com.androidbeef.zombiesandhumans;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.androidbeef.zombiesandhumans.ItemController.performQuery;
+
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -34,7 +37,6 @@ public class BattleController extends Activity implements OnClickListener
 	private Button retreat;
 	private Button reload;
 	private ListView itemsView;
-	private ButtonDisabled attackDisabled;
 	
 	private int userLevel=1;
 	private int enemyLevel=1;
@@ -49,11 +51,22 @@ public class BattleController extends Activity implements OnClickListener
 	private HashMap<String, Number>	itemNameAndNum;
 	private String attackCooldown="5000"; //in miliseconds
 	private String enemyAttackTime="1000";
+	private ZombiesAndHumansBrain brain = new ZombiesAndHumansBrain(this);
+	private ProgressDialog	pd;
 	
 	protected void onCreate(Bundle savedInstanceState) 
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.battle);
+		
+		brain.setSelf((Player) getIntent().getExtras().getSerializable(
+				StartScreenController.SELF));
+		brain.setCharacter((Character) getIntent().getExtras().getSerializable(
+				"char"));
+		brain.setEnemyCharacter((Character) getIntent().getExtras().getSerializable(
+				"enemy char"));
+		brain.setEnemy((Player) getIntent().getExtras().getSerializable(
+				"enemy"));
 		
 		((Button) findViewById(R.id.attackButton)).setOnClickListener(this);
 		((Button) findViewById(R.id.retreatButton)).setOnClickListener(this);
@@ -65,15 +78,35 @@ public class BattleController extends Activity implements OnClickListener
 		this.getEHealthDisplay().setText(""+enemyHealth);
 		this.getECurrentIDisplay().setText(enemyItem);
 		itemsView=(ListView) findViewById(R.id.itemsView);
-		attackDisabled=new ButtonDisabled();
 		
+		getAllItems();
+	}
+	
+	private void setItems()
+	{
 		itemNameAndNum = new HashMap<String,Number>();
-		for (int i = 0; i < itemNames.length; i++)
+		
+		for (int i = 0; i < brain.getItems().size(); i++)
 		{
-			itemNameAndNum.put(itemNames[i], numOfItem[i]);
+			//Will use when all items are connected to database. The commentted out part means that people can only have what they have in their backpack during battle
+			//if(brain.getItems().get(i).getInstorage() == 'n')
+				itemNameAndNum.put(brain.getItems().get(i).getIname(),numOfItem[i]);/// brain.getItems().get(i).getItemcount());
 		}
 		createListView(itemsView, itemNameAndNum);
 	}
+	
+	private void getAllItems()
+	{
+		String[] entities = {"itemid","iname","itemcount","instorage"};
+		String filename = "testing";
+		String[] dataTypes = {"int","string","int","string"};
+		String query = "SELECT i.itemid, iname, itemcount, instorage FROM backpack b JOIN backpackitems p ON b.backpackid = p.backpackid JOIN item i ON p.itemid = i.itemid WHERE b.backpackid="+brain.getSelf().getBackpackid();
+				
+		brain.prepareForQuery(entities, filename, dataTypes, query);
+		pd = ProgressDialog.show(this, "Processing...", "Checking with database", true, true);
+		new performQuery().execute("Get All Items");
+	}
+	
 	private void createListView(final ListView v, final HashMap<String,Number> map)
 	{
 		ArrayAdapter<String> adapter;
@@ -157,7 +190,7 @@ public class BattleController extends Activity implements OnClickListener
 			{
 				getEHealthDisplay().setText(""+(enemyHealth-userBP));
 				getAttackButton().setEnabled(false);
-				attackDisabled.execute(attackCooldown);
+				new ButtonDisabled().execute(attackCooldown);
 			}
 		}
 		else if(v.getId()==R.id.retreatButton)
@@ -170,6 +203,7 @@ public class BattleController extends Activity implements OnClickListener
 			Toast.makeText(context, fleeText, duration).show();
 			Intent a = new Intent(BattleController.this,
 					HomeScreenController.class);
+			a.putExtra("self", brain.getSelf());
 			startActivity(a);
 		}
 		else if(v.getId()==R.id.reloadButton)
@@ -263,43 +297,45 @@ public class BattleController extends Activity implements OnClickListener
 		@Override
 		protected String doInBackground(final String... toDo)
 		{
-			new Thread(new Runnable() {
-			    public void run()
-			    {
-			    	try 
-			    	{
-						Thread.sleep(Integer.parseInt(toDo[0]));
-					}
-			    	catch (InterruptedException e) {
-					}
-			    }
-			  }).start();
+			try
+			{
+				Thread.sleep(Integer.parseInt(toDo[0]));
+			}
+			catch (NumberFormatException e)
+			{
+			}
+			catch (InterruptedException e)
+			{
+			}
 
 			return null;
 		}
 		@Override
 		protected void onPostExecute(String result)
 		{
-			attack.setEnabled(true);
+			getAttackButton().setEnabled(true);
 		}
 	}
+	
+	
 	public class computerPlayer extends AsyncTask<String,Integer,String>
 	{
 		//The enemy will attack 3 second after the user has attacked.
 		@Override
 		protected String doInBackground(final String... cmd)
 		{
+			try
+			{
+				Thread.sleep(Integer.parseInt(cmd[0]));
+			}
+			catch (NumberFormatException e)
+			{
+			}
+			catch (InterruptedException e1)
+			{
+			}
 			// TODO Auto-generated method stub
-			new Thread(new Runnable() {
-			    public void run()
-			    {
-			    	try {
-						Thread.sleep(Integer.parseInt(cmd[0]));
-					}
-			    	catch (InterruptedException e) {
-					}
-			    }
-			  }).start();
+			
 
 			return null;
 		}
@@ -314,4 +350,56 @@ public class BattleController extends Activity implements OnClickListener
 			}
 		}
 	}
+	
+	
+	class performQuery extends AsyncTask<String, Integer, String>
+	{
+		boolean updated;
+		@Override
+		protected String doInBackground(String... parameters)
+		{
+			if(parameters[0].equals("Get All Items"))
+				updated = brain.performQuery(true);
+			else
+				updated = brain.performQuery(false);
+			
+			return parameters[0];
+		}
+
+		@Override
+		protected void onPostExecute(String result)
+		{
+			if(result.equals("Update Item"))
+			{
+				if(updated)
+					Toast.makeText(BattleController.this, "Updating worked",
+						Toast.LENGTH_LONG).show();
+				else
+					Toast.makeText(BattleController.this, "Updating failed",
+							Toast.LENGTH_LONG).show();
+				pd.dismiss();
+			}
+			else if(result.equals("Get All Items"))
+			{
+				if(updated)
+				{
+					if(brain.getSearchResults().length > 0 && !(brain.getSearchResults()[0][0] instanceof String && ((String)brain.getSearchResults()[0][0]).equals("NO RESULTS")))
+					{
+						Object[][] dbItems = brain.getSearchResults();
+						ArrayList<Item> items = new ArrayList<Item>();
+						
+						for(int i=0; i<dbItems.length; i++)
+						{
+							items.add(new Item(((Integer)dbItems[i][0]).intValue(), (String)dbItems[i][1], ((Integer)dbItems[i][2]).intValue(), ((String)dbItems[i][3]).charAt(0)));
+						}
+						
+						brain.setItems(items);
+						setItems();
+					}
+				}
+				pd.dismiss();
+			}		
+		}
+	}
+	
 }

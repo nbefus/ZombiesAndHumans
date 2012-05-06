@@ -82,9 +82,19 @@ public class PreBattleController extends MapActivity
 					int position, long id)
 			{
 				Object[] keys = map.keySet().toArray();
-
-				battleDialog(v, (String) keys[position],
-						map.get((String) keys[position]).intValue());
+				int enemyPos = brain.findEnemyPosByUsername((String) keys[position]);
+				int enemyCharPos = brain.findEnemyCharPosByUsername((String) keys[position]);
+				if(enemyPos == -1)
+					Toast.makeText(PreBattleController.this, "ERROR: Enemy Not Found!",
+						Toast.LENGTH_SHORT).show();
+				else if(enemyCharPos == -1)
+					Toast.makeText(PreBattleController.this, "ERROR: Enemy Character Not Found!",
+							Toast.LENGTH_SHORT).show();
+				else
+					battleDialog(v, (String) keys[position],
+						map.get((String) keys[position]).intValue(),enemyPos,enemyCharPos);
+				
+					
 			}
 		});
 
@@ -103,7 +113,7 @@ public class PreBattleController extends MapActivity
 	}
 
 	private void battleDialog(final ListView v, final String name,
-			final int level)
+			final int level, final int enemyPos, final int enemyCharPos)
 	{
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(
@@ -116,8 +126,14 @@ public class PreBattleController extends MapActivity
 						{
 							public void onClick(DialogInterface dialog, int id)
 							{
+								brain.setEnemy(brain.getEnemies().get(enemyPos));
+								brain.setEnemyCharacter(brain.getEnemiesCharacters().get(enemyCharPos));
 								Intent a = new Intent(PreBattleController.this,
 										BattleController.class);
+								a.putExtra("self", brain.getSelf());
+								a.putExtra("char", brain.getCharacter());
+								a.putExtra("enemy", brain.getEnemy());
+								a.putExtra("enemy char", brain.getEnemyCharacter());
 								startActivity(a);
 							}
 						})

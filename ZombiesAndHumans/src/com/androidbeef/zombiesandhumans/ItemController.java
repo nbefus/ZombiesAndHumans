@@ -69,7 +69,6 @@ public class ItemController extends Activity
 	
 	private void setUpListView(final ListView v, final HashMap<String,Number> map, final String what)
 	{
-		
 		ArrayAdapter<String> adapter;
 
 		adapter = new ArrayAdapter<String>(this, R.layout.itemrow,
@@ -110,7 +109,6 @@ public class ItemController extends Activity
 		new performQuery().execute("Insert Backpack");
 	}
 	
-
 	private void itemDialog(final ListView v, final String item, final String what)
 	{
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);

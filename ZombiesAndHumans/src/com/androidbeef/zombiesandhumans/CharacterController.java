@@ -26,7 +26,6 @@ public class CharacterController extends Activity implements OnClickListener
 	
 	protected void onCreate(Bundle savedInstanceState) 
 	{
-		System.out.println("BEGIN");
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.character_layout);
@@ -117,6 +116,7 @@ public class CharacterController extends Activity implements OnClickListener
 		}
 		return evasionDisplay;
 	}
+	
 	public void onClick(View v)
 	{
 		if(v.getId()==R.id.healthMinus)
