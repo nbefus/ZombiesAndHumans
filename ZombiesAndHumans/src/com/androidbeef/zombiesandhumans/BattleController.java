@@ -85,22 +85,23 @@ public class BattleController extends Activity implements OnClickListener
 	private void setItems()
 	{
 		itemNameAndNum = new HashMap<String,Number>();
-		
+		System.out.println("ITEM SIZE: "+brain.getItems().size());
 		for (int i = 0; i < brain.getItems().size(); i++)
 		{
-			//Will use when all items are connected to database. The commentted out part means that people can only have what they have in their backpack during battle
-			//if(brain.getItems().get(i).getInstorage() == 'n')
-				itemNameAndNum.put(brain.getItems().get(i).getIname(),numOfItem[i]);/// brain.getItems().get(i).getItemcount());
+			String[] abil = brain.getItems().get(i).getAbility().split(" ");
+			if((abil[0].equals("+") && abil[2].equals("hp")) && brain.getItems().get(i).getInbackpackcount()>0)
+				itemNameAndNum.put(brain.getItems().get(i).getIname(),Double.parseDouble(abil[1]));/// brain.getItems().get(i).getItemcount());
 		}
+		
 		createListView(itemsView, itemNameAndNum);
 	}
 	
 	private void getAllItems()
 	{
-		String[] entities = {"itemid","iname","itemcount","instorage"};
+		String[] entities = {"itemid","iname","ability","inbackpackcount","instoragecount"};
 		String filename = "testing";
-		String[] dataTypes = {"int","string","int","string"};
-		String query = "SELECT i.itemid, iname, itemcount, instorage FROM backpack b JOIN backpackitems p ON b.backpackid = p.backpackid JOIN item i ON p.itemid = i.itemid WHERE b.backpackid="+brain.getSelf().getBackpackid();
+		String[] dataTypes = {"int","string","string","int","int"};
+		String query = "SELECT i.itemid, iname, ability, inbackpackcount, instoragecount FROM backpack b JOIN backpackitems p ON b.backpackid = p.backpackid JOIN item i ON p.itemid = i.itemid WHERE b.backpackid="+brain.getSelf().getBackpackid();
 				
 		brain.prepareForQuery(entities, filename, dataTypes, query);
 		pd = ProgressDialog.show(this, "Processing...", "Checking with database", true, true);
@@ -390,7 +391,7 @@ public class BattleController extends Activity implements OnClickListener
 						
 						for(int i=0; i<dbItems.length; i++)
 						{
-							items.add(new Item(((Integer)dbItems[i][0]).intValue(), (String)dbItems[i][1], ((Integer)dbItems[i][2]).intValue(), ((String)dbItems[i][3]).charAt(0)));
+							items.add(new Item(((Integer)dbItems[i][0]).intValue(), (String)dbItems[i][1], (String)dbItems[i][2], ((Integer)dbItems[i][3]).intValue(),((Integer)dbItems[i][4]).intValue()));
 						}
 						
 						brain.setItems(items);

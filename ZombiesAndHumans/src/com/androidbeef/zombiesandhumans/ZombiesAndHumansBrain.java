@@ -70,6 +70,14 @@ public class ZombiesAndHumansBrain
 						return j;
 		return -1;
 	}
+	
+	public int findItemByName(String iname)
+	{
+		for(int i=0; i<items.size(); i++)
+			if(items.get(i).getIname().trim().equals(iname.trim()))
+				return i;
+		return -1;
+	}
 
 	public void setEnemies(ArrayList<Player> enemies)
 	{
