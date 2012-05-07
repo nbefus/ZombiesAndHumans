@@ -52,13 +52,11 @@ public class CharacterController extends Activity implements OnClickListener
 		accuracy = brain.getCharacter().getAccuracy();
 		evasion = brain.getCharacter().getEvasion();
 		
-		
 		this.getHealthDisplay().setText(""+health);
 		this.getStrengthDisplay().setText(""+strength);
 		this.getDefenseDisplay().setText(""+defense);
 		this.getAccuracyDisplay().setText(""+accuracy);
 		this.getEvasionDisplay().setText(""+evasion);
-		
 	}
 	public TextView getNameDisplay()
 	{
@@ -184,6 +182,10 @@ public class CharacterController extends Activity implements OnClickListener
 			evasion++;
 			this.getEvasionDisplay().setText(""+evasion);
 		}
+		else if(v.getId()==R.id.done)
+		{
+			//this will carry over all the changes made to the character
+			
+		}
 	}
-
 }

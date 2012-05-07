@@ -39,7 +39,10 @@ public class BattleController extends Activity implements OnClickListener
 	private Button reload;
 	private ListView itemsView;
 	private Random randomGenerator;
+	private ComputerPlayer cp;
 	
+	private final int enemyItemUses=2;
+	private int eItemCount=0;
 	private int userLevel;//=1;
 	private int enemyLevel;//=1;
 	private int userHealth;//=100;
@@ -87,6 +90,7 @@ public class BattleController extends Activity implements OnClickListener
 		this.getEHealthDisplay().setText(""+enemyHealth);
 		this.getECurrentIDisplay().setText(enemyItem);
 		itemsView=(ListView) findViewById(R.id.itemsView);
+		cp=new ComputerPlayer();
 		
 		getAllItems();
 	}
@@ -194,7 +198,55 @@ public class BattleController extends Activity implements OnClickListener
 			v.invalidate();
 		}
 	}
-	
+	public void onClick(View v)
+	{
+		int currentEHealth=0;
+		
+		if(v.getId()==R.id.attackButton)
+		{
+			currentEHealth=Integer.parseInt((String) getEHealthDisplay().getText());
+			if((currentEHealth-userBP)>=0)
+			{
+				getEHealthDisplay().setText(""+(currentEHealth-userBP));
+				getAttackButton().setEnabled(false);
+				new ButtonDisabled().execute(attackCooldown);
+				//now the computer will react to the player
+				cpAction(currentEHealth);
+			}
+			else if((currentEHealth-userBP)<=0)
+			{
+				winDialog();
+			}
+		}
+		else if(v.getId()==R.id.retreatButton)
+		{
+			confirmRetreat();
+		}
+		else if(v.getId()==R.id.reloadButton)
+		{
+			//this will eventually be used to reload the selected weapon
+		}
+	}
+	private void cpAction(int currentHealth)
+	{
+		int randomNum=0;
+		if(currentHealth>=75)
+		{
+			cp.attack();
+		}
+		else if(currentHealth>=50)
+		{
+			randomNum=randomGenerator.nextInt(100);
+			if(randomNum%2==1)
+			{
+				cp.attack();
+			}
+			else
+			{
+				cp.useItem();
+			}
+		}
+	}
 	private void confirmRetreat()
 	{
 		AlertDialog.Builder dialog = new AlertDialog.Builder(BattleController.this);	
@@ -209,9 +261,7 @@ public class BattleController extends Activity implements OnClickListener
 							int which)
 					{
 						retreat();
-
 					}
-
 				});
 		dialog.setNegativeButton(android.R.string.cancel,
 				new DialogInterface.OnClickListener()
@@ -221,9 +271,7 @@ public class BattleController extends Activity implements OnClickListener
 							int which)
 					{
 						dialog.dismiss();
-
 					}
-
 				});
 		dialog.show();
 	}
@@ -240,6 +288,7 @@ public class BattleController extends Activity implements OnClickListener
 							public void onClick(DialogInterface dialog, int id)
 							{
 								int currentUHealth=0;
+								int currentEHealth=0;
 								currentUHealth=Integer.parseInt((String) getUHealthDisplay().getText());
 								currentUHealth=(int) (currentUHealth*(1+abilityAmt));
 								if(currentUHealth<150)
@@ -250,6 +299,9 @@ public class BattleController extends Activity implements OnClickListener
 									updateItem(name.trim());
 									setItems();
 									getUHealthDisplay().setText(""+currentUHealth);
+									//the computer is attacking the player
+									currentEHealth=Integer.parseInt((String) getEHealthDisplay().getText());
+									cpAction(currentEHealth);
 								}
 								else
 								{
@@ -273,30 +325,40 @@ public class BattleController extends Activity implements OnClickListener
 		AlertDialog alert = builder.create();
 		alert.show();
 	}
-	public void onClick(View v)
+	private void winDialog()
 	{
-		int enemyHealth=0;
-		if(v.getId()==R.id.attackButton)
-		{
-			enemyHealth=Integer.parseInt((String) getEHealthDisplay().getText());
-			if((enemyHealth-userBP)>=0)
-			{
-				getEHealthDisplay().setText(""+(enemyHealth-userBP));
-				getAttackButton().setEnabled(false);
-				new ButtonDisabled().execute(attackCooldown);
-			}
-		}
-		else if(v.getId()==R.id.retreatButton)
-		{
-			confirmRetreat();
-		}
-		else if(v.getId()==R.id.reloadButton)
-		{
-			//this will eventually be used to reload the selected weapon
-		}
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage("You just won the game. Would you to continue playing?")
+				.setTitle("Confirmation")
+				.setCancelable(true)
+				.setPositiveButton("Yes",
+						new DialogInterface.OnClickListener()
+						{
+							public void onClick(DialogInterface dialog, int id)
+							{
+								Intent a = new Intent(BattleController.this,
+										PreBattleController.class);
+								a.putExtra("self", brain.getSelf());
+								a.putExtra("char", brain.getCharacter());
+								startActivity(a);
+							}
+						})
+				.setNegativeButton("No",
+						new DialogInterface.OnClickListener()
+						{
+							public void onClick(DialogInterface dialog, int id)
+							{
+								Intent a = new Intent(BattleController.this,
+										HomeScreenController.class);
+								a.putExtra("self", brain.getSelf());
+								a.putExtra("char", brain.getCharacter());
+								startActivity(a);
+							}
+						});
+
+		AlertDialog alert = builder.create();
+		alert.show();
 	}
-	
-	
 	private void retreat()
 	{
 		isRetreat = true;
@@ -314,17 +376,33 @@ public class BattleController extends Activity implements OnClickListener
 			a.putExtra("self", brain.getSelf());
 			a.putExtra("char", brain.getCharacter());
 			startActivity(a);
-			/*
-		updateHealth(true,true);
-		//updateHealth(true,true);
-		//updateHealth(false,false);
-		Context context=getApplicationContext();
-		CharSequence fleeText="You are now leaving the battle and will take "+enemyBP+" of damage.";
-		
-		int duration=Toast.LENGTH_SHORT;
-		Toast.makeText(context, fleeText, duration).show();*/
 	}	
-	
+	//to disable the attackButton
+		private class ButtonDisabled extends AsyncTask<String,Integer,String>
+		{
+			@Override
+			protected String doInBackground(final String... toDo)
+			{
+				try
+				{
+					Thread.sleep(Integer.parseInt(toDo[0]));
+				}
+				catch (NumberFormatException e)
+				{
+				}
+				catch (InterruptedException e)
+				{
+				}
+
+				return null;
+			}
+			@Override
+			protected void onPostExecute(String result)
+			{
+				getAttackButton().setEnabled(true);
+			}
+		}
+		
 	@Override
 	public void onBackPressed()
 	{
@@ -419,38 +497,11 @@ public class BattleController extends Activity implements OnClickListener
 		}
 		return uCurrentIDisplay;
 	}
-	//to disable the attackButton
-	private class ButtonDisabled extends AsyncTask<String,Integer,String>
-	{
-		@Override
-		protected String doInBackground(final String... toDo)
-		{
-			try
-			{
-				Thread.sleep(Integer.parseInt(toDo[0]));
-			}
-			catch (NumberFormatException e)
-			{
-			}
-			catch (InterruptedException e)
-			{
-			}
-
-			return null;
-		}
-		@Override
-		protected void onPostExecute(String result)
-		{
-			getAttackButton().setEnabled(true);
-		}
-	}
-	
-	
-	public class computerPlayer extends AsyncTask<String,Integer,String>
+	public class ComputerPlayer extends AsyncTask<String,Integer,String>
 	{
 		private void retreat()
 		{
-			//I have to come up with a way for the game to end...
+			//this could possibly reuse the retreat method used for the user
 		}
 		private void attack()
 		{
@@ -485,6 +536,8 @@ public class BattleController extends Activity implements OnClickListener
 			}
 		}
 		//The enemy will attack 3 second after the user has attacked.
+		//for now I'll just have it so the player will be attacked everytime
+		//they attack
 		@Override
 		protected String doInBackground(final String... cmd)
 		{
@@ -506,12 +559,7 @@ public class BattleController extends Activity implements OnClickListener
 		@Override
 		protected void onPostExecute(String result)
 		{
-			//instead of just attacking, I'm going to randomize
-			//what the computer player does.  For now I'm super tired
-			//but I'll just comment the stuff that I shall do.
-			//the Computer Player will choose attack most of the time
-			//and then be able to choose an item if it's low on health once
-			//then past a certain point it can also retreat.
+			
 		}
 	}
 	
