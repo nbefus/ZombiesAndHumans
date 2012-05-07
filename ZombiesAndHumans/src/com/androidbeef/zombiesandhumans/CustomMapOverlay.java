@@ -2,10 +2,15 @@ package com.androidbeef.zombiesandhumans;
 
 import java.util.ArrayList;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.MotionEvent;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.maps.ItemizedOverlay;
@@ -14,7 +19,7 @@ import com.google.android.maps.OverlayItem;
 
 public class CustomMapOverlay extends ItemizedOverlay
 {
-	private boolean					isPinch		= false;
+	//private boolean					isPinch		= false;
 	private Context					c;
 
 	private ArrayList<OverlayItem>	mOverlays	= new ArrayList<OverlayItem>();
@@ -37,6 +42,7 @@ public class CustomMapOverlay extends ItemizedOverlay
 		populate();
 	}
 
+	/*
 	@Override
 	public boolean onTouchEvent(MotionEvent e, MapView mapView)
 	{
@@ -59,61 +65,98 @@ public class CustomMapOverlay extends ItemizedOverlay
 		}
 		return super.onTouchEvent(e, mapView);
 	}
+	*/
 
 	@Override
 	protected boolean onTap(int index)
 	{
-		if (!isPinch)
-		{
+		//if (!isPinch)
+		//{
 			OverlayItem item = mOverlays.get(index);
 
-			Toast.makeText(c, item.getSnippet() + ":"+item.getTitle() +":"+ item.getPoint(),
-					Toast.LENGTH_SHORT).show();
-			/*
-			 * AlertDialog.Builder dialog = new
-			 * AlertDialog.Builder(mContext);
-			 * 
-			 * dialog.setTitle(item.getTitle());
-			 * dialog.setMessage(item.getSnippet());
-			 * 
-			 * if (!item.getTitle().equals("You are (around) here")) {
-			 * i.putExtra(MapsActivity.STOP_ID, item.getSnippet());
-			 * System.out.println(MapsActivity.STOP_ID + " " +
-			 * item.getSnippet());
-			 * 
-			 * if (!event.equals("bus")) {
-			 * dialog.setPositiveButton(R.string.loadStop, new
-			 * OnClickListener() {
-			 * 
-			 * @Override public void onClick(DialogInterface dialog, int
-			 * which) { startActivity(i);
-			 * 
-			 * } }); } else { dialog.setPositiveButton(R.string.pos_button,
-			 * new OnClickListener() {
-			 * 
-			 * @Override public void onClick(DialogInterface dialog, int
-			 * which) { dialog.cancel(); } }); }
-			 * 
-			 * if (!event.equals("bus")) {
-			 * dialog.setNegativeButton(R.string.neg_button, new
-			 * OnClickListener() {
-			 * 
-			 * @Override public void onClick(DialogInterface dialog, int
-			 * which) { dialog.cancel();
-			 * 
-			 * } }); } } else {
-			 * dialog.setPositiveButton(R.string.pos_button, new
-			 * OnClickListener() {
-			 * 
-			 * @Override public void onClick(DialogInterface dialog, int
-			 * which) { // TODO Auto-generated method stub dialog.cancel();
-			 * } }); }
-			 * 
-			 * dialog.show(); return true;
-			 */
-		}
+			//Toast.makeText(
+			//		c,
+			//		item.getSnippet() + ":" + item.getTitle() + ":"
+			//				+ item.getPoint(), Toast.LENGTH_SHORT).show();
 
-		return false;
+			
+			AlertDialog.Builder dialog = new AlertDialog.Builder(c);	
+			
+			dialog.setTitle(item.getTitle());
+			dialog.setMessage(item.getSnippet());
+			dialog.setPositiveButton(android.R.string.ok,
+					new OnClickListener()
+					{
+
+						@Override
+						public void onClick(DialogInterface dialog,
+								int which)
+						{
+							dialog.dismiss();
+
+						}
+
+					});
+			/*
+			if (!item.getTitle().equals("You are here"))
+			{		
+			
+				
+
+
+				dialog.setPositiveButton(android.R.string.ok,
+						new OnClickListener()
+						{
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which)
+							{
+								
+
+							}
+
+						});
+
+			}
+			else
+			{
+				dialog.setMessage(
+						"Are you sure you want to battle " + item.getTitle() + " at level "
+								+ item.getSnippet());
+				dialog.setTitle("Battle Confirmation");
+						dialog.setCancelable(true);
+				dialog.setPositiveButton(android.R.string.ok,
+						new OnClickListener()
+						{
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which)
+							{ 
+								
+							}
+						});
+				dialog.setNegativeButton(android.R.string.cancel,
+						new OnClickListener()
+						{
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which)
+							{ 
+								dialog.cancel();
+							}
+						});
+			}
+			*/
+
+			dialog.show();
+			return true;
+
+		//}
+
+		//return false;
 
 	}
 

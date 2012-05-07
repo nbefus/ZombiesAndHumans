@@ -40,16 +40,17 @@ public class BattleController extends Activity implements OnClickListener
 	private ListView itemsView;
 	private Random randomGenerator;
 	
-	private int userLevel=1;
-	private int enemyLevel=1;
-	private int userHealth=100;
-	private int enemyHealth=100;
+	private int userLevel;//=1;
+	private int enemyLevel;//=1;
+	private int userHealth;//=100;
+	private int enemyHealth;//=100;
 	private int userBP=5;
 	private int enemyBP=5;
 	private String userItem="bat";
+	private boolean isRetreat = false;
 	private String enemyItem="none";
-	private String[]				itemNames = {"medkit","waterbottle","canned food"};
-	private double[]					numOfItem = {0.2,0.1,0.1};
+	//private String[]				itemNames = {"medkit","waterbottle","canned food"};
+	//private double[]					numOfItem = {0.2,0.1,0.1};
 	private HashMap<String, Number>	itemNameAndNum;
 	private String attackCooldown="5000"; //in milliseconds
 	private String enemyAttackTime="1000";
@@ -70,9 +71,15 @@ public class BattleController extends Activity implements OnClickListener
 		brain.setEnemy((Player) getIntent().getExtras().getSerializable(
 				"enemy"));
 		
+		enemyHealth = brain.getEnemyCharacter().getHealth();
+		userHealth = brain.getCharacter().getHealth();
+		userLevel = brain.getCharacter().getClevel();
+		enemyLevel = brain.getEnemyCharacter().getClevel();
+		
 		((Button) findViewById(R.id.attackButton)).setOnClickListener(this);
 		((Button) findViewById(R.id.retreatButton)).setOnClickListener(this);
 		((Button) findViewById(R.id.reloadButton)).setOnClickListener(this);
+		((Button) findViewById(R.id.reloadButton)).setVisibility(View.INVISIBLE); //Until we get it implemented
 		this.getULevelDisplay().setText(""+userLevel);
 		this.getUHealthDisplay().setText(""+userHealth);
 		this.getUCurrentIDisplay().setText(userItem);
@@ -87,26 +94,72 @@ public class BattleController extends Activity implements OnClickListener
 	private void setItems()
 	{
 		itemNameAndNum = new HashMap<String,Number>();
-		
+		System.out.println("ITEM SIZE: "+brain.getItems().size());
 		for (int i = 0; i < brain.getItems().size(); i++)
 		{
-			//Will use when all items are connected to database. The commentted out part means that people can only have what they have in their backpack during battle
-			//if(brain.getItems().get(i).getInstorage() == 'n')
-				itemNameAndNum.put(brain.getItems().get(i).getIname(),numOfItem[i]);/// brain.getItems().get(i).getItemcount());
+			String[] abil = brain.getItems().get(i).getAbility().split(" ");
+			if((abil[0].equals("+") && abil[2].equals("hp")) && brain.getItems().get(i).getInbackpackcount()>0)
+				itemNameAndNum.put(brain.getItems().get(i).getIname(),Double.parseDouble(abil[1]));/// brain.getItems().get(i).getItemcount());
 		}
+		
 		createListView(itemsView, itemNameAndNum);
 	}
 	
 	private void getAllItems()
 	{
-		String[] entities = {"itemid","iname","itemcount","instorage"};
+		String[] entities = {"itemid","iname","ability","inbackpackcount","instoragecount"};
 		String filename = "testing";
-		String[] dataTypes = {"int","string","int","string"};
-		String query = "SELECT i.itemid, iname, itemcount, instorage FROM backpack b JOIN backpackitems p ON b.backpackid = p.backpackid JOIN item i ON p.itemid = i.itemid WHERE b.backpackid="+brain.getSelf().getBackpackid();
+		String[] dataTypes = {"int","string","string","int","int"};
+		String query = "SELECT i.itemid, iname, ability, inbackpackcount, instoragecount FROM backpack b JOIN backpackitems p ON b.backpackid = p.backpackid JOIN item i ON p.itemid = i.itemid WHERE b.backpackid="+brain.getSelf().getBackpackid();
 				
 		brain.prepareForQuery(entities, filename, dataTypes, query);
 		pd = ProgressDialog.show(this, "Processing...", "Checking with database", true, true);
 		new performQuery().execute("Get All Items");
+	}
+	
+	private void updateItem(String iname)
+	{
+		String filename = "testing";
+		String query6;
+		int posOfItem = brain.findItemByName(iname);
+		
+		query6 = "UPDATE backpackitems SET inbackpackcount="+(brain.getItems().get(posOfItem).getInbackpackcount()-1)+" WHERE backpackid="+brain.getSelf().getBackpackid()+" AND itemid="+brain.getItems().get(brain.findItemByName(iname)).getItemid();
+
+		brain.getItems().get(posOfItem).setInbackpackcount(brain.getItems().get(posOfItem).getInbackpackcount()-1);
+		brain.prepareForQuery(null, filename, null, query6);
+		pd = ProgressDialog.show(this, "Processing...", "Inserting into database", true, true);
+		new performQuery().execute("Update Item");
+	}
+	
+	private void updateHealth(boolean myHealth, boolean isRetreat)//, int uHealth, int eHealth)
+	{
+		String filename = "testing";
+		String query6;
+		int minusHealth=0;
+		if(isRetreat)
+			minusHealth = enemyBP;
+		if(myHealth)
+		{
+			query6 = "UPDATE `character` SET health="+(Integer.parseInt((String) getUHealthDisplay().getText().toString())-minusHealth)+" WHERE characterid="+brain.getCharacter().getCharacterid();//(uHealth-minusHealth)+" WHERE characterid="+brain.getCharacter().getCharacterid();
+			brain.getCharacter().setHealth((Integer.parseInt((String) getUHealthDisplay().getText().toString())-minusHealth));
+		}
+		else
+		{
+			query6 = "UPDATE `character` SET health="+Integer.parseInt((String) getEHealthDisplay().getText().toString())+" WHERE characterid="+brain.getEnemyCharacter().getCharacterid();//eHealth+" WHERE characterid="+brain.getEnemyCharacter().getCharacterid();
+			brain.getEnemyCharacter().setHealth(Integer.parseInt((String) getEHealthDisplay().getText().toString()));
+
+		}
+
+		brain.prepareForQuery(null, filename, null, query6);
+		
+		if(myHealth)
+		{
+			//pd = ProgressDialog.show(this, "Processing...", "Inserting into database", true, true);
+			new performQuery().execute("Update Self Health");//+eHealth);
+		}
+			
+		else
+			new performQuery().execute("Update Enemy Health");
 	}
 	
 	private void createListView(final ListView v, final HashMap<String,Number> map)
@@ -135,11 +188,44 @@ public class BattleController extends Activity implements OnClickListener
 					Toast.LENGTH_LONG).show();
 			for (int i = 0; i < map.size(); i++)
 			{
-				adapter.add(""+ (String)keys[i]);
+				adapter.add("["+brain.getItems().get(brain.findItemByName(((String)keys[i]).trim())).getInbackpackcount()+"] "+ (String)keys[i]);
 			}
 
 			v.invalidate();
 		}
+	}
+	
+	private void confirmRetreat()
+	{
+		AlertDialog.Builder dialog = new AlertDialog.Builder(BattleController.this);	
+		
+		dialog.setTitle("Retreat Confirmation");
+		dialog.setMessage("Are you sure you want to retreat? You will take " +enemyBP+" damage for retreating.");
+		dialog.setPositiveButton(android.R.string.ok,
+				new DialogInterface.OnClickListener()
+				{
+					@Override
+					public void onClick(DialogInterface dialog,
+							int which)
+					{
+						retreat();
+
+					}
+
+				});
+		dialog.setNegativeButton(android.R.string.cancel,
+				new DialogInterface.OnClickListener()
+				{
+					@Override
+					public void onClick(DialogInterface dialog,
+							int which)
+					{
+						dialog.dismiss();
+
+					}
+
+				});
+		dialog.show();
 	}
 	private void itemDialog(final ListView v, final String name, final double abilityAmt)
 	{
@@ -158,6 +244,11 @@ public class BattleController extends Activity implements OnClickListener
 								currentUHealth=(int) (currentUHealth*(1+abilityAmt));
 								if(currentUHealth<150)
 								{
+									//update itemcount and health
+									itemNameAndNum.put(name, (itemNameAndNum.get(name).intValue()-1));
+									v.invalidate();
+									updateItem(name.trim());
+									setItems();
 									getUHealthDisplay().setText(""+currentUHealth);
 								}
 								else
@@ -197,22 +288,49 @@ public class BattleController extends Activity implements OnClickListener
 		}
 		else if(v.getId()==R.id.retreatButton)
 		{
-			//Intent a = new Intent(PreBattleController.this, CharacterController.class);
-			//startActivity(a);
-			Context context=getApplicationContext();
-			CharSequence fleeText="You are now leaving the battle and will take "+enemyBP+" of damage.";
-			int duration=Toast.LENGTH_SHORT;
-			Toast.makeText(context, fleeText, duration).show();
-			Intent a = new Intent(BattleController.this,
-					HomeScreenController.class);
-			a.putExtra("self", brain.getSelf());
-			startActivity(a);
+			confirmRetreat();
 		}
 		else if(v.getId()==R.id.reloadButton)
 		{
 			//this will eventually be used to reload the selected weapon
 		}
 	}
+	
+	
+	private void retreat()
+	{
+		isRetreat = true;
+			//Intent a = new Intent(PreBattleController.this, CharacterController.class);
+			//startActivity(a);
+			Context context=getApplicationContext();
+			CharSequence fleeText="You are now leaving the battle and will take "+enemyBP+" of damage.";
+			updateHealth(true,true);//,Integer.parseInt((String) getUHealthDisplay().getText().toString()),Integer.parseInt((String) getEHealthDisplay().getText().toString()));
+			//updateHealth(false,false);
+			int duration=Toast.LENGTH_SHORT;
+			Toast.makeText(context, fleeText, duration).show();
+			
+			Intent a = new Intent(BattleController.this,
+					HomeScreenController.class);
+			a.putExtra("self", brain.getSelf());
+			a.putExtra("char", brain.getCharacter());
+			startActivity(a);
+			/*
+		updateHealth(true,true);
+		//updateHealth(true,true);
+		//updateHealth(false,false);
+		Context context=getApplicationContext();
+		CharSequence fleeText="You are now leaving the battle and will take "+enemyBP+" of damage.";
+		
+		int duration=Toast.LENGTH_SHORT;
+		Toast.makeText(context, fleeText, duration).show();*/
+	}	
+	
+	@Override
+	public void onBackPressed()
+	{
+		confirmRetreat();
+	}
+
 	public Button getAttackButton()
 	{
 		if(attack==null)
@@ -257,7 +375,7 @@ public class BattleController extends Activity implements OnClickListener
 	{
 		if(eCurrentIDisplay==null)
 		{
-			eCurrentIDisplay=(TextView) findViewById(R.id.textView4);
+			eCurrentIDisplay=(TextView) findViewById(R.id.userCIDisplay);
 		}
 		return eCurrentIDisplay;
 	}
@@ -297,7 +415,7 @@ public class BattleController extends Activity implements OnClickListener
 	{
 		if(uCurrentIDisplay==null)
 		{
-			uCurrentIDisplay=(TextView) findViewById(R.id.userCIDisplay);
+			uCurrentIDisplay=(TextView) findViewById(R.id.textView4);
 		}
 		return uCurrentIDisplay;
 	}
@@ -423,7 +541,28 @@ public class BattleController extends Activity implements OnClickListener
 				else
 					Toast.makeText(BattleController.this, "Updating failed",
 							Toast.LENGTH_LONG).show();
+				
 				pd.dismiss();
+			}
+			else if(result.equals("Update Enemy Health")||result.equals("Update Self Health"))
+			{
+				if(updated)
+					Toast.makeText(BattleController.this, "Updating health worked",
+						Toast.LENGTH_LONG).show();
+				else
+					Toast.makeText(BattleController.this, "Updating health failed",
+							Toast.LENGTH_LONG).show();
+				
+				if(result.equals("Update Enemy Health"))
+				{
+					//pd.dismiss();
+				}
+				else
+				{
+					//String[] geteHealth = result.split(" ");
+					updateHealth(false,false);//,0,Integer.parseInt(geteHealth[3].trim()));
+				}
+					
 			}
 			else if(result.equals("Get All Items"))
 			{
@@ -436,7 +575,7 @@ public class BattleController extends Activity implements OnClickListener
 						
 						for(int i=0; i<dbItems.length; i++)
 						{
-							items.add(new Item(((Integer)dbItems[i][0]).intValue(), (String)dbItems[i][1], ((Integer)dbItems[i][2]).intValue(), ((String)dbItems[i][3]).charAt(0)));
+							items.add(new Item(((Integer)dbItems[i][0]).intValue(), (String)dbItems[i][1], (String)dbItems[i][2], ((Integer)dbItems[i][3]).intValue(),((Integer)dbItems[i][4]).intValue()));
 						}
 						
 						brain.setItems(items);

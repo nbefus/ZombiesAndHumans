@@ -2,16 +2,16 @@ package com.androidbeef.zombiesandhumans;
 
 public class Item
 {
-	private int itemid,itemcount;
-	private String iname;
-	private char instorage;
+	private int itemid,inbackpackcount,instoragecount;
+	private String iname, ability;
 	
-	public Item(int itemid, String iname, int itemcount, char instorage)
+	public Item(int itemid, String iname,String ability,int inbackpackcount, int instoragecount)
 	{
+		this.ability = ability;
 		this.itemid = itemid;
-		this.itemcount = itemcount;
+		this.inbackpackcount = inbackpackcount;
 		this.iname = iname;
-		this.instorage = instorage;
+		this.instoragecount = instoragecount;
 	}
 
 	public int getItemid()
@@ -19,19 +19,24 @@ public class Item
 		return itemid;
 	}
 
-	public int getItemcount()
+	public int getInbackpackcount()
 	{
-		return itemcount;
+		return inbackpackcount;
 	}
 
 	public String getIname()
 	{
 		return iname;
 	}
-
-	public char getInstorage()
+	
+	public String getAbility()
 	{
-		return instorage;
+		return ability;
+	}
+
+	public int getInstoragecount()
+	{
+		return instoragecount;
 	}
 
 	public void setItemid(int itemid)
@@ -41,16 +46,31 @@ public class Item
 
 	public void setItemcount(int itemcount)
 	{
-		this.itemcount = itemcount;
+		this.inbackpackcount = itemcount;
 	}
 
 	public void setIname(String iname)
 	{
 		this.iname = iname;
 	}
-
-	public void setInstorage(char instorage)
+	
+	public void setAbility(String ability)
 	{
-		this.instorage = instorage;
+		this.ability = ability;
+	}
+
+	public void setInstorage(int instorage)
+	{
+		this.instoragecount = instorage;
+	}
+
+	public void setInbackpackcount(int inbackpackcount)
+	{
+		this.inbackpackcount = inbackpackcount;
+	}
+
+	public void setInstoragecount(int instoragecount)
+	{
+		this.instoragecount = instoragecount;
 	}
 }

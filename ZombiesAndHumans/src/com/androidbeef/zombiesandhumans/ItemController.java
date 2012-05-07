@@ -45,10 +45,10 @@ public class ItemController extends Activity
 	{
 		for(int i=0; i<brain.getItems().size(); i++)
 		{
-			if(brain.getItems().get(i).getInstorage() == 'y')
-				alitems.put(brain.getItems().get(i).getIname(), brain.getItems().get(i).getItemcount());
-			else
-				albackpackItems.put(brain.getItems().get(i).getIname(), brain.getItems().get(i).getItemcount());
+			if(brain.getItems().get(i).getInstoragecount() > 0)
+				alitems.put(brain.getItems().get(i).getIname(), brain.getItems().get(i).getInstoragecount());
+			if(brain.getItems().get(i).getInbackpackcount() > 0)
+				albackpackItems.put(brain.getItems().get(i).getIname(), brain.getItems().get(i).getInbackpackcount());
 		}
 		
 		setUpListView(storageListView,alitems, "backpack");
@@ -57,10 +57,10 @@ public class ItemController extends Activity
 	
 	private void getAllItems()
 	{
-		String[] entities = {"itemid","iname","itemcount","instorage"};
+		String[] entities = {"itemid","iname","ability","inbackpackcount","instoragecount"};
 		String filename = "testing";
-		String[] dataTypes = {"int","string","int","string"};
-		String query = "SELECT i.itemid, iname, itemcount, instorage FROM backpack b JOIN backpackitems p ON b.backpackid = p.backpackid JOIN item i ON p.itemid = i.itemid WHERE b.backpackid="+brain.getSelf().getBackpackid();
+		String[] dataTypes = {"int","string","string","int","int"};
+		String query = "SELECT i.itemid, iname, ability, inbackpackcount, instoragecount FROM backpack b JOIN backpackitems p ON b.backpackid = p.backpackid JOIN item i ON p.itemid = i.itemid WHERE b.backpackid="+brain.getSelf().getBackpackid();
 				
 		brain.prepareForQuery(entities, filename, dataTypes, query);
 		pd = ProgressDialog.show(this, "Processing...", "Checking with database", true, true);
@@ -97,16 +97,19 @@ public class ItemController extends Activity
 			v.invalidate();
 		}
 	}
-	
-	private void deleteItem(String item, String what)
+	private void updateItem(String iname, boolean goinginstorage)
 	{
 		String filename = "testing";
-		String query6 = "DELETE FROM `backpackitems` WHERE " +
-				" ("+(1)+",50,100)";
-				
+		String query6;
+		int posOfItem = brain.findItemByName(iname);
+		if(goinginstorage)
+			query6 = "UPDATE backpackitems SET inbackpackcount="+(brain.getItems().get(posOfItem).getInbackpackcount()-1)+",instoragecount="+(brain.getItems().get(posOfItem).getInstoragecount()+1)+" WHERE backpackid="+brain.getSelf().getBackpackid()+" AND itemid="+brain.getItems().get(brain.findItemByName(iname)).getItemid();
+		else
+			query6 = "UPDATE backpackitems SET inbackpackcount="+(brain.getItems().get(posOfItem).getInbackpackcount()+1)+",instoragecount="+(brain.getItems().get(posOfItem).getInstoragecount()-1)+" WHERE backpackid="+brain.getSelf().getBackpackid()+" AND itemid="+brain.getItems().get(brain.findItemByName(iname)).getItemid();
+
 		brain.prepareForQuery(null, filename, null, query6);
 		pd = ProgressDialog.show(this, "Processing...", "Inserting into database", true, true);
-		new performQuery().execute("Insert Backpack");
+		new performQuery().execute("Update Item");
 	}
 	
 	private void itemDialog(final ListView v, final String item, final String what)
@@ -123,6 +126,7 @@ public class ItemController extends Activity
 							{
 								if(what.contains("backpack"))
 								{
+									updateItem(item, false);
 										if(alitems.containsKey(item) && alitems.get(item).intValue() > 1)
 										{
 											alitems.put(item, alitems.remove(item).intValue()-1);
@@ -143,6 +147,7 @@ public class ItemController extends Activity
 								}
 								else
 								{
+									updateItem(item, true);
 									if(albackpackItems.containsKey(item) && albackpackItems.get(item).intValue() > 1)
 									{
 										albackpackItems.put(item, albackpackItems.remove(item).intValue()-1);
@@ -182,7 +187,7 @@ public class ItemController extends Activity
 		@Override
 		protected String doInBackground(String... parameters)
 		{
-			if(parameters[0].equals("Get Backpack Items") || parameters[0].equals("Get Storage Items") || parameters[0].equals("Get All Items"))
+			if(parameters[0].equals("Get All Items"))
 				updated = brain .performQuery(true);
 			else
 				updated = brain.performQuery(false);
@@ -196,10 +201,10 @@ public class ItemController extends Activity
 			if(result.equals("Update Item"))
 			{
 				if(updated)
-					Toast.makeText(ItemController.this, "Updating worked",
+					Toast.makeText(ItemController.this, "Updating item worked",
 						Toast.LENGTH_LONG).show();
 				else
-					Toast.makeText(ItemController.this, "Updating failed",
+					Toast.makeText(ItemController.this, "Updating item failed",
 							Toast.LENGTH_LONG).show();
 				pd.dismiss();
 			}
@@ -214,7 +219,7 @@ public class ItemController extends Activity
 						
 						for(int i=0; i<dbItems.length; i++)
 						{
-							items.add(new Item(((Integer)dbItems[i][0]).intValue(), (String)dbItems[i][1], ((Integer)dbItems[i][2]).intValue(), ((String)dbItems[i][3]).charAt(0)));
+							items.add(new Item(((Integer)dbItems[i][0]).intValue(), (String)dbItems[i][1], (String)dbItems[i][2], ((Integer)dbItems[i][3]).intValue(),((Integer)dbItems[i][4]).intValue()));
 						}
 						
 						brain.setItems(items);

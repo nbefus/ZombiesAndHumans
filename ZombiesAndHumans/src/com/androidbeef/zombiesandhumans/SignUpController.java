@@ -83,6 +83,8 @@ public class SignUpController extends Activity implements OnClickListener
 		else
 			date += "-" + day;
 
+		int randomx = (int) Math.random()*5;
+		int randomy = (int) Math.random()*5;
 		String query6 = "INSERT INTO `player`(`playerid`,`computerplayer`,`username`,`password`,`datejoined`,`locationx`,`locationy`,`safehousex`,`safehousey`,`backpackid`,`characterid`) VALUES"
 				+ " ("
 				+ (numOfPlayers + 1)
@@ -92,7 +94,7 @@ public class SignUpController extends Activity implements OnClickListener
 				+ password.getText().toString().trim()
 				+ "','"
 				+ date
-				+ "',21.2500,-157.8100,21.2500,-157.8100,"
+				+ "',21.5"+randomx+"00,-157.8"+randomy+"00,21.5"+randomx+"00,-157.8"+randomy+"00,"
 				+ (numOfBackpacks + 1) + "," + (numOfCharacters + 1) + ")";
 
 		brain.prepareForQuery(null, filename, null, query6);
@@ -127,18 +129,18 @@ public class SignUpController extends Activity implements OnClickListener
 		new performQuery().execute("Insert Backpack");
 	}
 
-	private void newBackpackItems(int itemid, int itemcount, char instorage)
+	private void newBackpackItems(int itemid, int inbackpackcount, int instoragecount)
 	{
 		String filename = "testing";
 
-		String query6 = "INSERT INTO `backpackitems`(`backpackid`,`itemid`,`itemcount`,`instorage`) VALUES"
+		String query6 = "INSERT INTO `backpackitems`(`backpackid`,`itemid`,`inbackpackcount`,`instoragecount`) VALUES"
 				+ " ("
 				+ (numOfBackpacks + 1)
 				+ ","
 				+ itemid
 				+ ","
-				+ itemcount
-				+ ",'"+instorage+"')";
+				+ inbackpackcount
+				+ ","+instoragecount+")";
 
 		brain.prepareForQuery(null, filename, null, query6);
 		new performQuery().execute("Insert Item " + itemid + " Into Backpack");
@@ -204,9 +206,9 @@ public class SignUpController extends Activity implements OnClickListener
 					|| result.equals("Insert Item 5 Into Backpack"))
 			{
 				if (result.equals("Insert Item 1 Into Backpack"))
-					newBackpackItems(2, 2,'y');
+					newBackpackItems(2, 2,2);
 				else if (result.equals("Insert Item 2 Into Backpack"))
-					newBackpackItems(5, 1,'n');
+					newBackpackItems(5, 1,0);
 				else
 					newCharacter();
 			}
@@ -221,7 +223,7 @@ public class SignUpController extends Activity implements OnClickListener
 			{
 				if (updated)
 				{
-					newBackpackItems(1, 1,'y');
+					newBackpackItems(1, 6, 2);
 				}
 			}
 			else if (result.equals("Count Users"))
