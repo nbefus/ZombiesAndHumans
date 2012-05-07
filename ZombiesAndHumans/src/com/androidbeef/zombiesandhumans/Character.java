@@ -52,6 +52,46 @@ public class Character implements Serializable
 	{
 		return cname;
 	}
+
+	public void setCharacterid(int characterid)
+	{
+		this.characterid = characterid;
+	}
+
+	public void setClevel(int clevel)
+	{
+		this.clevel = clevel;
+	}
+
+	public void setHealth(int health)
+	{
+		this.health = health;
+	}
+
+	public void setStrength(int strength)
+	{
+		this.strength = strength;
+	}
+
+	public void setDefense(int defense)
+	{
+		this.defense = defense;
+	}
+
+	public void setAccuracy(int accuracy)
+	{
+		this.accuracy = accuracy;
+	}
+
+	public void setEvasion(int evasion)
+	{
+		this.evasion = evasion;
+	}
+
+	public void setCname(String cname)
+	{
+		this.cname = cname;
+	}
 	
 	
 }

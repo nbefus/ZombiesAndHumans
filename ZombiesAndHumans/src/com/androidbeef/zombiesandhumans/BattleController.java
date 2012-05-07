@@ -38,16 +38,17 @@ public class BattleController extends Activity implements OnClickListener
 	private Button reload;
 	private ListView itemsView;
 	
-	private int userLevel=1;
-	private int enemyLevel=1;
-	private int userHealth=100;
-	private int enemyHealth=100;
+	private int userLevel;//=1;
+	private int enemyLevel;//=1;
+	private int userHealth;//=100;
+	private int enemyHealth;//=100;
 	private int userBP=5;
 	private int enemyBP=5;
 	private String userItem="bat";
+	private boolean isRetreat = false;
 	private String enemyItem="none";
-	private String[]				itemNames = {"medkit","waterbottle","canned food"};
-	private double[]					numOfItem = {0.2,0.1,0.1};
+	//private String[]				itemNames = {"medkit","waterbottle","canned food"};
+	//private double[]					numOfItem = {0.2,0.1,0.1};
 	private HashMap<String, Number>	itemNameAndNum;
 	private String attackCooldown="5000"; //in miliseconds
 	private String enemyAttackTime="1000";
@@ -67,6 +68,11 @@ public class BattleController extends Activity implements OnClickListener
 				"enemy char"));
 		brain.setEnemy((Player) getIntent().getExtras().getSerializable(
 				"enemy"));
+		
+		enemyHealth = brain.getEnemyCharacter().getHealth();
+		userHealth = brain.getCharacter().getHealth();
+		userLevel = brain.getCharacter().getClevel();
+		enemyLevel = brain.getEnemyCharacter().getClevel();
 		
 		((Button) findViewById(R.id.attackButton)).setOnClickListener(this);
 		((Button) findViewById(R.id.retreatButton)).setOnClickListener(this);
@@ -123,20 +129,33 @@ public class BattleController extends Activity implements OnClickListener
 		new performQuery().execute("Update Item");
 	}
 	
-	private void updateHealth(boolean myHealth)
+	private void updateHealth(boolean myHealth, boolean isRetreat)//, int uHealth, int eHealth)
 	{
 		String filename = "testing";
 		String query6;
-		
+		int minusHealth=0;
+		if(isRetreat)
+			minusHealth = enemyBP;
 		if(myHealth)
-			query6 = "UPDATE `character` SET health="+Integer.parseInt((String) getUHealthDisplay().getText().toString())+" WHERE characterid="+brain.getCharacter().getCharacterid();
+		{
+			query6 = "UPDATE `character` SET health="+(Integer.parseInt((String) getUHealthDisplay().getText().toString())-minusHealth)+" WHERE characterid="+brain.getCharacter().getCharacterid();//(uHealth-minusHealth)+" WHERE characterid="+brain.getCharacter().getCharacterid();
+			brain.getCharacter().setHealth((Integer.parseInt((String) getUHealthDisplay().getText().toString())-minusHealth));
+		}
 		else
-			query6 = "UPDATE `character` SET health="+Integer.parseInt((String) getUHealthDisplay().getText().toString())+" WHERE characterid="+brain.getEnemyCharacter().getCharacterid();
+		{
+			query6 = "UPDATE `character` SET health="+Integer.parseInt((String) getEHealthDisplay().getText().toString())+" WHERE characterid="+brain.getEnemyCharacter().getCharacterid();//eHealth+" WHERE characterid="+brain.getEnemyCharacter().getCharacterid();
+			brain.getEnemyCharacter().setHealth(Integer.parseInt((String) getEHealthDisplay().getText().toString()));
+
+		}
 
 		brain.prepareForQuery(null, filename, null, query6);
-		pd = ProgressDialog.show(this, "Processing...", "Inserting into database", true, true);
+		
 		if(myHealth)
-			new performQuery().execute("Update Self Health");
+		{
+			//pd = ProgressDialog.show(this, "Processing...", "Inserting into database", true, true);
+			new performQuery().execute("Update Self Health");//+eHealth);
+		}
+			
 		else
 			new performQuery().execute("Update Enemy Health");
 	}
@@ -172,6 +191,39 @@ public class BattleController extends Activity implements OnClickListener
 
 			v.invalidate();
 		}
+	}
+	
+	private void confirmRetreat()
+	{
+		AlertDialog.Builder dialog = new AlertDialog.Builder(BattleController.this);	
+		
+		dialog.setTitle("Retreat Confirmation");
+		dialog.setMessage("Are you sure you want to retreat? You will take " +enemyBP+" damage for retreating.");
+		dialog.setPositiveButton(android.R.string.ok,
+				new DialogInterface.OnClickListener()
+				{
+					@Override
+					public void onClick(DialogInterface dialog,
+							int which)
+					{
+						retreat();
+
+					}
+
+				});
+		dialog.setNegativeButton(android.R.string.cancel,
+				new DialogInterface.OnClickListener()
+				{
+					@Override
+					public void onClick(DialogInterface dialog,
+							int which)
+					{
+						dialog.dismiss();
+
+					}
+
+				});
+		dialog.show();
 	}
 	private void itemDialog(final ListView v, final String name, final double abilityAmt)
 	{
@@ -234,23 +286,49 @@ public class BattleController extends Activity implements OnClickListener
 		}
 		else if(v.getId()==R.id.retreatButton)
 		{
-			//Intent a = new Intent(PreBattleController.this, CharacterController.class);
-			//startActivity(a);
-			Context context=getApplicationContext();
-			CharSequence fleeText="You are now leaving the battle and will take "+enemyBP+" of damage.";
-			int duration=Toast.LENGTH_SHORT;
-			Toast.makeText(context, fleeText, duration).show();
-			
-			Intent a = new Intent(BattleController.this,
-					HomeScreenController.class);
-			a.putExtra("self", brain.getSelf());
-			startActivity(a);
+			confirmRetreat();
 		}
 		else if(v.getId()==R.id.reloadButton)
 		{
 			//this will eventually be used to reload the selected weapon
 		}
 	}
+	
+	
+	private void retreat()
+	{
+		isRetreat = true;
+			//Intent a = new Intent(PreBattleController.this, CharacterController.class);
+			//startActivity(a);
+			Context context=getApplicationContext();
+			CharSequence fleeText="You are now leaving the battle and will take "+enemyBP+" of damage.";
+			updateHealth(true,true);//,Integer.parseInt((String) getUHealthDisplay().getText().toString()),Integer.parseInt((String) getEHealthDisplay().getText().toString()));
+			//updateHealth(false,false);
+			int duration=Toast.LENGTH_SHORT;
+			Toast.makeText(context, fleeText, duration).show();
+			
+			Intent a = new Intent(BattleController.this,
+					HomeScreenController.class);
+			a.putExtra("self", brain.getSelf());
+			a.putExtra("char", brain.getCharacter());
+			startActivity(a);
+			/*
+		updateHealth(true,true);
+		//updateHealth(true,true);
+		//updateHealth(false,false);
+		Context context=getApplicationContext();
+		CharSequence fleeText="You are now leaving the battle and will take "+enemyBP+" of damage.";
+		
+		int duration=Toast.LENGTH_SHORT;
+		Toast.makeText(context, fleeText, duration).show();*/
+	}	
+	
+	@Override
+	public void onBackPressed()
+	{
+		confirmRetreat();
+	}
+
 	public Button getAttackButton()
 	{
 		if(attack==null)
@@ -431,10 +509,14 @@ public class BattleController extends Activity implements OnClickListener
 				
 				if(result.equals("Update Enemy Health"))
 				{
-					pd.dismiss();
+					//pd.dismiss();
 				}
 				else
-					updateHealth(false);
+				{
+					//String[] geteHealth = result.split(" ");
+					updateHealth(false,false);//,0,Integer.parseInt(geteHealth[3].trim()));
+				}
+					
 			}
 			else if(result.equals("Get All Items"))
 			{
