@@ -59,7 +59,6 @@ public class PreBattleController extends MapActivity
 			nameandlevel.put(brain.getEnemies().get(i).getUsername(), brain
 					.getEnemiesCharacters().get(i).getClevel());
 		}
-
 		setUpListView(lv, nameandlevel);
 		putMeAndEnemiesOnMap();
 		mc.animateTo(myGeoPoint);

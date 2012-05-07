@@ -2,6 +2,7 @@ package com.androidbeef.zombiesandhumans;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 import com.androidbeef.zombiesandhumans.ItemController.performQuery;
 
@@ -37,6 +38,7 @@ public class BattleController extends Activity implements OnClickListener
 	private Button retreat;
 	private Button reload;
 	private ListView itemsView;
+	private Random randomGenerator;
 	
 	private int userLevel=1;
 	private int enemyLevel=1;
@@ -49,7 +51,7 @@ public class BattleController extends Activity implements OnClickListener
 	private String[]				itemNames = {"medkit","waterbottle","canned food"};
 	private double[]					numOfItem = {0.2,0.1,0.1};
 	private HashMap<String, Number>	itemNameAndNum;
-	private String attackCooldown="5000"; //in miliseconds
+	private String attackCooldown="5000"; //in milliseconds
 	private String enemyAttackTime="1000";
 	private ZombiesAndHumansBrain brain = new ZombiesAndHumansBrain(this);
 	private ProgressDialog	pd;
@@ -227,6 +229,14 @@ public class BattleController extends Activity implements OnClickListener
 		}
 		return reload;
 	}
+	public Button getRetreatButton()
+	{
+		if(retreat==null)
+		{
+			retreat=(Button) findViewById(R.id.retreatButton);
+		}
+		return retreat;
+	}
 	public TextView getEHealthDisplay()
 	{
 		if(eHealthDisplay==null)
@@ -320,6 +330,42 @@ public class BattleController extends Activity implements OnClickListener
 	
 	public class computerPlayer extends AsyncTask<String,Integer,String>
 	{
+		private void retreat()
+		{
+			//I have to come up with a way for the game to end...
+		}
+		private void attack()
+		{
+			int currentUHealth=0;
+			currentUHealth=Integer.parseInt((String) getEHealthDisplay().getText());
+			if((currentUHealth-enemyBP)>=0)
+			{
+				getEHealthDisplay().setText(""+(currentUHealth-enemyBP));
+			}
+		}
+		private void useItem()
+		{
+			double abilityAmt=0;
+			randomGenerator= new Random();
+			int randomNum=randomGenerator.nextInt(10);
+			if(randomNum>5)
+			{
+				abilityAmt=(Double) itemNameAndNum.get("canned food");
+			}
+			else
+			{
+				abilityAmt=(Double) itemNameAndNum.get("waterBottle");
+			}
+			
+			int currentEHealth=0;
+			
+			currentEHealth=Integer.parseInt((String) getEHealthDisplay().getText());
+			currentEHealth=(int) (currentEHealth*(1+abilityAmt));
+			if(currentEHealth<150)
+			{
+				getUHealthDisplay().setText(""+currentEHealth);
+			}
+		}
 		//The enemy will attack 3 second after the user has attacked.
 		@Override
 		protected String doInBackground(final String... cmd)
@@ -342,12 +388,12 @@ public class BattleController extends Activity implements OnClickListener
 		@Override
 		protected void onPostExecute(String result)
 		{
-			int currentUHealth=0;
-			currentUHealth=Integer.parseInt((String) getEHealthDisplay().getText());
-			if((currentUHealth-enemyBP)>=0)
-			{
-				getEHealthDisplay().setText(""+(currentUHealth-enemyBP));
-			}
+			//instead of just attacking, I'm going to randomize
+			//what the computer player does.  For now I'm super tired
+			//but I'll just comment the stuff that I shall do.
+			//the Computer Player will choose attack most of the time
+			//and then be able to choose an item if it's low on health once
+			//then past a certain point it can also retreat.
 		}
 	}
 	
