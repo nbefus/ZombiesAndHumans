@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -46,6 +47,7 @@ public class DBAdminController extends Activity implements OnClickListener
 	private ProgressDialog			pd;
 	private TableLayout				tl;
 	private EditText				query;
+	private int[] 					tablesToBeDescribed;
 
 	/*
 	 * private static final String[] KEYWORDS = new String[] { "select", "from",
@@ -60,17 +62,21 @@ public class DBAdminController extends Activity implements OnClickListener
 	 * "safehousey" };
 	 */
 
+	private boolean					noChange;
 	private String					table;
 	private HashMap<String, String>	dtoa;
 	private Set<String>[]			ta;
 	private Spinner					s;
 	private String[][]				tableStructure;
+	private ArrayList<String[][]>   finalTableStructure;
 	private String					html;
 	private String					mime		= "text/html";
 	private String					encoding	= "utf-8";
 	private WebView					myWebView;
 	private JSInterface				myJSInterface;
 	private int						deleteOrEdit;
+	private String[]				relations;
+	private boolean[]	checkedList = {true,false,false,false,false,false,false};
 
 	public class JSInterface
 	{
@@ -118,23 +124,25 @@ public class DBAdminController extends Activity implements OnClickListener
 									"Selected" + deleteOrEdit,
 									Toast.LENGTH_LONG).show();
 
-							if(deleteOrEdit == 0)
+							if (deleteOrEdit == 0)
 							{
 								AlertDialog.Builder alert = new AlertDialog.Builder(
 										DBAdminController.this);
-	
+
 								alert.setTitle("Title");
 								alert.setMessage("Message");
-	
+
 								final EditText input = new EditText(
 										DBAdminController.this);
-								
+
 								InputFilter[] FilterArray = new InputFilter[1];
-								FilterArray[0] = new InputFilter.LengthFilter(Integer.parseInt(tableStructure[selPos][3].trim()));
+								FilterArray[0] = new InputFilter.LengthFilter(
+										Integer.parseInt(tableStructure[selPos][3]
+												.trim()));
 								input.setFilters(FilterArray);
-								
+
 								alert.setView(input);
-	
+
 								alert.setPositiveButton("Ok",
 										new DialogInterface.OnClickListener()
 										{
@@ -146,7 +154,7 @@ public class DBAdminController extends Activity implements OnClickListener
 														.toString();
 											}
 										});
-	
+
 								alert.setNegativeButton("Cancel",
 										new DialogInterface.OnClickListener()
 										{
@@ -154,13 +162,13 @@ public class DBAdminController extends Activity implements OnClickListener
 													DialogInterface dialog,
 													int whichButton)
 											{
-												
+
 											}
 										});
-	
+
 								alert.show();
 							}
-							
+
 						}
 
 					});
@@ -185,22 +193,32 @@ public class DBAdminController extends Activity implements OnClickListener
 		}
 
 		public void editDialog(String echo)
-		    {
-		    	
-		    	String filename = "testing";
+		{
 
-				//String query6 = "UPDATE `"+table+"` SET "+tableStructure[selPos][0]+"="
+			String filename = "testing";
 
-				//brain.prepareForQuery(null, filename, null, query6);
-				//new performQuery().execute("Insert Item " + itemid + " Into Backpack");
-				
-		    }
+			// String query6 =
+			// "UPDATE `"+table+"` SET "+tableStructure[selPos][0]+"="
+
+			// brain.prepareForQuery(null, filename, null, query6);
+			// new performQuery().execute("Insert Item " + itemid +
+			// " Into Backpack");
+
+		}
 	}
 
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.dbadmin);
+		relations = new String[7];
+		relations[0] = "ability";
+		relations[1] = "characterabilities";
+		relations[2] = "character";
+		relations[3] = "player";
+		relations[4] = "backpack";
+		relations[5] = "backpackitems";
+		relations[6] = "item";
 		dtoa = new HashMap<String, String>();
 		ta = new Set[5];
 		for (int i = 0; i < ta.length; i++)
@@ -209,11 +227,11 @@ public class DBAdminController extends Activity implements OnClickListener
 		// query = (EditText) findViewById(R.id.edit);
 
 		// ///tl = (TableLayout) findViewById(R.id.tableLayoutwork);
-		// ///((Button) findViewById(R.id.Button_DBAdminSearch))
-		// /// .setOnClickListener(this);
-		s = (Spinner) findViewById(R.id.spinner1);
+		((Button) findViewById(R.id.Button_DBAdminTableSelection))
+		 .setOnClickListener(this);
+		//s = (Spinner) findViewById(R.id.spinner1);
 		// ////tl.setBackgroundColor(Color.RED);
-		setUpSpinner();
+		//setUpSpinner();
 
 		// String temp = "<html><body>Hello, World!</body></html>";
 
@@ -229,6 +247,27 @@ public class DBAdminController extends Activity implements OnClickListener
 		// findViewById(R.id.edit);
 		// textView.setAdapter(adapter);
 		// textView.setTokenizer(new SpaceTokenizer());
+	}
+	
+	private String findTableFromInt(int pos)
+	{
+		String table;
+		if(pos == 0)
+			table = "ability";
+		else if(pos == 1)
+			table = "characterabilities";
+		else if(pos == 2)
+			table = "character";
+		else if(pos == 3)
+			table = "player";
+		else if(pos == 4)
+			table = "backpack";
+		else if(pos == 5)
+			table = "backpackitems";
+		else
+			table = "item";
+		
+		return table;
 	}
 
 	private void describeTable(String table)
@@ -246,6 +285,21 @@ public class DBAdminController extends Activity implements OnClickListener
 		new performQuery().execute("Describe", table);
 	}
 
+	private void describeMultipleTables(String table, int num, int pos)
+	{
+		String[] entities = { "Field", "Type", "Null", "Key", "Default",
+				"Extra" };
+		String filename = "testing";
+		String[] dataTypes = { "string", "string", "string", "string",
+				"string", "string" };
+		String query = "describe `" + table.trim() + "`";
+
+		brain.prepareForQuery(entities, filename, dataTypes, query);
+		pd = ProgressDialog.show(this, "Processing...",
+				"Checking with database", true, true);
+		new performQuery().execute("Describe Table", num+"",pos+"");
+	}
+	
 	private void getStarFromTable(String table)
 	{
 		String[] entities = new String[tableStructure.length];
@@ -267,6 +321,80 @@ public class DBAdminController extends Activity implements OnClickListener
 		new performQuery().execute("Select Star", table);
 	}
 
+	public void tableDialog()
+	{
+		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+
+		noChange = true;
+		dialog.setTitle("Table Selection");
+		// dialog.setMessage(R.string.npMessage);
+
+		dialog.setMultiChoiceItems(R.array.TableOptions, checkedList,
+				new DialogInterface.OnMultiChoiceClickListener()
+				{
+					@Override
+					public void onClick(DialogInterface d, int which,
+							boolean checked)
+					{
+						noChange = false;
+						Toast.makeText(DBAdminController.this,
+								"Selected" + which + " is now "+checked, Toast.LENGTH_SHORT)
+								.show();
+						checkedList[which] = checked;
+					}
+					
+				});
+
+		dialog.setCancelable(false);
+
+		dialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener()
+		{
+			@Override
+			public void onClick(DialogInterface dialog, int which)
+			{
+				if(noChange)
+					dialog.cancel();
+				else
+				{
+					int count=0;
+					for(int i=0; i<checkedList.length; i++)
+					{
+						if(checkedList[i])
+						{
+							count++;
+						}
+					}
+					tablesToBeDescribed = new int[count];
+					count =0;
+					for(int i=0; i<checkedList.length; i++)
+					{
+						if(checkedList[i])
+						{
+							tablesToBeDescribed[count] = i;
+							count++;
+						}
+					}
+					if(tablesToBeDescribed.length > 0)
+						describeMultipleTables(findTableFromInt(tablesToBeDescribed[0]),tablesToBeDescribed[0], 0);
+				}
+			}
+		});
+		
+		/*
+		dialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener()
+		{
+			@Override
+			public void onClick(DialogInterface dialog, int which)
+			{
+
+					dialog.cancel();
+			}
+		});
+*/
+		dialog.show();
+	}
+
+	/*
 	public void setUpSpinner()
 	{
 		String[] tables = { "character", "ability", "backpackitems",
@@ -300,6 +428,7 @@ public class DBAdminController extends Activity implements OnClickListener
 			}
 		});
 	}
+	*/
 
 	private void setTA()
 	{
@@ -396,7 +525,11 @@ public class DBAdminController extends Activity implements OnClickListener
 
 	public void onClick(View v)
 	{
-		if (v.getId() == R.id.Button_DBAdminSearch)
+		if(v.getId() == R.id.Button_DBAdminTableSelection)
+		{
+			tableDialog();
+		}
+		if (v.getId() == -1)
 		{
 			String search = query.getText().toString().trim();
 			String Esubstring = search.substring(7, search.indexOf("from"));
@@ -511,26 +644,72 @@ public class DBAdminController extends Activity implements OnClickListener
 	{
 		boolean	updated;
 		String	table;
+		int count;
 
 		@Override
 		protected String doInBackground(String... parameters)
 		{
 			if (parameters[0].equals("Describe")
-					|| parameters[0].equals("Select Star"))
+					|| parameters[0].equals("Select Star") || parameters[0].equals("Describe Tables"))
 				updated = brain.performQuery(true);
 			else
 				updated = brain.performQuery(false);
 
-			System.out
-					.println(parameters[0] + " on " + parameters[1] + updated);
+			System.out.println(parameters[0] + " on " + parameters[1] + updated);
+			if(parameters[0].equals("Describe Tables"))
+				return parameters[0]+" "+parameters[1] + " "+parameters[2];
 			table = parameters[1];
 			return parameters[0];
+		}
+		
+		private String findTableByInt(int pos)
+		{
+			String table;
+			if(pos == 0)
+				table = "ability";
+			else if(pos == 1)
+				table = "characterabilities";
+			else if(pos == 2)
+				table = "character";
+			else if(pos == 3)
+				table = "player";
+			else if(pos == 4)
+				table = "backpack";
+			else if(pos == 5)
+				table = "backpackitems";
+			else
+				table = "item";
+			return table;
 		}
 
 		@Override
 		protected void onPostExecute(String result)
 		{
-			if (result.equals("Describe"))
+			if(result.contains("Describe Tables"))
+			{
+				if(updated)
+				{
+					if (brain.getSearchResults().length > 0
+							&& !(brain.getSearchResults()[0][0] instanceof String && ((String) brain
+									.getSearchResults()[0][0])
+									.equals("NO RESULTS")))
+					{
+						int pos = Integer.parseInt(result.split(" ")[2].trim());
+						
+						int describePos = Integer.parseInt(result.split(" ")[3].trim());
+						
+						String table = findTableByInt(pos);
+						
+						doTableStructure();
+						
+						finalTableStructure.add(tableStructure);
+						
+						if(describePos < tablesToBeDescribed.length-1)
+							describeMultipleTables(table, tablesToBeDescribed[describePos+1],describePos+1);
+					}
+				}
+			}
+			else if (result.equals("Describe"))
 			{
 				if (updated)
 				{
@@ -540,58 +719,7 @@ public class DBAdminController extends Activity implements OnClickListener
 									.equals("NO RESULTS")))
 					{
 
-						Object[][] dbResults = brain.getSearchResults();
-						tableStructure = new String[dbResults.length][4];
-						for (int i = 0; i < dbResults.length; i++)
-						{
-							String field = (String) dbResults[i][0];
-							String type = (String) dbResults[i][1];
-
-							if (type.contains("int"))
-							{
-								String substring = type.substring(
-										type.indexOf("(") + 1,
-										type.indexOf(")"));
-								tableStructure[i][1] = "int";
-								tableStructure[i][2] = "int";
-								tableStructure[i][3] = substring.trim();
-							}
-							else if (type.contains("varchar"))
-							{
-								String substring = type.substring(
-										type.indexOf("(") + 1,
-										type.indexOf(")"));
-								tableStructure[i][1] = "string";
-								tableStructure[i][2] = "varchar";
-								tableStructure[i][3] = substring.trim();
-
-							}
-							else if (type.contains("char"))
-							{
-								String substring = type.substring(
-										type.indexOf("(") + 1,
-										type.indexOf(")"));
-								tableStructure[i][1] = "string";
-								tableStructure[i][2] = "char";
-								tableStructure[i][3] = substring.trim();
-							}
-							else if (type.contains("date"))
-							{
-								tableStructure[i][1] = "string";
-								tableStructure[i][2] = "date";
-								tableStructure[i][3] = "0";
-							}
-							else if (type.contains("decimal"))
-							{
-								String substring = type.substring(
-										type.indexOf("(") + 1,
-										type.indexOf(")"));
-								tableStructure[i][1] = "double";
-								tableStructure[i][2] = "decimal";
-								tableStructure[i][3] = substring.trim();
-							}
-							tableStructure[i][0] = field;
-						}
+						doTableStructure();
 
 						getStarFromTable(table);
 					}
@@ -662,6 +790,62 @@ public class DBAdminController extends Activity implements OnClickListener
 				pd.dismiss();
 			}
 
+		}
+		
+		public void doTableStructure()
+		{
+			Object[][] dbResults = brain.getSearchResults();
+			tableStructure = new String[dbResults.length][4];
+			for (int i = 0; i < dbResults.length; i++)
+			{
+				String field = (String) dbResults[i][0];
+				String type = (String) dbResults[i][1];
+
+				if (type.contains("int"))
+				{
+					String substring = type.substring(
+							type.indexOf("(") + 1,
+							type.indexOf(")"));
+					tableStructure[i][1] = "int";
+					tableStructure[i][2] = "int";
+					tableStructure[i][3] = substring.trim();
+				}
+				else if (type.contains("varchar"))
+				{
+					String substring = type.substring(
+							type.indexOf("(") + 1,
+							type.indexOf(")"));
+					tableStructure[i][1] = "string";
+					tableStructure[i][2] = "varchar";
+					tableStructure[i][3] = substring.trim();
+
+				}
+				else if (type.contains("char"))
+				{
+					String substring = type.substring(
+							type.indexOf("(") + 1,
+							type.indexOf(")"));
+					tableStructure[i][1] = "string";
+					tableStructure[i][2] = "char";
+					tableStructure[i][3] = substring.trim();
+				}
+				else if (type.contains("date"))
+				{
+					tableStructure[i][1] = "string";
+					tableStructure[i][2] = "date";
+					tableStructure[i][3] = "0";
+				}
+				else if (type.contains("decimal"))
+				{
+					String substring = type.substring(
+							type.indexOf("(") + 1,
+							type.indexOf(")"));
+					tableStructure[i][1] = "double";
+					tableStructure[i][2] = "decimal";
+					tableStructure[i][3] = substring.trim();
+				}
+				tableStructure[i][0] = field;
+			}
 		}
 	}
 

@@ -3,16 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
 
-    <Button
-        android:id="@+id/Button_DBAdminSearch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:text="Button" />
-
-    <!--  
+    <!--
     <ScrollView
         android:id="@+id/scrollView1"
         android:layout_width="wrap_content"
@@ -32,34 +23,25 @@
                 android:layout_height="fill_parent" >
             </TableLayout>
         </HorizontalScrollView>
-    </ScrollView>
--->
-    <Spinner
-        android:id="@+id/spinner1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/textView1" />
-
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/spinner1"
-        android:layout_alignBottom="@+id/spinner1"
-        android:layout_alignParentLeft="true"
-        android:text="Table:"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
+    </ScrollView>
+    -->
+
     <android.webkit.WebView
         android:id="@+id/webView1"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_above="@+id/Button_DBAdminSearch"
-        android:layout_below="@+id/spinner1"
+        android:layout_below="@+id/Button_DBAdminTableSelection"
         android:layout_centerHorizontal="true" >
 
     </android.webkit.WebView>
+
+    <Button
+        android:id="@+id/Button_DBAdminTableSelection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text="Table Selection" />
 
 </RelativeLayout>
