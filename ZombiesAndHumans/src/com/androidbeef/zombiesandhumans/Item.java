@@ -63,4 +63,14 @@ public class Item
 	{
 		this.instoragecount = instorage;
 	}
+
+	public void setInbackpackcount(int inbackpackcount)
+	{
+		this.inbackpackcount = inbackpackcount;
+	}
+
+	public void setInstoragecount(int instoragecount)
+	{
+		this.instoragecount = instoragecount;
+	}
 }

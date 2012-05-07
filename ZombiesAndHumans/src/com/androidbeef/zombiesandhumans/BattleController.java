@@ -71,6 +71,7 @@ public class BattleController extends Activity implements OnClickListener
 		((Button) findViewById(R.id.attackButton)).setOnClickListener(this);
 		((Button) findViewById(R.id.retreatButton)).setOnClickListener(this);
 		((Button) findViewById(R.id.reloadButton)).setOnClickListener(this);
+		((Button) findViewById(R.id.reloadButton)).setVisibility(View.INVISIBLE); //Until we get it implemented
 		this.getULevelDisplay().setText(""+userLevel);
 		this.getUHealthDisplay().setText(""+userHealth);
 		this.getUCurrentIDisplay().setText(userItem);
@@ -108,6 +109,38 @@ public class BattleController extends Activity implements OnClickListener
 		new performQuery().execute("Get All Items");
 	}
 	
+	private void updateItem(String iname)
+	{
+		String filename = "testing";
+		String query6;
+		int posOfItem = brain.findItemByName(iname);
+		
+		query6 = "UPDATE backpackitems SET inbackpackcount="+(brain.getItems().get(posOfItem).getInbackpackcount()-1)+" WHERE backpackid="+brain.getSelf().getBackpackid()+" AND itemid="+brain.getItems().get(brain.findItemByName(iname)).getItemid();
+
+		brain.getItems().get(posOfItem).setInbackpackcount(brain.getItems().get(posOfItem).getInbackpackcount()-1);
+		brain.prepareForQuery(null, filename, null, query6);
+		pd = ProgressDialog.show(this, "Processing...", "Inserting into database", true, true);
+		new performQuery().execute("Update Item");
+	}
+	
+	private void updateHealth(boolean myHealth)
+	{
+		String filename = "testing";
+		String query6;
+		
+		if(myHealth)
+			query6 = "UPDATE `character` SET health="+Integer.parseInt((String) getUHealthDisplay().getText().toString())+" WHERE characterid="+brain.getCharacter().getCharacterid();
+		else
+			query6 = "UPDATE `character` SET health="+Integer.parseInt((String) getUHealthDisplay().getText().toString())+" WHERE characterid="+brain.getEnemyCharacter().getCharacterid();
+
+		brain.prepareForQuery(null, filename, null, query6);
+		pd = ProgressDialog.show(this, "Processing...", "Inserting into database", true, true);
+		if(myHealth)
+			new performQuery().execute("Update Self Health");
+		else
+			new performQuery().execute("Update Enemy Health");
+	}
+	
 	private void createListView(final ListView v, final HashMap<String,Number> map)
 	{
 		ArrayAdapter<String> adapter;
@@ -134,7 +167,7 @@ public class BattleController extends Activity implements OnClickListener
 					Toast.LENGTH_LONG).show();
 			for (int i = 0; i < map.size(); i++)
 			{
-				adapter.add(""+ (String)keys[i]);
+				adapter.add("["+brain.getItems().get(brain.findItemByName(((String)keys[i]).trim())).getInbackpackcount()+"] "+ (String)keys[i]);
 			}
 
 			v.invalidate();
@@ -157,6 +190,11 @@ public class BattleController extends Activity implements OnClickListener
 								currentUHealth=(int) (currentUHealth*(1+abilityAmt));
 								if(currentUHealth<150)
 								{
+									//update itemcount and health
+									itemNameAndNum.put(name, (itemNameAndNum.get(name).intValue()-1));
+									v.invalidate();
+									updateItem(name.trim());
+									setItems();
 									getUHealthDisplay().setText(""+currentUHealth);
 								}
 								else
@@ -202,6 +240,7 @@ public class BattleController extends Activity implements OnClickListener
 			CharSequence fleeText="You are now leaving the battle and will take "+enemyBP+" of damage.";
 			int duration=Toast.LENGTH_SHORT;
 			Toast.makeText(context, fleeText, duration).show();
+			
 			Intent a = new Intent(BattleController.this,
 					HomeScreenController.class);
 			a.putExtra("self", brain.getSelf());
@@ -248,7 +287,7 @@ public class BattleController extends Activity implements OnClickListener
 	{
 		if(eCurrentIDisplay==null)
 		{
-			eCurrentIDisplay=(TextView) findViewById(R.id.textView4);
+			eCurrentIDisplay=(TextView) findViewById(R.id.userCIDisplay);
 		}
 		return eCurrentIDisplay;
 	}
@@ -288,7 +327,7 @@ public class BattleController extends Activity implements OnClickListener
 	{
 		if(uCurrentIDisplay==null)
 		{
-			uCurrentIDisplay=(TextView) findViewById(R.id.userCIDisplay);
+			uCurrentIDisplay=(TextView) findViewById(R.id.textView4);
 		}
 		return uCurrentIDisplay;
 	}
@@ -378,7 +417,24 @@ public class BattleController extends Activity implements OnClickListener
 				else
 					Toast.makeText(BattleController.this, "Updating failed",
 							Toast.LENGTH_LONG).show();
+				
 				pd.dismiss();
+			}
+			else if(result.equals("Update Enemy Health")||result.equals("Update Self Health"))
+			{
+				if(updated)
+					Toast.makeText(BattleController.this, "Updating health worked",
+						Toast.LENGTH_LONG).show();
+				else
+					Toast.makeText(BattleController.this, "Updating health failed",
+							Toast.LENGTH_LONG).show();
+				
+				if(result.equals("Update Enemy Health"))
+				{
+					pd.dismiss();
+				}
+				else
+					updateHealth(false);
 			}
 			else if(result.equals("Get All Items"))
 			{

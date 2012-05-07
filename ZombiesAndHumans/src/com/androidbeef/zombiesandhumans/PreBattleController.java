@@ -111,7 +111,7 @@ public class PreBattleController extends MapActivity
 			v.invalidate();
 		}
 	}
-
+	
 	private void battleDialog(final ListView v, final String name,
 			final int level, final int enemyPos, final int enemyCharPos)
 	{
@@ -167,13 +167,13 @@ public class PreBattleController extends MapActivity
 
 		for (int i = 0; i < brain.getEnemies().size(); i++)
 		{
-			ois[i] = new OverlayItem(brain.getEnemyLoc().get(i), "Enemy",
-					"Not sure what to say here");
+			ois[i] = new OverlayItem(brain.getEnemyLoc().get(i), brain.getEnemies().get(i).getUsername(),
+					"Level: "+brain.getEnemiesCharacters().get(i).getClevel());
 			itemizedoverlay.addOverlay(ois[i]);
 		}
 
 		OverlayItem overlayitem = new OverlayItem(myGeoPoint, "You are here",
-				"Not sure what to say here either");
+				"Click on an enemy in the list to battle them");
 
 		itemizedoverlay2.addOverlay(overlayitem);
 		mapOverlays.add(itemizedoverlay);
