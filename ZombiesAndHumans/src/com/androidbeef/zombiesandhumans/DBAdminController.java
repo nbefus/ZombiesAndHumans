@@ -9,6 +9,7 @@ import java.util.Set;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -31,7 +32,9 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.MultiAutoCompleteTextView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.MultiAutoCompleteTextView.Tokenizer;
 import android.widget.Spinner;
@@ -61,7 +64,9 @@ public class DBAdminController extends Activity implements OnClickListener
 	 * "password", "datejoined", "locationx", "locationy", "safehousex",
 	 * "safehousey" };
 	 */
-
+	private Dialog					dial;
+	private Dialog					newRestriction;
+	private ListView				restrictionListView;
 	private boolean					noChange;
 	private String					table;
 	private HashMap<String, String>	dtoa;
@@ -321,6 +326,212 @@ public class DBAdminController extends Activity implements OnClickListener
 		new performQuery().execute("Select Star", table);
 	}
 
+	private void viewRestrictions()
+	{
+		dial = new Dialog(this);
+		dial.setContentView(R.layout.customdbview);
+		Button addButton = (Button) dial.findViewById(R.id.restrictAdd);
+		restrictionListView = (ListView) dial.findViewById(R.id.restrictionList);
+
+		addButton.setOnClickListener(new OnClickListener()
+		{
+			//@Override
+			public void onClick(View v)
+			{
+				
+			}
+		});
+
+		dial.setTitle("View Restrictions");
+		/*
+		cancelButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v)
+			{
+				
+			}
+		});*/
+		ArrayAdapter<String> adapter;
+
+		adapter = new ArrayAdapter<String>(this, R.layout.itemrow,
+				new ArrayList<String>());
+		restrictionListView.setAdapter(adapter);
+		registerForContextMenu(restrictionListView);
+		restrictionListView.setOnCreateContextMenuListener(this);
+
+		restrictionListView.setOnItemClickListener(new OnItemClickListener()
+		{
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id)
+			{
+				//Object []keys = map.keySet().toArray();
+				//itemDialog(v, (String)keys[position], map.get((String)keys[position]).doubleValue());
+			}
+		});
+		/*String faves = prefs.getString("favs", "");
+		
+		if (faves.length() > 0) {
+			String[] setOfFaves = faves.split(",");
+			for (int i = 0; i < setOfFaves.length; i++) {
+				String[] aFav = setOfFaves[i].split(";;;");
+				if (aFav[0].trim().length() == 0)
+					adapter.add(aFav[1].trim());
+				else
+					adapter.add(aFav[0].trim() + "\n" + aFav[1].trim());
+			}
+
+			favListView.invalidate();
+		}*/
+		dial.show();
+	}
+	
+	private void loadFav(int pos)
+	{
+		/*
+		String faves = prefs.getString("favs", "");
+
+		String loadStop;
+
+		String[] setOfFaves = faves.split(",");
+
+		String[] aFav = setOfFaves[pos].split(";;;");
+		loadStop = aFav[1].trim();
+
+		if (threadRunning)
+			wait.interrupt();
+
+		pb.setVisibility(View.VISIBLE);
+		findStop.setVisibility(View.INVISIBLE);
+		new GetBusInfo().execute(loadStop);
+
+		wait = new Thread(new Runnable() {
+			public void run() {
+				// refresh.setEnabled(false);
+				try {
+					threadRunning = true;
+					Thread.sleep(60000);
+				} catch (InterruptedException e) {
+
+				} finally {
+					threadRunning = false;
+					handler.sendEmptyMessage(0);
+				}
+			}
+		});
+		wait.start();
+
+		tracker.trackEvent("Click", // Category
+				"Load Default Stop Button", // Action
+				loadStop, // Label
+				1); // Value
+
+		HashMap<String, String> map = new HashMap<String, String>();
+
+		map.put("Load Default Stop Button", loadStop);
+
+		FlurryAgent.logEvent("Click", map);
+		*/
+	}
+
+	private void addFav(String stop, String name)
+	{
+		/*
+		String faves = prefs.getString("favs", "");
+		if (!faves.equals(""))
+			faves += ",";
+		faves += name + ";;;" + stop;
+
+		prefs.edit().putString("favs", faves).commit();
+		favListView.invalidateViews();
+		*/
+	}
+
+	private void deleteFav()
+	{
+		/*
+		String faves = prefs.getString("favs", "");
+
+		int pos = 0;
+		int begDelete = -1;
+		int endDelete = -1;
+
+		for (int i = 0; i < faves.length(); i++) {
+			if (favPos == 0)
+				begDelete = 0;
+			if (faves.charAt(i) == ',') {
+				pos++;
+				if (pos == favPos && favPos != 0)
+					begDelete = i;
+				else if (pos == (favPos + 1)) {
+					endDelete = i;
+					break;
+				}
+			}
+
+			if (i == faves.length() - 1 && endDelete == -1)
+				endDelete = faves.length();
+		}
+
+		if (begDelete != 0) {
+			faves = faves.substring(0, begDelete)
+					+ faves.substring(endDelete, faves.length());
+
+		} else if (begDelete == 0 && endDelete != faves.length())
+			faves = faves.substring(endDelete + 1, faves.length());
+		else if (endDelete == faves.length()) {
+			faves = faves.substring(0, begDelete);
+		}
+
+		prefs.edit().putString("favs", faves).commit();
+
+		dial.dismiss();
+		setFaves();
+		*/
+	}
+	public void addingRestriction()
+	{
+		newRestriction = new Dialog(this);
+		newRestriction.setContentView(R.layout.addnewrestrict);
+		Button nextButton = (Button) newRestriction.findViewById(R.id.restrictionNext);
+		
+
+		addButton.setOnClickListener(new OnClickListener()
+		{
+			//@Override
+			public void onClick(View v)
+			{
+				
+			}
+		});
+
+		dial.setTitle("Adding A New Restriction");
+		String[] items = new String[] {"One", "Two", "Three"};
+		Spinner restrictionSpinner = (Spinner) findViewById(R.id.restrictionSpinner);
+		/*
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+				Expense1.this, android.R.layout.simple_spinner_item,
+				items);
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		*/
+		restrictionSpinner.setAdapter(adapter);
+
+		restrictionSpinner
+				.setOnItemSelectedListener(new OnItemSelectedListener()
+				{
+					public void onItemSelected(AdapterView<?> parent,
+							View view, int position, long id)
+					{
+						Toast.makeText(getApplicationContext(),
+								items[position], Toast.LENGTH_SHORT)
+								.show();
+					}
+
+					public void onNothingSelected(AdapterView<?> parent) {
+						// TODO Auto-generated method stub
+
+					}
+				});
+	}
 	public void tableDialog()
 	{
 		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
