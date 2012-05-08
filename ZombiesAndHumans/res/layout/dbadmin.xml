@@ -24,8 +24,7 @@
             </TableLayout>
         </HorizontalScrollView>
     </ScrollView>
-    -->
-
+    -->
     <android.webkit.WebView
         android:id="@+id/webView1"
         android:layout_width="fill_parent"
@@ -34,7 +33,8 @@
         android:layout_centerHorizontal="true" >
 
     </android.webkit.WebView>
-
+
+
     <Button
         android:id="@+id/Button_DBAdminTableSelection"
         android:layout_width="wrap_content"
@@ -43,5 +43,6 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:text="Table Selection" />
+
 
 </RelativeLayout>
