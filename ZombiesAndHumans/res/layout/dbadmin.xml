@@ -23,8 +23,13 @@
                 android:layout_height="fill_parent" >
             </TableLayout>
         </HorizontalScrollView>
-    </ScrollView>
-    -->
+    </ScrollView>
+
+
+    -->
+
+
+
     <android.webkit.WebView
         android:id="@+id/webView1"
         android:layout_width="fill_parent"
@@ -35,14 +40,21 @@
     </android.webkit.WebView>
 
 
+
     <Button
         android:id="@+id/Button_DBAdminTableSelection"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:text="Table Selection" />
 
+    <Button
+        android:id="@+id/Button_DBAdminAttributeSelection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/Button_DBAdminTableSelection"
+        android:text="Attributes" />
 
 </RelativeLayout>
