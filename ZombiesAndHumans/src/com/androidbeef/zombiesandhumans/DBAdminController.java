@@ -1,16 +1,20 @@
 package com.androidbeef.zombiesandhumans;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -30,6 +34,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -52,9 +57,13 @@ public class DBAdminController extends Activity implements OnClickListener {
 	private Dialog newRestriction;
 	private ListView restrictionListView;
 	private String buttonPressed;
+	private String operation;
 	private String selectedAttribute;
+	private int ascendOrDescend;
+	private String orderByString;
+	private boolean delete;
 	private String[] newOptions;
-	
+	private ArrayList<String> restrictions = new ArrayList<String>();
 	/*
 	 * private static final String[] KEYWORDS = new String[] { "select", "from",
 	 * "datatypes", "string", "int", "player", "character", "abilitie",
@@ -172,7 +181,8 @@ public class DBAdminController extends Activity implements OnClickListener {
 			dialog.setNegativeButton(android.R.string.cancel,
 					new DialogInterface.OnClickListener() {
 
-						public void onClick(DialogInterface dialog, int which) {
+						public void onClick(DialogInterface dialog, int which) 
+						{
 
 							dialog.cancel();
 						}
@@ -324,7 +334,7 @@ public class DBAdminController extends Activity implements OnClickListener {
 		String[] entities = new String[numOfEntities];
 		String filename = "testing";
 		String[] dataTypes = new String[numOfEntities];
-		attributesAndDataTypes = new String[numOfEntities][5];
+		attributesAndDataTypes = new String[numOfEntities][7];
 		int position = 0;
 		String entitystring = "";
 		System.out.println("SIZES: fts: " + finalTableStructure.size()
@@ -344,6 +354,8 @@ public class DBAdminController extends Activity implements OnClickListener {
 						+ ")";
 				attributesAndDataTypes[position][3] = "false";
 				attributesAndDataTypes[position][4] = line[0];
+				attributesAndDataTypes[position][5] = line[3];
+				attributesAndDataTypes[position][6] = line[2];
 				position++;
 			}
 		}
@@ -364,7 +376,7 @@ public class DBAdminController extends Activity implements OnClickListener {
 		new performQuery().execute("Big Query", table);
 	}
 
-	private void performTheBigQuery2() {
+	private void performTheBigQuery2(boolean useRestrictions) {
 		int numOfEntities = 0;
 
 		for (int i = 0; i < attributesAndDataTypes.length; i++) {
@@ -399,14 +411,17 @@ public class DBAdminController extends Activity implements OnClickListener {
 		String tablestring = getTableString(entitystring);
 
 		// String query = "select "+entitystring+" from `" + table + "`";
-
-		String query = tablestring;
+		String query;
+		if(!useRestrictions)
+		query = tablestring;
+		else
+			query = tablestring + " "+makeRestrictionString();
 		System.out.println("The big query 2 is: " + query);
 
 		// tl.removeAllViews();
 		brain.prepareForQuery(entities, filename, dataTypes, query);
-		// pd = ProgressDialog.show(this, "Processing...",
-		// "Checking with database", true, true);
+		pd = ProgressDialog.show(this, "Processing...",
+		 "Checking with database", true, true);
 		new performQuery().execute("Big Query 2", table);
 	}
 
@@ -439,6 +454,32 @@ public class DBAdminController extends Activity implements OnClickListener {
 
 		return tablestring;
 	}
+	
+	private String makeRestrictionString()
+	{
+		int countWhere =0;
+		String restrictionString = "";
+		for(int i=0; i<restrictions.size(); i++)
+		{
+			if(restrictions.get(i).contains("where"))
+			{
+				countWhere++;
+				if(countWhere > 1)
+				{
+					String restrict = restrictions.get(i);
+					restrictionString+= " and "+restrict.substring(6,restrict.length());
+				}
+				else
+				{
+					restrictionString+=restrictions.get(i);
+				}
+			}
+		}
+		if(orderByString != null && orderByString.length() > 0)
+			restrictionString += orderByString;
+		
+		return restrictionString;
+	}
 
 	private void viewRestrictions() {
 		dial = new Dialog(this);
@@ -453,7 +494,7 @@ public class DBAdminController extends Activity implements OnClickListener {
 			public void onClick(View v) 
 			{
 				dial.dismiss();
-				
+				performTheBigQuery2(true);
 			}
 		});
 
@@ -477,14 +518,16 @@ public class DBAdminController extends Activity implements OnClickListener {
 		ArrayAdapter<String> adapter;
 
 		adapter = new ArrayAdapter<String>(this, R.layout.itemrow,
-				new ArrayList<String>());
+				restrictions);
 		restrictionListView.setAdapter(adapter);
-		//registerForContextMenu(restrictionListView);
+		registerForContextMenu(restrictionListView);
 		restrictionListView.setOnCreateContextMenuListener(this);
 
 		restrictionListView.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
+					int position, long id) 
+			{
+				listViewDialog(position);
 				// Object []keys = map.keySet().toArray();
 				// itemDialog(v, (String)keys[position],
 				// map.get((String)keys[position]).doubleValue());
@@ -595,6 +638,7 @@ public class DBAdminController extends Activity implements OnClickListener {
 
 			public void onClick(View v) {
 				buttonPressed = "where";
+				whereRestrictionDialog();
 			}});
 		groupbyButton.setOnClickListener(new OnClickListener() {
 
@@ -605,12 +649,13 @@ public class DBAdminController extends Activity implements OnClickListener {
 
 			public void onClick(View v) {
 				buttonPressed = "order by";
+				orderByDialog();
 			}});
 		nextButton.setOnClickListener(new OnClickListener() {
 			// @Override
 			public void onClick(View v) 
 			{
-
+				
 			}
 		});
 		
@@ -635,7 +680,7 @@ public class DBAdminController extends Activity implements OnClickListener {
 		}
 
 		newRestriction.setTitle("Adding A New Restriction");
-		String[] items = new String[] { "One", "Two", "Three" };
+		//String[] items = new String[] { "One", "Two", "Three" };
 		Spinner restrictionSpinner = (Spinner) newRestriction.findViewById(R.id.restrictionSpinner);
 		
 		
@@ -691,55 +736,456 @@ public class DBAdminController extends Activity implements OnClickListener {
 		// });
 	}
 	
-	public void restrictionDialog()
+	public void addRestriction(Dialog restriction)
 	{
-		Dialog restriction = new Dialog(this);
-		restriction.setContentView(R.layout.addnewrestrict);
-		EditText value1 = (EditText) restriction
+		dial.dismiss();
+		if(restriction != null)
+			restriction.dismiss();
+		newRestriction.dismiss();
+		viewRestrictions();
+	}
+	
+	public void whereRestrictionDialog()
+	{
+		final Dialog restriction = new Dialog(this);
+		restriction.setContentView(R.layout.wherelayout);
+		final EditText value1 = (EditText) restriction
 				.findViewById(R.id.editText1);
+		
 		final EditText value2 = (EditText) restriction
 				.findViewById(R.id.editText2);
 		Button okButton = (Button) restriction
 				.findViewById(R.id.button_ok);
-
+		final DatePicker dp = (DatePicker)restriction.findViewById(R.id.datePicker1);
+		final DatePicker dp2 = (DatePicker)restriction.findViewById(R.id.datePicker2);
 		value2.setVisibility(View.INVISIBLE);
-		
-		Spinner restrictionSpinner = (Spinner) restriction.findViewById(R.id.spinner1);
+		value1.setVisibility(View.INVISIBLE);
+		dp.setVisibility(View.INVISIBLE);
+		dp2.setVisibility(View.INVISIBLE);		
+		final String dataType = findDataTypeByAttribute(selectedAttribute);
+		final String lengthOfType = findDataLengthByAttribute(selectedAttribute);
+
+		final Spinner restrictionSpinner = (Spinner) restriction.findViewById(R.id.spinner1);
 		
 		okButton.setOnClickListener(new OnClickListener() {
 
-			public void onClick(View v) {
+			public void onClick(View v) 
+			{
+				
+				
+				if(dataType.equalsIgnoreCase("date"))
+				{
+					int month = dp.getMonth();
+					int year = dp.getYear();
+					int day = dp.getDayOfMonth();
+
+					String date = "";
+
+					date += year;
+
+					if (month < 10)
+						date += "-0" + (month + 1);
+					else
+						date += "-" + (month + 1);
+
+					if (day < 10)
+						date += "-0" + day;
+					else
+						date += "-" + day;
+					
+					if(operation.equals("between")||operation.equals("not between"))
+					{
+						int month2 = dp2.getMonth();
+						int year2 = dp2.getYear();
+						int day2 = dp2.getDayOfMonth();
+
+						String date2 = "";
+
+						date2 += year2;
+
+						if (month2 < 10)
+							date2 += "-0" + (month2 + 1);
+						else
+							date2 += "-" + (month2 + 1);
+
+						if (day2 < 10)
+							date2 += "-0" + day2;
+						else
+							date2 += "-" + day2;
+						restrictions.add("where "+selectedAttribute+" "+operation+" '"+date+"' and '"+date2+"'");
+						
+						System.out.println("where "+selectedAttribute+" "+operation+" '"+date+"' and '"+date2+"'");
+						addRestriction(restriction);
+					}
+					else
+					{
+						restrictions.add("where "+selectedAttribute+" "+operation+" '"+date+"'");
+						System.out.println("where "+selectedAttribute+" "+operation+" '"+date+"'");
+						addRestriction(restriction);
+					}
+				}
+				else if(dataType.equalsIgnoreCase("decimal"))
+				{
+					if(operation.equals("between")||operation.equals("not between"))
+					{
+						String one = value1.getText().toString();
+						String two = value2.getText().toString();
+						String[]split = one.split("[.]");
+						if(split[0].charAt(0) == '-')
+							split[0]=split[0].substring(1,split[0].length());
+						if(split.length > 1)
+						{
+							String[] split2 = lengthOfType.split(",");
+							if(split[0].length() <= Integer.parseInt(split2[0]) && split[1].length() <= Integer.parseInt(split2[1]))
+							{
+								String[]split3 = one.split("[.]");
+								if(split3[0].charAt(0) == '-')
+									split3[0]=split2[0].substring(1,split3[0].length());
+								if(split3.length > 1)
+								{
+									String[] split4 = lengthOfType.split(",");
+									if(split3[0].length() <= Integer.parseInt(split4[0]) && split3[1].length() <= Integer.parseInt(split4[1]))
+									{
+										restrictions.add("where "+selectedAttribute+" "+operation+" "+one+ " and "+two);
+										System.out.println("where "+selectedAttribute+" "+operation+" "+one+ " and "+two);
+										addRestriction(restriction);
+									}
+								}
+							}
+						}
+					}
+					else
+					{
+						String one = value1.getText().toString();
+						String[]split = one.split("[.]");
+						System.out.println("ONE is: "+one+"  "+split.length);
+						
+						if(split[0].charAt(0) == '-')
+							split[0]=split[0].substring(1,split[0].length());
+						if(split.length > 1)
+						{
+							String[] split2 = lengthOfType.split(",");
+							System.out.println(split2[0]+" "+split2[1]);
+							System.out.println(Integer.parseInt(split[0]) +" "+ Integer.parseInt(split2[0])+ " "+Integer.parseInt(split[1])+" "+ Integer.parseInt(split2[1]));
+							if(split[0].length() <= Integer.parseInt(split2[0]) && split[1].length() <= Integer.parseInt(split2[1]))
+							{
+								restrictions.add("where "+selectedAttribute+" "+operation+" "+one);
+								System.out.println("where "+selectedAttribute+" "+operation+" "+one);
+								addRestriction(restriction);
+							}
+						}
+					}
+				}
+				else if(dataType.equalsIgnoreCase("int"))
+				{
+					if(operation.equals("between")||operation.equals("not between"))
+					{
+						String one = value1.getText().toString();
+						String two = value2.getText().toString();
+						restrictions.add("where "+selectedAttribute+" "+operation+" "+one+" and "+two);
+						System.out.println("where "+selectedAttribute+" "+operation+" "+one+" and "+two);
+						addRestriction(restriction);
+					}
+					else
+					{
+						String one = value1.getText().toString();
+						restrictions.add("where "+selectedAttribute+" "+operation+" "+one);
+						System.out.println("where "+selectedAttribute+" "+operation+" "+one);
+						addRestriction(restriction);
+					}
+					
+				}
+				else if(dataType.equalsIgnoreCase("char")||dataType.equalsIgnoreCase("varchar"))
+				{
+					if(operation.equals("between")||operation.equals("not between"))
+					{
+						String one = value1.getText().toString();
+						String two = value2.getText().toString();
+						if(dataType.equalsIgnoreCase("char"))
+						{
+							if(lengthOfType.equals(one.length()+"") && lengthOfType.equals(two.length()+""))
+							{
+								restrictions.add("where "+selectedAttribute+" "+operation+" '"+one+"' and '"+two+"'");
+								System.out.println("where "+selectedAttribute+" "+operation+" '"+one+"' and '"+two+"'");
+								addRestriction(restriction);	
+							}
+						}
+						else
+						{
+							restrictions.add("where "+selectedAttribute+" "+operation+" '"+one+"' and '"+two+"'");
+							System.out.println("where "+selectedAttribute+" "+operation+" '"+one+"' and '"+two+"'");
+							addRestriction(restriction);
+						}
+					}
+					else
+					{
+						String one = value1.getText().toString();
+						if(dataType.equalsIgnoreCase("char"))
+						{
+							System.out.println(lengthOfType + " len of type and one "+one.length());
+							if(lengthOfType.equals(one.length()+""))
+							{
+								restrictions.add("where "+selectedAttribute+" "+operation+" '"+one+"'");
+								System.out.println("where "+selectedAttribute+" "+operation+" '"+one+"'");
+								addRestriction(restriction);
+							}
+						}
+						else
+						{
+							restrictions.add("where "+selectedAttribute+" "+operation+" '"+one+"'");
+							System.out.println("where "+selectedAttribute+" "+operation+" '"+one+"'");
+							addRestriction(restriction);
+						}
+					}
+				}
+				
+				
+				
 			}});
 		
-		 ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-		 this, android.R.layout.simple_spinner_item, R.array.DialogOptions);
+		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this,R.array.DialogOptions, android.R.layout.simple_spinner_item);
+		
+		System.out.println("SELECTED ATTRIBUTE DATA TYPE: "+dataType+" "+lengthOfType);
+		
+		if(dataType.equalsIgnoreCase("int"))
+		{
+			value2.setVisibility(View.VISIBLE);
+			value1.setVisibility(View.VISIBLE);
+			InputFilter[] FilterArray = new InputFilter[1];
+			FilterArray[0] = new InputFilter.LengthFilter(Integer.parseInt(lengthOfType));
+			value1.setInputType(InputType.TYPE_CLASS_NUMBER);
+			value1.setFilters(FilterArray);
+		}
+		else if(dataType.equalsIgnoreCase("varchar") || dataType.equalsIgnoreCase("char") )
+		{
+			value2.setVisibility(View.VISIBLE);
+			value1.setVisibility(View.VISIBLE);
+			InputFilter[] FilterArray = new InputFilter[1];
+			FilterArray[0] = new InputFilter.LengthFilter(Integer.parseInt(lengthOfType));
+			//value1.setInputType(InputType.TYPE_CLASS_NUMBER);
+			value1.setFilters(FilterArray);
+		}
+		else if(dataType.equalsIgnoreCase("decimal"))
+		{
+			value2.setVisibility(View.VISIBLE);
+			value1.setVisibility(View.VISIBLE);
+			//InputFilter[] FilterArray = new InputFilter[1];
+			//FilterArray[0] = new InputFilter.LengthFilter(Integer.parseInt(lengthOfType));
+			String[] split = lengthOfType.split(",");
+			//value1.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
+			//value1.setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
+			value1.setFilters(new InputFilter[] {new DecimalDigitsInputFilter(Integer.parseInt(split[0].trim())-Integer.parseInt(split[1].trim())+2,Integer.parseInt(split[1].trim()))});;
+		}
+		else if(dataType.trim().equalsIgnoreCase("date"))
+		{
+			dp.setVisibility(View.VISIBLE);
+			//dp2.setVisibility(View.VISIBLE);
+			//InputFilter[] FilterArray = new InputFilter[1];
+			//FilterArray[0] = new InputFilter.LengthFilter(Integer.parseInt(lengthOfType));
+			//String[] split = lengthOfType.split(",");
+			//value1.setInputType(InputType.TYPE_DATETIME_VARIATION_DATE);
+			//value1.setFilters(new InputFilter[] {new DecimalDigitsInputFilter(Integer.parseInt(split[0].trim()),Integer.parseInt(split[1].trim()))});;
+		}
 		 
 		 adapter.setDropDownViewResource
 		 (android.R.layout.simple_spinner_dropdown_item);
-		
-		
+		restriction.setTitle("Where Restriction");
+
 		 restrictionSpinner.setAdapter(adapter);
 
 		restrictionSpinner
 				.setOnItemSelectedListener(new OnItemSelectedListener() {
 					public void onItemSelected(AdapterView<?> parent,
 							View view, int position, long id) {
-						 if(position == 6 || position == 7)
+						if(position == 0)
+							operation =">";
+						else if(position == 1)
+							operation ="<";
+						else if(position == 2)
+							operation ="=";
+						else if(position ==3)
+							operation =">=";
+						else if(position == 4)
+							operation ="<=";
+						else if(position ==5)
+							operation ="<>";
+						else if(position == 6)
+							operation ="between";
+						else if(position == 7)
+							operation ="not between";
+						else if(position == 8)
+							operation ="in";
+						else if(position == 9)
+							operation ="not in";
+						
+						if(!dataType.trim().equalsIgnoreCase("date"))
+						{
+							if(position == 6 || position == 7)
 							 value2.setVisibility(View.VISIBLE);
-						 else
+							else
 							 value2.setVisibility(View.INVISIBLE);
+						}
+						else
+						{
+							if(position == 6 || position == 7)
+							{
+								System.out.println("LET THE DATES BE VISIBLE");
+								//dp.setVisibility(View.VISIBLE);
+								dp2.setVisibility(View.VISIBLE);
+							}
+							else
+							{
+								//dp.setVisibility(View.INVISIBLE);
+								dp2.setVisibility(View.INVISIBLE);
+							}
+								
+						}
 					}
-
 					public void onNothingSelected(AdapterView<?> parent) {
 
 					}
 				});
 
-		newRestriction.show();
+		restriction.show();
 
 
-		restriction.setTitle("Adding A New Restriction");
 		
+	}
+	
+	public void listViewDialog(final int position)
+	{
+		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+		 
+		   dialog.setTitle("Options");
+
+		   boolean [] choice = {false};
+	 	dialog.setMultiChoiceItems(R.array.ListViewOptions, choice, new OnMultiChoiceClickListener() 
+	 	{
+					public void onClick(DialogInterface arg0, int arg1,
+							boolean arg2) {
+						delete = arg2;
+					}
+			   });
+		  
+		   dialog.setCancelable(false);
+
+		   dialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() 
+		   {
+				
+				public void onClick(DialogInterface dialog, int which) 
+				{
+					if(delete)
+					{
+						restrictions.remove(position);
+						dialog.cancel();
+						dial.dismiss();
+						viewRestrictions();
+					}
+					else
+					{
+						dialog.cancel();
+					}
+				}
+				
+		   });	   
+		   dialog.setNegativeButton(android.R.string.cancel,new DialogInterface.OnClickListener() {
+				
+				public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();
+				}
+			});
+		   
+		   dialog.show();
+	}
+	
+	public void orderByDialog()
+	{
+		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+		 
+		   dialog.setTitle("Group By");
+
+	 	dialog.setSingleChoiceItems(R.array.OrderBy, 0, new DialogInterface.OnClickListener() 
+			   {
+					public void onClick(DialogInterface dialog, int which) 
+					{
+						ascendOrDescend = which;
+					}
+			   });
+		  
+		   dialog.setCancelable(false);
+
+		   dialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() 
+		   {
+				
+				public void onClick(DialogInterface dialog, int which) 
+				{
+					if(ascendOrDescend == 0)
+					{
+						orderByString = "order by "+selectedAttribute;
+					}
+					else
+					{
+						orderByString = "order by "+selectedAttribute + " desc";
+					}
+					restrictions.add(orderByString);
+					System.out.println(orderByString);
+					dialog.cancel();
+					addRestriction(null);
+				}
+				
+		   });	   
+		   dialog.setNegativeButton(android.R.string.cancel,new DialogInterface.OnClickListener() {
+				
+				public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();
+				}
+			});
+		   
+		   dialog.show();
+	}
+	
+	public String findDataTypeByAttribute(String attribute)
+	{
+		for(int i=0; i<attributesAndDataTypes.length; i++)
+		{
+			if(attributesAndDataTypes[i][4].equals(attribute))
+			{
+				return attributesAndDataTypes[i][6];
+			}
+		}
+		return "Not Found";
+	}
+	
+	public String findDataLengthByAttribute(String attribute)
+	{
+		for(int i=0; i<attributesAndDataTypes.length; i++)
+		{
+			if(attributesAndDataTypes[i][4].equals(attribute))
+			{
+				return attributesAndDataTypes[i][5];
+			}
+		}
+		return "Not Found";
+	}
+	
+	public class DecimalDigitsInputFilter implements InputFilter 
+	{
+
+		Pattern mPattern;
+
+		public DecimalDigitsInputFilter(int digitsBeforeZero,int digitsAfterZero) {
+		    mPattern=Pattern.compile("[0-9,-]{0," + (digitsBeforeZero-1) + "}+((\\.[0-9]{0," + (digitsAfterZero-1) + "})?)||(\\.)?");
+		}
+
+	
+		public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+
+		        Matcher matcher=mPattern.matcher(dest);       
+		        if(!matcher.matches())
+		            return "";
+		        return null;
+		    }
 	}
 
 	public void tableDialog(final String title) {
@@ -818,10 +1264,12 @@ public class DBAdminController extends Activity implements OnClickListener {
 							if (noChange)
 								dialog.cancel();
 							else {
+								restrictions.clear();
 								multiTableSelection();
 							}
 						} else if (title.equals("Attribute Selection")) {
-							performTheBigQuery2();
+							restrictions.clear();
+							performTheBigQuery2(false);
 						}
 
 					}

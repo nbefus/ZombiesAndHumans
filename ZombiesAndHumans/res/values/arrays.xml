@@ -4,6 +4,14 @@
     	<item>Edit</item>
     	<item>Delete The Whole Row</item>
     </string-array>
+    <string-array name="OrderBy">
+    	<item>Ascending</item>
+    	<item>Descending</item>
+    </string-array>
+    <string-array name="ListViewOptions">
+    	<item>Delete</item>
+    	
+    </string-array>
     <string-array name="TableOptions">
     	<item>Ability</item>
     	<item>Character Abilities</item>
