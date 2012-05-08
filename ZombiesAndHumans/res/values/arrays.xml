@@ -13,4 +13,16 @@
     	<item>Backpack Items</item>
     	<item>Item</item>
     </string-array>
+    <string-array name="DialogOptions">
+    	<item>Greater Than</item>
+    	<item>Less Than</item>
+    	<item>Equal To</item>
+    	<item>Greater Than Or Equal To</item>
+    	<item>Less Than Or Equal To</item>
+    	<item>Not Equal To</item>
+    	<item>Between</item>
+    	<item>Not Between</item>
+    	<item>In</item>
+    	<item>Not In</item>
+    </string-array>
 </resources>

@@ -11,24 +11,51 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="8dp"
-        android:text="Please select a restriction to add."
+        android:gravity="center"
+        android:text="Please select an attribute you want to add a restriction to"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Button
+        android:id="@+id/restrictionNext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:text="Next" />
 
     <Spinner
         android:id="@+id/restrictionSpinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/restrictionLabel"
-        android:layout_marginTop="10dp" />
-
+        android:layout_below="@+id/restrictionLabel" />
+
     <Button
-        android:id="@+id/restrictionNext"
+        android:id="@+id/Button_GroupBy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/restrictionSpinner"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:text="Next" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:text="Group By" />
+
+    <Button
+        android:id="@+id/Button_OrderBy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/Button_GroupBy"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:text="Order By" />
+
+    <Button
+        android:id="@+id/Button_Where"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/Button_OrderBy"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:text="Where" />
 
 </RelativeLayout>
