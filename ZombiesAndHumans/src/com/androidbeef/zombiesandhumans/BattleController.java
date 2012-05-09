@@ -376,6 +376,7 @@ public class BattleController extends Activity implements OnClickListener
 			a.putExtra("self", brain.getSelf());
 			a.putExtra("char", brain.getCharacter());
 			startActivity(a);
+			this.finish();
 	}	
 	//to disable the attackButton
 		private class ButtonDisabled extends AsyncTask<String,Integer,String>

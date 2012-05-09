@@ -1,15 +1,11 @@
 package com.androidbeef.zombiesandhumans;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.androidbeef.zombiesandhumans.ItemController.performQuery;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -17,7 +13,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,7 +21,6 @@ import android.text.InputType;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -34,13 +28,11 @@ import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.MultiAutoCompleteTextView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.MultiAutoCompleteTextView.Tokenizer;
 import android.widget.ScrollView;
@@ -50,76 +42,74 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class DBAdminController extends Activity implements OnClickListener {
-	private ZombiesAndHumansBrain brain = new ZombiesAndHumansBrain(this);
-	private ProgressDialog pd;
-	private TableLayout tl;
-	private EditText query;
-	private int[] tablesToBeDescribed;
-	private Dialog dial;
-	private Dialog newRestriction;
-	private ListView restrictionListView;
-	private String buttonPressed;
-	private String operation;
-	private String selectedAttribute;
-	private int ascendOrDescend;
-	private String orderByString;
-	private boolean delete;
-	private String[] newOptions;
-	private ArrayList<String> restrictions = new ArrayList<String>();
-	/*
-	 * private static final String[] KEYWORDS = new String[] { "select", "from",
-	 * "datatypes", "string", "int", "player", "character", "abilitie",
-	 * "characterabilities", "item", "backpack", "backpackitems", "abilityid",
-	 * "aname", "effect", "alevelrestriction", "alevel", "multiplierperlevel",
-	 * "backpackid", "itemweightcount", "capacity", "itemid", "characterid",
-	 * "cname", "clevel", "health", "strength", "defense", "accuracy",
-	 * "evasion", "ability", "weight", "cooldown", "capturetime", "numofuses",
-	 * "ilevelrestriction", "playerid", "computerplayer", "username",
-	 * "password", "datejoined", "locationx", "locationy", "safehousex",
-	 * "safehousey" };
-	 */
-	private boolean isEditable;
-	private String[] options;
-	private boolean noChange;
-	private String table;
-	private HashMap<String, String> dtoa;
-	private Set<String>[] ta;
-	private Spinner s;
-	private String[][] tableStructure;
-	private ArrayList<String[][]> finalTableStructure = new ArrayList<String[][]>();
-	private String html;
-	private String mime = "text/html";
-	private String encoding = "utf-8";
-	private WebView myWebView;
-	private JSInterface myJSInterface;
-	private int deleteOrEdit;
-	private String[] relations;
-	private boolean[] checkedTableList = { false, false, false, false, false,
-			false, false };
-	private String[] checkedAttributeDataTypes;
-	private ArrayList<String> checkedAttributeArrayList = new ArrayList<String>();
-	private boolean[] checkedAttributeList;
-	private String[][] attributesAndDataTypes;
+public class DBAdminController extends Activity implements OnClickListener
+{
 
-	public class JSInterface {
+	private ZombiesAndHumansBrain	brain						= new ZombiesAndHumansBrain(
+																		this);
+	private ProgressDialog			pd;
+	private TableLayout				tl;
+	private EditText				query;
+	private int[]					tablesToBeDescribed;
+	private Dialog					dial;
+	private Dialog					newRestriction;
+	private ListView				restrictionListView;
+	private String					operation;
+	private String					selectedAttribute;
+	private int						ascendOrDescend;
+	private String					orderByString;
+	private boolean					delete;
+	private String[]				newOptions;
+	private ArrayList<String>		restrictions				= new ArrayList<String>();
+	private boolean					isEditable;
+	private String[]				options;
+	private boolean					noChange;
+	private String					table;
+	private HashMap<String, String>	dtoa;
+	private Set<String>[]			ta;
+	private Spinner					s;
+	private String[][]				tableStructure;
+	private ArrayList<String[][]>	finalTableStructure			= new ArrayList<String[][]>();
+	private String					html;
+	private String					mime						= "text/html";
+	private String					encoding					= "utf-8";
+	private WebView					myWebView;
+	private JSInterface				myJSInterface;
+	private int						deleteOrEdit;
+	private String[]				relations;
+	private boolean[]				checkedTableList			= { false,
+			false, false, false, false, false, false			};
+	private ArrayList<String>		checkedAttributeArrayList	= new ArrayList<String>();
+	private boolean[]				checkedAttributeList;
+	private String[][]				attributesAndDataTypes;
+	private Button	tableButton;
+	private Button	attributeButton;
+	private Button	restrictionButton;
 
-		private WebView mAppView;
+	public class JSInterface
+	{
 
-		public JSInterface(WebView appView) {
+		private WebView	mAppView;
+
+		public JSInterface(WebView appView)
+		{
 			this.mAppView = appView;
 		}
 
-		public void showDialog(final String id, final int pos, final String pk1, final String pk2) {
-			
+		public void showDialog(final String id, final int pos,
+				final String pk1, final String pk2)
+		{
+
 			AlertDialog.Builder dialog = new AlertDialog.Builder(
 					DBAdminController.this);
 
 			dialog.setTitle("What do you want to do?");
 
 			dialog.setSingleChoiceItems(R.array.Options, 0,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
+					new DialogInterface.OnClickListener()
+					{
+						public void onClick(DialogInterface dialog, int which)
+						{
 							deleteOrEdit = which;
 							Toast.makeText(DBAdminController.this,
 									"Selected" + which, Toast.LENGTH_LONG)
@@ -130,13 +120,15 @@ public class DBAdminController extends Activity implements OnClickListener {
 			dialog.setCancelable(false);
 
 			dialog.setPositiveButton(android.R.string.ok,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
+					new DialogInterface.OnClickListener()
+					{
+						public void onClick(DialogInterface dialog, int which)
+						{
 							Toast.makeText(DBAdminController.this,
 									"Selected" + deleteOrEdit,
 									Toast.LENGTH_LONG).show();
 
-							if (deleteOrEdit == 1) 
+							if (deleteOrEdit == 1)
 							{
 								AlertDialog.Builder alert = new AlertDialog.Builder(
 										DBAdminController.this);
@@ -148,87 +140,99 @@ public class DBAdminController extends Activity implements OnClickListener {
 										DBAdminController.this);
 
 								input.setText(id);
-								
-								//InputFilter[] FilterArray = new InputFilter[1];
-								
-								//FilterArray[0] = new InputFilter.LengthFilter(
-								//		Integer.parseInt(tableStructure[pos][3]
-								//				.trim()));
-								
-								System.out.println("DELETE OR EDIT "+id+" pos "+pos+" "+tableStructure[pos][3]+" "+tableStructure[pos][2]+" "+tableStructure[pos][1]+" "+tableStructure[pos][0]);
-								
-								//input.setFilters(FilterArray);
 
 								alert.setView(input);
 
 								alert.setPositiveButton("Ok",
-										new DialogInterface.OnClickListener() {
+										new DialogInterface.OnClickListener()
+										{
 											public void onClick(
 													DialogInterface dialog,
-													int whichButton) {
+													int whichButton)
+											{
 												String value = input.getText()
 														.toString();
-												//String attribute, String newValue, String pk1, String pk2, String pk1Val, String pk2Val)
 												String parPk1 = pk1.trim();
 												String parPk2 = pk2.trim();
 												String parVal = value.trim();
-												if(tableStructure[0][1].trim().equals("string"))
-													parPk1 = "'"+pk1.trim()+"'";
-												if(tableStructure[1][1].trim().equals("string"))
-													parPk2 = "'"+pk2.trim()+"'";
-												if(tableStructure[pos][1].trim().equals("string"))
-													parVal = "'"+value+"'";
-												
-												update(tableStructure[pos][0].trim(),parVal,tableStructure[0][0].trim(),tableStructure[1][0].trim(), parPk1, parPk2);
-												
-												//update
+												if (tableStructure[0][1].trim()
+														.equals("string"))
+													parPk1 = "'" + pk1.trim()
+															+ "'";
+												if (tableStructure[1][1].trim()
+														.equals("string"))
+													parPk2 = "'" + pk2.trim()
+															+ "'";
+												if (tableStructure[pos][1]
+														.trim()
+														.equals("string"))
+													parVal = "'" + value + "'";
+
+												update(tableStructure[pos][0]
+														.trim(), parVal,
+														tableStructure[0][0]
+																.trim(),
+														tableStructure[1][0]
+																.trim(),
+														parPk1, parPk2);
 											}
 										});
 
 								alert.setNegativeButton("Cancel",
-										new DialogInterface.OnClickListener() {
+										new DialogInterface.OnClickListener()
+										{
 											public void onClick(
 													DialogInterface dialog,
-													int whichButton) 
+													int whichButton)
 											{
-												
+
 											}
 										});
 
 								alert.show();
 							}
-							else if(deleteOrEdit == 2)
+							else if (deleteOrEdit == 2)
 							{
 								AlertDialog.Builder alert = new AlertDialog.Builder(
 										DBAdminController.this);
 
 								alert.setTitle("Delete");
-								
+
 								alert.setMessage("Are you sure you want to delete this entire row?");
-								
+
 								alert.setPositiveButton("Yes",
-										new DialogInterface.OnClickListener() {
+										new DialogInterface.OnClickListener()
+										{
 											public void onClick(
 													DialogInterface dialog,
-													int whichButton) {
-												//delete
+													int whichButton)
+											{
 												String parPk1 = pk1.trim();
 												String parPk2 = pk2.trim();
-												if(tableStructure[0][1].trim().equals("string"))
-													parPk1 = "'"+pk1.trim()+"'";
-												if(tableStructure[1][1].trim().equals("string"))
-													parPk2 = "'"+pk2.trim()+"'";
-												delete(tableStructure[0][0].trim(),tableStructure[1][0].trim(),parPk1,parPk2);
+												if (tableStructure[0][1].trim()
+														.equals("string"))
+													parPk1 = "'" + pk1.trim()
+															+ "'";
+												if (tableStructure[1][1].trim()
+														.equals("string"))
+													parPk2 = "'" + pk2.trim()
+															+ "'";
+												delete(tableStructure[0][0]
+														.trim(),
+														tableStructure[1][0]
+																.trim(),
+														parPk1, parPk2);
 											}
 										});
 
 								alert.setNegativeButton("Cancel",
-										new DialogInterface.OnClickListener() {
+										new DialogInterface.OnClickListener()
+										{
 											public void onClick(
 													DialogInterface dialog,
-													int whichButton) 
+													int whichButton)
 											{
-												
+
 											}
 										});
 
@@ -240,140 +244,175 @@ public class DBAdminController extends Activity implements OnClickListener {
 										DBAdminController.this);
 
 								alert.setTitle("Create");
-								//alert.setMessage("Enter the new value for this cell");
+								// alert.setMessage("Enter the new value for this cell");
 
-								ScrollView sv = new ScrollView(DBAdminController.this);
-								LinearLayout layout = new LinearLayout(DBAdminController.this);
+								ScrollView sv = new ScrollView(
+										DBAdminController.this);
+								LinearLayout layout = new LinearLayout(
+										DBAdminController.this);
 								layout.setOrientation(LinearLayout.VERTICAL);
 								int dates = 0;
-								for(int i=0; i<tableStructure.length; i++)
+								for (int i = 0; i < tableStructure.length; i++)
 								{
-									if(tableStructure[i][2].equals("date"))
+									if (tableStructure[i][2].equals("date"))
 										dates++;
 								}
-								
-								final EditText[] inputs = new EditText[tableStructure.length-dates];
+
+								final EditText[] inputs = new EditText[tableStructure.length
+										- dates];
 								final DatePicker[] dps = new DatePicker[dates];
-								int dpCount =0;
+								int dpCount = 0;
 								int inputCount = 0;
-								for(int i=0; i<inputs.length+dps.length; i++)
+								for (int i = 0; i < inputs.length + dps.length; i++)
 								{
-									
-									if(tableStructure[i][1].equals("string"))
+
+									if (tableStructure[i][1].equals("string"))
 									{
-										
-										if(tableStructure[i][2].equals("date"))
+
+										if (tableStructure[i][2].equals("date"))
 										{
-											dps[dpCount] = new DatePicker(DBAdminController.this);
+											dps[dpCount] = new DatePicker(
+													DBAdminController.this);
 											dpCount++;
 										}
 										else
-										{	inputs[inputCount] = new EditText(DBAdminController.this);
-											inputs[inputCount].setHint(tableStructure[i][0]);
+										{
+											inputs[inputCount] = new EditText(
+													DBAdminController.this);
+											inputs[inputCount]
+													.setHint(tableStructure[i][0]);
 											InputFilter[] FilterArray = new InputFilter[1];
 											FilterArray[0] = new InputFilter.LengthFilter(
-											Integer.parseInt(tableStructure[i][3]
-												.trim()));
+													Integer.parseInt(tableStructure[i][3]
+															.trim()));
 											inputCount++;
 										}
-										
+
 									}
-									else if(tableStructure[i][1].equals("int"))
+									else if (tableStructure[i][1].equals("int"))
 									{
 										System.out.println("INT");
-										inputs[inputCount] = new EditText(DBAdminController.this);
-										inputs[inputCount].setHint(tableStructure[i][0]);
+										inputs[inputCount] = new EditText(
+												DBAdminController.this);
+										inputs[inputCount]
+												.setHint(tableStructure[i][0]);
 										InputFilter[] FilterArray = new InputFilter[1];
-										inputs[inputCount].setInputType(InputType.TYPE_CLASS_NUMBER);
+										inputs[inputCount]
+												.setInputType(InputType.TYPE_CLASS_NUMBER);
 										FilterArray[0] = new InputFilter.LengthFilter(
-										Integer.parseInt(tableStructure[i][3]
-												.trim()));
+												Integer.parseInt(tableStructure[i][3]
+														.trim()));
 										inputCount++;
 									}
-									else if(tableStructure[i][1].equals("double"))
+									else if (tableStructure[i][1]
+											.equals("double"))
 									{
-										inputs[inputCount] = new EditText(DBAdminController.this);
-										inputs[inputCount].setHint(tableStructure[i][0]);
-										String[] split =tableStructure[i][3].split(",");
-										System.out.println("Error: "+tableStructure[i][3]+ " "+tableStructure[i][2]+ " "+tableStructure[i][1]+ " "+tableStructure[i][0]);
-										inputs[inputCount].setFilters(new InputFilter[] {new DecimalDigitsInputFilter(Integer.parseInt(split[0].trim())-Integer.parseInt(split[1].trim())+2,Integer.parseInt(split[1].trim()))});;
+										inputs[inputCount] = new EditText(
+												DBAdminController.this);
+										inputs[inputCount]
+												.setHint(tableStructure[i][0]);
+										String[] split = tableStructure[i][3]
+												.split(",");
+										System.out.println("Error: "
+												+ tableStructure[i][3] + " "
+												+ tableStructure[i][2] + " "
+												+ tableStructure[i][1] + " "
+												+ tableStructure[i][0]);
+										inputs[inputCount].setFilters(new InputFilter[] { new DecimalDigitsInputFilter(
+												Integer.parseInt(split[0]
+														.trim())
+														- Integer
+																.parseInt(split[1]
+																		.trim())
+														+ 2, Integer
+														.parseInt(split[1]
+																.trim())) });;
 										inputCount++;
 									}
-									
-									if(!tableStructure[i][2].equals("date"))
+
+									if (!tableStructure[i][2].equals("date"))
 									{
-										System.out.println(i+"Input");
-										layout.addView(inputs[inputCount-1]);
-									}	
+										layout.addView(inputs[inputCount - 1]);
+									}
 									else
 									{
-										System.out.println(i+"Date");
-										layout.addView(dps[dpCount-1]);
+										layout.addView(dps[dpCount - 1]);
 									}
-										
-									
+
 								}
 								sv.addView(layout);
 								alert.setView(sv);
-								System.out.println("DELETE OR EDIT "+id+" pos "+pos+" "+tableStructure[pos][3]+" "+tableStructure[pos][2]+" "+tableStructure[pos][1]+" "+tableStructure[pos][0]);
-								
-								//input.setFilters(FilterArray);
-
-								//alert.setView(input);
 
 								alert.setPositiveButton("Ok",
-										new DialogInterface.OnClickListener() {
+										new DialogInterface.OnClickListener()
+										{
 											public void onClick(
 													DialogInterface dialog,
-													int whichButton) {
-												int dpCount =0;
+													int whichButton)
+											{
+												int dpCount = 0;
 												int inputCount = 0;
 												boolean isOk = true;
-												//System.out.println(inputs.length+ "  "+(inputs[9] == null)); 
 												String[] values = new String[tableStructure.length];
-												for(int i=0; i<tableStructure.length; i++)
+												for (int i = 0; i < tableStructure.length; i++)
 												{
 													String lengthOfType = tableStructure[i][3];
-													if(tableStructure[i][2].equalsIgnoreCase("date"))
+													if (tableStructure[i][2]
+															.equalsIgnoreCase("date"))
 													{
-														int month = dps[dpCount].getMonth();
-														int year = dps[dpCount].getYear();
-														int day = dps[dpCount].getDayOfMonth();
-	
+														int month = dps[dpCount]
+																.getMonth();
+														int year = dps[dpCount]
+																.getYear();
+														int day = dps[dpCount]
+																.getDayOfMonth();
+
 														String date = "";
-	
+
 														date += year;
-	
+
 														if (month < 10)
-															date += "-0" + (month + 1);
+															date += "-0"
+																	+ (month + 1);
 														else
-															date += "-" + (month + 1);
-	
+															date += "-"
+																	+ (month + 1);
+
 														if (day < 10)
 															date += "-0" + day;
 														else
 															date += "-" + day;
 														dpCount++;
-														values[i]="'"+date+"'";
-														System.out.println("VALUS: "+values[i]+ " "+i);
+														values[i] = "'" + date
+																+ "'";
 													}
-													else if(tableStructure[i][1].equalsIgnoreCase("double"))
+													else if (tableStructure[i][1]
+															.equalsIgnoreCase("double"))
 													{
-														String one = inputs[inputCount].getText().toString();
-														String[]split = one.split("[.]");
-														System.out.println("ONE is: "+one+"  "+split.length);
-														
-														if(split[0].charAt(0) == '-')
-															split[0]=split[0].substring(1,split[0].length());
-														if(split.length > 1)
+														String one = inputs[inputCount]
+																.getText()
+																.toString();
+														String[] split = one
+																.split("[.]");
+
+														if (split[0].charAt(0) == '-')
+															split[0] = split[0]
+																	.substring(
+																			1,
+																			split[0].length());
+														if (split.length > 1)
 														{
-															String[] split2 = lengthOfType.split(",");
-															System.out.println(split2[0]+" "+split2[1]);
-															System.out.println(Integer.parseInt(split[0]) +" "+ Integer.parseInt(split2[0])+ " "+Integer.parseInt(split[1])+" "+ Integer.parseInt(split2[1]));
-															if(split[0].length() <= Integer.parseInt(split2[0]) && split[1].length() <= Integer.parseInt(split2[1]))
+															String[] split2 = lengthOfType
+																	.split(",");
+													
+															if (split[0]
+																	.length() <= Integer
+																	.parseInt(split2[0])
+																	&& split[1]
+																			.length() <= Integer
+																			.parseInt(split2[1]))
 															{
-																//ok
-																values[i]=one;
+																values[i] = one;
 															}
 															else
 																isOk = false;
@@ -383,58 +422,65 @@ public class DBAdminController extends Activity implements OnClickListener {
 															isOk = false;
 														}
 														inputCount++;
-														System.out.println("VALUS: "+values[i]+ " "+i);
+													
 													}
-													else if(tableStructure[i][1].equalsIgnoreCase("int"))
+													else if (tableStructure[i][1]
+															.equalsIgnoreCase("int"))
 													{
 														String one = null;
-														//if(inputs[inputCount].getText().toString() != null && inputs[inputCount].getText().toString().length()>0)
-														//{
-														System.out.println("INPUT COUNT "+inputCount);
-															one = inputs[inputCount].getText().toString();	
-														//}
+													
+														one = inputs[inputCount]
+																.getText()
+																.toString();
 														inputCount++;
-														values[i]=one;
-														System.out.println("VALUS: "+values[i]+ " "+i);
+														values[i] = one;
 													}
-													else if(tableStructure[i][2].equalsIgnoreCase("char")||tableStructure[i][2].equalsIgnoreCase("varchar"))
-													{											
-														String one = inputs[inputCount].getText().toString();
-														if(tableStructure[i][2].equalsIgnoreCase("char"))
+													else if (tableStructure[i][2]
+															.equalsIgnoreCase("char")
+															|| tableStructure[i][2]
+																	.equalsIgnoreCase("varchar"))
+													{
+														String one = inputs[inputCount]
+																.getText()
+																.toString();
+														if (tableStructure[i][2]
+																.equalsIgnoreCase("char"))
 														{
-															System.out.println(lengthOfType + " len of type and one "+one.length());
-															if(lengthOfType.equals(one.length()+""))
+															if (lengthOfType.equals(one
+																	.length()
+																	+ ""))
 															{
-																values[i]="'"+one+"'";
+																values[i] = "'"
+																		+ one
+																		+ "'";
 															}
 															else
-																isOk =false;
+																isOk = false;
 														}
 														else
 														{
-															values[i]="'"+one+"'";
+															values[i] = "'"
+																	+ one + "'";
 														}
 														inputCount++;
-														System.out.println("VALUS: "+values[i]+ " "+i);
 													}
 												}
-												if(isOk)
+												if (isOk)
 												{
 													insert(values);
 												}
-												else
-													System.out.println("IS NOT OK");
 											}
-												
+
 										});
 
 								alert.setNegativeButton("Cancel",
-										new DialogInterface.OnClickListener() {
+										new DialogInterface.OnClickListener()
+										{
 											public void onClick(
 													DialogInterface dialog,
-													int whichButton) 
+													int whichButton)
 											{
-												
+
 											}
 										});
 
@@ -445,9 +491,10 @@ public class DBAdminController extends Activity implements OnClickListener {
 
 					});
 			dialog.setNegativeButton(android.R.string.cancel,
-					new DialogInterface.OnClickListener() {
+					new DialogInterface.OnClickListener()
+					{
 
-						public void onClick(DialogInterface dialog, int which) 
+						public void onClick(DialogInterface dialog, int which)
 						{
 
 							dialog.cancel();
@@ -456,93 +503,79 @@ public class DBAdminController extends Activity implements OnClickListener {
 
 			dialog.show();
 		}
-
-		public void showEditTextDialog() {
-
-		}
-
-		public void editDialog(String echo) {
-
-			String filename = "testing";
-
-			// String query6 =
-			// "UPDATE `"+table+"` SET "+tableStructure[selPos][0]+"="
-
-			// brain.prepareForQuery(null, filename, null, query6);
-			// new performQuery().execute("Insert Item " + itemid +
-			// " Into Backpack");
-		}
 	}
+
 	private void insert(String[] values)
 	{
 		String filename = "testing";
-		String query6;		
-		String statement ="";
-		for(int i=0; i<values.length; i++)
+		String query6;
+		String statement = "";
+		for (int i = 0; i < values.length; i++)
 		{
-			statement += values[i]+",";
+			statement += values[i] + ",";
 		}
-		
-		statement = statement.substring(0,statement.length()-1);
-		
-		query6 = "INSERT INTO `"+findTableFromInt(tablesToBeDescribed[0])+"` VALUES ("+statement+")";
+
+		statement = statement.substring(0, statement.length() - 1);
+
+		query6 = "INSERT INTO `" + findTableFromInt(tablesToBeDescribed[0])
+				+ "` VALUES (" + statement + ")";
 		brain.prepareForQuery(null, filename, null, query6);
 		System.out.println("INSERT QUERY: "+query6);
-		pd = ProgressDialog.show(this, "Processing...", "Inserting into database", true, true);
+		pd = ProgressDialog.show(this, "Processing...",
+				"Inserting into database", true, true);
 		new performQuery().execute("Update");
 	}
-	private void update(String attribute, String newValue, String pk1, String pk2, String pk1Val, String pk2Val)
+
+	private void update(String attribute, String newValue, String pk1,
+			String pk2, String pk1Val, String pk2Val)
 	{
 		String filename = "testing";
-		String query6;		
-		query6 = "UPDATE `"+findTableFromInt(tablesToBeDescribed[0])+"` SET "+attribute+"="+newValue+" WHERE "+pk1+"="+pk1Val + " AND "+pk2+"="+pk2Val;
+		String query6;
+		query6 = "UPDATE `" + findTableFromInt(tablesToBeDescribed[0])
+				+ "` SET " + attribute + "=" + newValue + " WHERE " + pk1 + "="
+				+ pk1Val + " AND " + pk2 + "=" + pk2Val;
 		brain.prepareForQuery(null, filename, null, query6);
 		System.out.println("UPDATE QUERY: "+query6);
-		pd = ProgressDialog.show(this, "Processing...", "Updating database", true, true);
+		pd = ProgressDialog.show(this, "Processing...", "Updating database",
+				true, true);
 		new performQuery().execute("Update");
 	}
+
 	private void delete(String pk1, String pk2, String pk1Val, String pk2Val)
 	{
 		String filename = "testing";
-		String query6;		
-		query6 = "DELETE FROM `"+findTableFromInt(tablesToBeDescribed[0])+"` WHERE "+pk1+"="+pk1Val + " AND "+pk2+"="+pk2Val;
+		String query6;
+		query6 = "DELETE FROM `" + findTableFromInt(tablesToBeDescribed[0])
+				+ "` WHERE " + pk1 + "=" + pk1Val + " AND " + pk2 + "="
+				+ pk2Val;
 		brain.prepareForQuery(null, filename, null, query6);
 		System.out.println("DELETE QUERY: "+query6);
-		pd = ProgressDialog.show(this, "Processing...", "Deleting row from database", true, true);
+		pd = ProgressDialog.show(this, "Processing...",
+				"Deleting row from database", true, true);
 		new performQuery().execute("Update");
 	}
 
-	protected void onCreate(Bundle savedInstanceState) {
+	@Override
+	protected void onCreate(Bundle savedInstanceState)
+	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.dbadmin);
-		relations = new String[7];
-		relations[0] = "ability";
-		relations[1] = "characterabilities";
-		relations[2] = "character";
-		relations[3] = "player";
-		relations[4] = "backpack";
-		relations[5] = "backpackitems";
-		relations[6] = "item";
-		dtoa = new HashMap<String, String>();
-		ta = new Set[5];
-		for (int i = 0; i < ta.length; i++)
-			ta[i] = new HashSet<String>();
-
 		// query = (EditText) findViewById(R.id.edit);
 
 		// ///tl = (TableLayout) findViewById(R.id.tableLayoutwork);
-		((Button) findViewById(R.id.Button_DBAdminTableSelection))
-				.setOnClickListener(this);
-		((Button) findViewById(R.id.Button_DBAdminAttributeSelection))
-				.setOnClickListener(this);
-		((Button) findViewById(R.id.Button_DBAdminRestrictionSelection))
-		.setOnClickListener(this);
+		tableButton = ((Button) findViewById(R.id.Button_DBAdminTableSelection));
+		tableButton.setOnClickListener(this);
+		attributeButton = ((Button) findViewById(R.id.Button_DBAdminAttributeSelection));
+		attributeButton.setOnClickListener(this);
+		restrictionButton = ((Button) findViewById(R.id.Button_DBAdminRestrictionSelection));
+		restrictionButton.setOnClickListener(this);
 		// s = (Spinner) findViewById(R.id.spinner1);
 		// ////tl.setBackgroundColor(Color.RED);
 		// setUpSpinner();
 
-		// String temp = "<html><body>Hello, World!</body></html>";
-
+		attributeButton.setEnabled(false);
+		restrictionButton.setEnabled(false);
+		
 		myWebView = (WebView) this.findViewById(R.id.webView1);
 		myJSInterface = new JSInterface(myWebView);
 		myWebView.getSettings().setJavaScriptEnabled(true);
@@ -557,7 +590,8 @@ public class DBAdminController extends Activity implements OnClickListener {
 		// textView.setTokenizer(new SpaceTokenizer());
 	}
 
-	private String findTableFromInt(int pos) {
+	private String findTableFromInt(int pos)
+	{
 		String table;
 		if (pos == 0)
 			table = "ability";
@@ -577,7 +611,8 @@ public class DBAdminController extends Activity implements OnClickListener {
 		return table;
 	}
 
-	private void describeTable(String table) {
+	private void describeMultipleTables(String table, int num, int pos)
+	{
 		String[] entities = { "Field", "Type", "Null", "Key", "Default",
 				"Extra" };
 		String filename = "testing";
@@ -588,31 +623,19 @@ public class DBAdminController extends Activity implements OnClickListener {
 		brain.prepareForQuery(entities, filename, dataTypes, query);
 		pd = ProgressDialog.show(this, "Processing...",
 				"Checking with database", true, true);
-		new performQuery().execute("Describe", table);
-	}
-
-	private void describeMultipleTables(String table, int num, int pos) {
-		String[] entities = { "Field", "Type", "Null", "Key", "Default",
-				"Extra" };
-		String filename = "testing";
-		String[] dataTypes = { "string", "string", "string", "string",
-				"string", "string" };
-		String query = "describe `" + table.trim() + "`";
-
-		brain.prepareForQuery(entities, filename, dataTypes, query);
-		pd = ProgressDialog.show(this, "Processing...",
-				"Checking with database", true, true);
-		System.out.println("Describe " + table + " with table num: " + num
-				+ " and pos in array: " + pos);
+		// System.out.println("Describe " + table + " with table num: " + num
+		// + " and pos in array: " + pos);
 		new performQuery().execute("Describe Tables", num + "", pos + "");
 	}
 
-	private void getStarFromTable(String table) {
+	private void getStarFromTable(String table)
+	{
 		String[] entities = new String[tableStructure.length];
 		String filename = "testing";
 		String[] dataTypes = new String[tableStructure.length];
 
-		for (int i = 0; i < entities.length; i++) {
+		for (int i = 0; i < entities.length; i++)
+		{
 			entities[i] = tableStructure[i][0];
 			dataTypes[i] = tableStructure[i][1];
 		}
@@ -626,11 +649,14 @@ public class DBAdminController extends Activity implements OnClickListener {
 		new performQuery().execute("Select Star", table);
 	}
 
-	private void performTheBigQuery() {
+	private void performTheBigQuery()
+	{
 		int numOfEntities = 0;
 
-		for (int i = 0; i < finalTableStructure.size(); i++) {
-			for (int j = 0; j < finalTableStructure.get(i).length; j++) {
+		for (int i = 0; i < finalTableStructure.size(); i++)
+		{
+			for (int j = 0; j < finalTableStructure.get(i).length; j++)
+			{
 				numOfEntities++;
 			}
 		}
@@ -641,10 +667,11 @@ public class DBAdminController extends Activity implements OnClickListener {
 		attributesAndDataTypes = new String[numOfEntities][7];
 		int position = 0;
 		String entitystring = "";
-		System.out.println("SIZES: fts: " + finalTableStructure.size()
-				+ " ttbd: " + tablesToBeDescribed.length);
-		for (int i = 0; i < finalTableStructure.size(); i++) {
-			for (int j = 0; j < finalTableStructure.get(i).length; j++) {
+
+		for (int i = 0; i < finalTableStructure.size(); i++)
+		{
+			for (int j = 0; j < finalTableStructure.get(i).length; j++)
+			{
 				String[] line = finalTableStructure.get(i)[j];
 				entities[position] = line[0];
 				dataTypes[position] = line[1];
@@ -664,15 +691,15 @@ public class DBAdminController extends Activity implements OnClickListener {
 			}
 		}
 
-		if(entitystring.length() > 1)
-		entitystring = entitystring.substring(0, entitystring.length() - 1);
+		if (entitystring.length() > 1)
+			entitystring = entitystring.substring(0, entitystring.length() - 1);
 
 		String tablestring = getTableString(entitystring);
 
 		// String query = "select "+entitystring+" from `" + table + "`";
 
 		String query = tablestring;
-		System.out.println("The big query is: " + query);
+		// System.out.println("The big query is: " + query);
 
 		// tl.removeAllViews();
 		brain.prepareForQuery(entities, filename, dataTypes, query);
@@ -681,33 +708,30 @@ public class DBAdminController extends Activity implements OnClickListener {
 		new performQuery().execute("Big Query", table);
 	}
 
-	private void performTheBigQuery2(boolean useRestrictions) {
+	private void performTheBigQuery2(boolean useRestrictions)
+	{
 		int numOfEntities = 0;
 
-		for (int i = 0; i < attributesAndDataTypes.length; i++) {
+		for (int i = 0; i < attributesAndDataTypes.length; i++)
+		{
 			if (attributesAndDataTypes[i][3].equals("true"))
 				numOfEntities++;
 		}
-		// checkedAttributeList = new boolean[numOfEntities];
 		String[] entities = new String[numOfEntities];
 		String filename = "testing";
 		String[] dataTypes = new String[numOfEntities];
-		// attributesAndDataTypes = new String[numOfEntities][4];
 		int position = 0;
 		String entitystring = "";
-		// System.out.println("SIZES: fts: "+finalTableStructure.size()+" ttbd: "+tablesToBeDescribed.length);
-		for (int i = 0; i < attributesAndDataTypes.length; i++) {
-			if (attributesAndDataTypes[i][3].equals("true")) {
+		for (int i = 0; i < attributesAndDataTypes.length; i++)
+		{
+			if (attributesAndDataTypes[i][3].equals("true"))
+			{
 				entities[position] = attributesAndDataTypes[i][4].trim();
 				dataTypes[position] = attributesAndDataTypes[i][1].trim();
-				System.out.println(entities[position]
-						+ " enti and data ttype: " + dataTypes[position]);
+				// System.out.println(entities[position]
+				// + " enti and data ttype: " + dataTypes[position]);
 				entitystring += attributesAndDataTypes[i][0].trim() + ",";
 				position++;
-				// attributesAndDataTypes[position][0]=findTableFromInt(tablesToBeDescribed[i])+"."+line[0];
-				// attributesAndDataTypes[position][1]=line[1];
-				// attributesAndDataTypes[position][2]=line[2]+"("+line[3]+")";
-				// attributesAndDataTypes[position][3]="false";
 			}
 		}
 
@@ -715,32 +739,34 @@ public class DBAdminController extends Activity implements OnClickListener {
 
 		String tablestring = getTableString(entitystring);
 
-		// String query = "select "+entitystring+" from `" + table + "`";
 		String query;
-		if(!useRestrictions)
-		query = tablestring;
+		if (!useRestrictions)
+			query = tablestring;
 		else
-			query = tablestring + " "+makeRestrictionString();
-		System.out.println("The big query 2 is: " + query);
+			query = tablestring + " " + makeRestrictionString();
+		// System.out.println("The big query 2 is: " + query);
 
-		// tl.removeAllViews();
 		brain.prepareForQuery(entities, filename, dataTypes, query);
 		pd = ProgressDialog.show(this, "Processing...",
-		 "Checking with database", true, true);
+				"Checking with database", true, true);
 		new performQuery().execute("Big Query 2", table);
 	}
 
-	private String getTableString(String attributestring) {
+	private String getTableString(String attributestring)
+	{
 		int firstTable = tablesToBeDescribed[0];
 		int lastTable = tablesToBeDescribed[tablesToBeDescribed.length - 1];
 		String tablestring = "";
-		// if(lastTable == firstTable)
-		// return findTableFromInt(firstTable);
-		for (int i = 0; i < lastTable - firstTable + 1; i++) {
-			if (i == 0) {
+
+		for (int i = 0; i < lastTable - firstTable + 1; i++)
+		{
+			if (i == 0)
+			{
 				tablestring += "select " + attributestring + " from `"
 						+ findTableFromInt(firstTable) + "`";
-			} else {
+			}
+			else
+			{
 				int currentTable = firstTable + i;
 				if (currentTable == 1)
 					tablestring += " join `characterabilities` on ability.abilityid = characterabilities.abilityid";
@@ -759,95 +785,92 @@ public class DBAdminController extends Activity implements OnClickListener {
 
 		return tablestring;
 	}
-	
+
 	private String makeRestrictionString()
 	{
-		int countWhere =0;
+		int countWhere = 0;
 		String restrictionString = "";
-		for(int i=0; i<restrictions.size(); i++)
+		for (int i = 0; i < restrictions.size(); i++)
 		{
-			if(restrictions.get(i).contains("where"))
+			if (restrictions.get(i).contains("where"))
 			{
 				countWhere++;
-				if(countWhere > 1)
+				if (countWhere > 1)
 				{
 					String restrict = restrictions.get(i);
-					restrictionString+= " and "+restrict.substring(6,restrict.length());
+					restrictionString += " and "
+							+ restrict.substring(6, restrict.length());
 				}
 				else
 				{
-					restrictionString+=restrictions.get(i);
+					restrictionString += restrictions.get(i);
 				}
 			}
 		}
-		
+
 		int countOrderBy = 0;
 		boolean ascend = true;
-		for(int i=0; i<restrictions.size(); i++)
+		for (int i = 0; i < restrictions.size(); i++)
 		{
-			if(restrictions.get(i).contains("order by"))
+			if (restrictions.get(i).contains("order by"))
 			{
 				String restrict = restrictions.get(i);
 				countOrderBy++;
-				if(countOrderBy > 1)
+				if (countOrderBy > 1)
 				{
-					
-					if(restrict.contains("desc"))
+
+					if (restrict.contains("desc"))
 						ascend = false;
-						
+
 					restrict = restrict.split(" ")[2];
-					
-					restrictionString+= ", "+restrict;
+
+					restrictionString += ", " + restrict;
 				}
 				else
 				{
-					if(restrict.contains("desc"))
+					if (restrict.contains("desc"))
 					{
 						restrict = restrict.split(" ")[2];
-						restrict = " order by "+restrict;
+						restrict = " order by " + restrict;
 						restrictionString += restrict;
 						ascend = false;
 					}
 					else
-						restrictionString+=restrictions.get(i);
+						restrictionString += restrictions.get(i);
 				}
 			}
 		}
-		if(!ascend)
+		if (!ascend)
 		{
 			restrictionString += " desc";
 		}
-		
-		
+
 		int countGroupBy = 0;
-		for(int i=0; i<restrictions.size(); i++)
+		for (int i = 0; i < restrictions.size(); i++)
 		{
-			if(restrictions.get(i).contains("group by"))
+			if (restrictions.get(i).contains("group by"))
 			{
 				String restrict = restrictions.get(i);
 				countGroupBy++;
-				if(countGroupBy > 1)
+				if (countGroupBy > 1)
 				{
-						
+
 					restrict = restrict.split(" ")[2];
-					
-					restrictionString+= ", "+restrict;
+
+					restrictionString += ", " + restrict;
 				}
 				else
 				{
-					restrictionString+=restrictions.get(i);
+					restrictionString += restrictions.get(i);
 				}
 			}
 		}
 
-		
-		//if(orderByString != null && orderByString.length() > 0)
-		//	restrictionString += orderByString;
-		
 		return restrictionString;
 	}
 
-	private void viewRestrictions() {
+	private void viewRestrictions()
+	{
 		dial = new Dialog(this);
 		dial.setContentView(R.layout.customdbview);
 		Button addButton = (Button) dial.findViewById(R.id.restrictAdd);
@@ -855,135 +878,43 @@ public class DBAdminController extends Activity implements OnClickListener {
 				.findViewById(R.id.restrictionList);
 		Button doneButton = (Button) dial.findViewById(R.id.restrictDone);
 
-		doneButton.setOnClickListener(new OnClickListener() {
+		doneButton.setOnClickListener(new OnClickListener()
+		{
 
-			public void onClick(View v) 
+			public void onClick(View v)
 			{
 				dial.dismiss();
 				performTheBigQuery2(true);
 			}
 		});
 
-		addButton.setOnClickListener(new OnClickListener() 
+		addButton.setOnClickListener(new OnClickListener()
 		{
-			public void onClick(View v) 
+			public void onClick(View v)
 			{
-				//dial.dismiss();
 				addingRestriction();
 			}
 		});
 
 		dial.setTitle("View Restrictions");
-		/*
-		 * cancelButton.setOnClickListener(new OnClickListener() {
-		 * 
-		 * @Override public void onClick(View v) {
-		 * 
-		 * } });
-		 */
+
 		ArrayAdapter<String> adapter;
 
-		adapter = new ArrayAdapter<String>(this, R.layout.itemrow,
-				restrictions);
+		adapter = new ArrayAdapter<String>(this, R.layout.itemrow, restrictions);
 		restrictionListView.setAdapter(adapter);
 		registerForContextMenu(restrictionListView);
 		restrictionListView.setOnCreateContextMenuListener(this);
 
-		restrictionListView.setOnItemClickListener(new OnItemClickListener() {
+		restrictionListView.setOnItemClickListener(new OnItemClickListener()
+		{
 			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) 
+					int position, long id)
 			{
 				listViewDialog(position);
-				// Object []keys = map.keySet().toArray();
-				// itemDialog(v, (String)keys[position],
-				// map.get((String)keys[position]).doubleValue());
 			}
 		});
-		/*
-		 * String faves = prefs.getString("favs", "");
-		 * 
-		 * if (faves.length() > 0) { String[] setOfFaves = faves.split(","); for
-		 * (int i = 0; i < setOfFaves.length; i++) { String[] aFav =
-		 * setOfFaves[i].split(";;;"); if (aFav[0].trim().length() == 0)
-		 * adapter.add(aFav[1].trim()); else adapter.add(aFav[0].trim() + "\n" +
-		 * aFav[1].trim()); }
-		 * 
-		 * favListView.invalidate(); }
-		 */
-		
+
 		dial.show();
-	}
-
-	private void loadFav(int pos) {
-		/*
-		 * String faves = prefs.getString("favs", "");
-		 * 
-		 * String loadStop;
-		 * 
-		 * String[] setOfFaves = faves.split(",");
-		 * 
-		 * String[] aFav = setOfFaves[pos].split(";;;"); loadStop =
-		 * aFav[1].trim();
-		 * 
-		 * if (threadRunning) wait.interrupt();
-		 * 
-		 * pb.setVisibility(View.VISIBLE);
-		 * findStop.setVisibility(View.INVISIBLE); new
-		 * GetBusInfo().execute(loadStop);
-		 * 
-		 * wait = new Thread(new Runnable() { public void run() { //
-		 * refresh.setEnabled(false); try { threadRunning = true;
-		 * Thread.sleep(60000); } catch (InterruptedException e) {
-		 * 
-		 * } finally { threadRunning = false; handler.sendEmptyMessage(0); } }
-		 * }); wait.start();
-		 * 
-		 * tracker.trackEvent("Click", // Category "Load Default Stop Button",
-		 * // Action loadStop, // Label 1); // Value
-		 * 
-		 * HashMap<String, String> map = new HashMap<String, String>();
-		 * 
-		 * map.put("Load Default Stop Button", loadStop);
-		 * 
-		 * FlurryAgent.logEvent("Click", map);
-		 */
-	}
-
-	private void addFav(String stop, String name) {
-		/*
-		 * String faves = prefs.getString("favs", ""); if (!faves.equals(""))
-		 * faves += ","; faves += name + ";;;" + stop;
-		 * 
-		 * prefs.edit().putString("favs", faves).commit();
-		 * favListView.invalidateViews();
-		 */
-	}
-
-	private void deleteFav() {
-		/*
-		 * String faves = prefs.getString("favs", "");
-		 * 
-		 * int pos = 0; int begDelete = -1; int endDelete = -1;
-		 * 
-		 * for (int i = 0; i < faves.length(); i++) { if (favPos == 0) begDelete
-		 * = 0; if (faves.charAt(i) == ',') { pos++; if (pos == favPos && favPos
-		 * != 0) begDelete = i; else if (pos == (favPos + 1)) { endDelete = i;
-		 * break; } }
-		 * 
-		 * if (i == faves.length() - 1 && endDelete == -1) endDelete =
-		 * faves.length(); }
-		 * 
-		 * if (begDelete != 0) { faves = faves.substring(0, begDelete) +
-		 * faves.substring(endDelete, faves.length());
-		 * 
-		 * } else if (begDelete == 0 && endDelete != faves.length()) faves =
-		 * faves.substring(endDelete + 1, faves.length()); else if (endDelete ==
-		 * faves.length()) { faves = faves.substring(0, begDelete); }
-		 * 
-		 * prefs.edit().putString("favs", faves).commit();
-		 * 
-		 * dial.dismiss(); setFaves();
-		 */
 	}
 
 	public void addingRestriction()
@@ -998,48 +929,55 @@ public class DBAdminController extends Activity implements OnClickListener {
 				.findViewById(R.id.Button_OrderBy);
 		Button groupbyButton = (Button) newRestriction
 				.findViewById(R.id.Button_GroupBy);
+
+		groupbyButton.setVisibility(View.INVISIBLE);
 		
-		
-		whereButton.setOnClickListener(new OnClickListener() {
+		whereButton.setOnClickListener(new OnClickListener()
+		{
 
-			public void onClick(View v) {
-				buttonPressed = "where";
-				whereRestrictionDialog();
-			}});
-		groupbyButton.setOnClickListener(new OnClickListener() {
-
-			public void onClick(View v) {
-				buttonPressed = "group by";
-				groupByDialog();
-			}});
-		orderbyButton.setOnClickListener(new OnClickListener() {
-
-			public void onClick(View v) {
-				buttonPressed = "order by";
-				orderByDialog();
-			}});
-		nextButton.setOnClickListener(new OnClickListener() {
-			// @Override
-			public void onClick(View v) 
+			public void onClick(View v)
 			{
-				
+				whereRestrictionDialog();
 			}
 		});
-		
-		
-		int count = 0;
-		for(int i=0; i<attributesAndDataTypes.length; i++)
+		groupbyButton.setOnClickListener(new OnClickListener()
 		{
-			if(attributesAndDataTypes[i][3].equals("true"))
+
+			public void onClick(View v)
+			{
+				groupByDialog();
+			}
+		});
+		orderbyButton.setOnClickListener(new OnClickListener()
+		{
+
+			public void onClick(View v)
+			{
+				orderByDialog();
+			}
+		});
+		nextButton.setOnClickListener(new OnClickListener()
+		{
+			// @Override
+			public void onClick(View v)
+			{
+				newRestriction.dismiss();
+			}
+		});
+
+		int count = 0;
+		for (int i = 0; i < attributesAndDataTypes.length; i++)
+		{
+			if (attributesAndDataTypes[i][3].equals("true"))
 			{
 				count++;
 			}
 		}
 		newOptions = new String[count];
 		int position = 0;
-		for(int i=0; i<attributesAndDataTypes.length; i++)
+		for (int i = 0; i < attributesAndDataTypes.length; i++)
 		{
-			if(attributesAndDataTypes[i][3].equals("true"))
+			if (attributesAndDataTypes[i][3].equals("true"))
 			{
 				newOptions[position] = attributesAndDataTypes[i][4];
 				position++;
@@ -1047,98 +985,77 @@ public class DBAdminController extends Activity implements OnClickListener {
 		}
 
 		newRestriction.setTitle("Adding A New Restriction");
-		//String[] items = new String[] { "One", "Two", "Three" };
-		Spinner restrictionSpinner = (Spinner) newRestriction.findViewById(R.id.restrictionSpinner);
-		
-		
-		
-		 ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-		 this, android.R.layout.simple_spinner_item, newOptions);
-		 
-		 adapter.setDropDownViewResource
-		 (android.R.layout.simple_spinner_dropdown_item);
-		
-		
-		 restrictionSpinner.setAdapter(adapter);
+		// String[] items = new String[] { "One", "Two", "Three" };
+		Spinner restrictionSpinner = (Spinner) newRestriction
+				.findViewById(R.id.restrictionSpinner);
+
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+				android.R.layout.simple_spinner_item, newOptions);
+
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+		restrictionSpinner.setAdapter(adapter);
 
 		restrictionSpinner
-				.setOnItemSelectedListener(new OnItemSelectedListener() {
+				.setOnItemSelectedListener(new OnItemSelectedListener()
+				{
 					public void onItemSelected(AdapterView<?> parent,
-							View view, int position, long id) {
-						 Toast.makeText(getApplicationContext(),
-						 options[position], Toast.LENGTH_SHORT)
-						 .show();
-						 selectedAttribute = newOptions[position];
+							View view, int position, long id)
+					{
+						Toast.makeText(getApplicationContext(),
+								options[position], Toast.LENGTH_SHORT).show();
+						selectedAttribute = newOptions[position];
 					}
 
-					public void onNothingSelected(AdapterView<?> parent) {
+					public void onNothingSelected(AdapterView<?> parent)
+					{
 
 					}
 				});
 
 		newRestriction.show();
-		// Spinner signSpinner = (Spinner) findViewById(R.id.signSpinner);
-		/*
-		 * ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-		 * Expense1.this, android.R.layout.simple_spinner_item, items);
-		 * adapter.setDropDownViewResource
-		 * (android.R.layout.simple_spinner_dropdown_item);
-		 */
-		// signSpinner.setAdapter(adapter);
 
-		// signSpinner
-		// .setOnItemSelectedListener(new OnItemSelectedListener()
-		// {
-		// public void onItemSelected(AdapterView<?> parent,
-		// View view, int position, long id)
-		// {
-		// Toast.makeText(getApplicationContext(),
-		// items[position], Toast.LENGTH_SHORT)
-		// .show();
-		// }
-
-		// public void onNothingSelected(AdapterView<?> parent) {
-
-		// }
-		// });
 	}
-	
+
 	public void addRestriction(Dialog restriction)
 	{
 		dial.dismiss();
-		if(restriction != null)
+		if (restriction != null)
 			restriction.dismiss();
 		newRestriction.dismiss();
 		viewRestrictions();
 	}
-	
+
 	public void whereRestrictionDialog()
 	{
 		final Dialog restriction = new Dialog(this);
 		restriction.setContentView(R.layout.wherelayout);
 		final EditText value1 = (EditText) restriction
 				.findViewById(R.id.editText1);
-		
+
 		final EditText value2 = (EditText) restriction
 				.findViewById(R.id.editText2);
-		Button okButton = (Button) restriction
-				.findViewById(R.id.button_ok);
-		final DatePicker dp = (DatePicker)restriction.findViewById(R.id.datePicker1);
-		final DatePicker dp2 = (DatePicker)restriction.findViewById(R.id.datePicker2);
+		Button okButton = (Button) restriction.findViewById(R.id.button_ok);
+		final DatePicker dp = (DatePicker) restriction
+				.findViewById(R.id.datePicker1);
+		final DatePicker dp2 = (DatePicker) restriction
+				.findViewById(R.id.datePicker2);
 		value2.setVisibility(View.INVISIBLE);
 		value1.setVisibility(View.INVISIBLE);
 		dp.setVisibility(View.INVISIBLE);
-		dp2.setVisibility(View.INVISIBLE);		
+		dp2.setVisibility(View.INVISIBLE);
 		final String dataType = findDataTypeByAttribute(selectedAttribute);
 		final String lengthOfType = findDataLengthByAttribute(selectedAttribute);
 
-		final Spinner restrictionSpinner = (Spinner) restriction.findViewById(R.id.spinner1);
-		
-		okButton.setOnClickListener(new OnClickListener() {
+		final Spinner restrictionSpinner = (Spinner) restriction
+				.findViewById(R.id.spinner1);
 
-			public void onClick(View v) 
+		okButton.setOnClickListener(new OnClickListener()
+		{
+
+			public void onClick(View v)
 			{
-				if(dataType.equalsIgnoreCase("date"))
+				if (dataType.equalsIgnoreCase("date"))
 				{
 					int month = dp.getMonth();
 					int year = dp.getYear();
@@ -1157,8 +1074,9 @@ public class DBAdminController extends Activity implements OnClickListener {
 						date += "-0" + day;
 					else
 						date += "-" + day;
-					
-					if(operation.equals("between")||operation.equals("not between"))
+
+					if (operation.equals("between")
+							|| operation.equals("not between"))
 					{
 						int month2 = dp2.getMonth();
 						int year2 = dp2.getYear();
@@ -1177,42 +1095,57 @@ public class DBAdminController extends Activity implements OnClickListener {
 							date2 += "-0" + day2;
 						else
 							date2 += "-" + day2;
-						restrictions.add("where "+selectedAttribute+" "+operation+" '"+date+"' and '"+date2+"'");
-						
-						System.out.println("where "+selectedAttribute+" "+operation+" '"+date+"' and '"+date2+"'");
+						restrictions.add("where " + selectedAttribute + " "
+								+ operation + " '" + date + "' and '" + date2
+								+ "'");
+
+						// System.out.println("where "+selectedAttribute+" "+operation+" '"+date+"' and '"+date2+"'");
 						addRestriction(restriction);
 					}
 					else
 					{
-						restrictions.add("where "+selectedAttribute+" "+operation+" '"+date+"'");
-						System.out.println("where "+selectedAttribute+" "+operation+" '"+date+"'");
+						restrictions.add("where " + selectedAttribute + " "
+								+ operation + " '" + date + "'");
+						// System.out.println("where "+selectedAttribute+" "+operation+" '"+date+"'");
 						addRestriction(restriction);
 					}
 				}
-				else if(dataType.equalsIgnoreCase("decimal"))
+				else if (dataType.equalsIgnoreCase("decimal"))
 				{
-					if(operation.equals("between")||operation.equals("not between"))
+					if (operation.equals("between")
+							|| operation.equals("not between"))
 					{
 						String one = value1.getText().toString();
 						String two = value2.getText().toString();
-						String[]split = one.split("[.]");
-						if(split[0].charAt(0) == '-')
-							split[0]=split[0].substring(1,split[0].length());
-						if(split.length > 1)
+						String[] split = one.split("[.]");
+						if (split[0].charAt(0) == '-')
+							split[0] = split[0].substring(1, split[0].length());
+						if (split.length > 1)
 						{
 							String[] split2 = lengthOfType.split(",");
-							if(split[0].length() <= Integer.parseInt(split2[0]) && split[1].length() <= Integer.parseInt(split2[1]))
+							if (split[0].length() <= Integer
+									.parseInt(split2[0])
+									&& split[1].length() <= Integer
+											.parseInt(split2[1]))
 							{
-								String[]split3 = one.split("[.]");
-								if(split3[0].charAt(0) == '-')
-									split3[0]=split2[0].substring(1,split3[0].length());
-								if(split3.length > 1)
+								String[] split3 = one.split("[.]");
+								if (split3[0].charAt(0) == '-')
+									split3[0] = split2[0].substring(1,
+											split3[0].length());
+								if (split3.length > 1)
 								{
 									String[] split4 = lengthOfType.split(",");
-									if(split3[0].length() <= Integer.parseInt(split4[0]) && split3[1].length() <= Integer.parseInt(split4[1]))
+									if (split3[0].length() <= Integer
+											.parseInt(split4[0])
+											&& split3[1].length() <= Integer
+													.parseInt(split4[1]))
 									{
-										restrictions.add("where "+selectedAttribute+" "+operation+" "+one+ " and "+two);
-										System.out.println("where "+selectedAttribute+" "+operation+" "+one+ " and "+two);
+										restrictions.add("where "
+												+ selectedAttribute + " "
+												+ operation + " " + one
+												+ " and " + two);
+										// System.out.println("where "+selectedAttribute+" "+operation+" "+one+
+										// " and "+two);
 										addRestriction(restriction);
 									}
 								}
@@ -1222,409 +1155,451 @@ public class DBAdminController extends Activity implements OnClickListener {
 					else
 					{
 						String one = value1.getText().toString();
-						String[]split = one.split("[.]");
-						System.out.println("ONE is: "+one+"  "+split.length);
-						
-						if(split[0].charAt(0) == '-')
-							split[0]=split[0].substring(1,split[0].length());
-						if(split.length > 1)
+						String[] split = one.split("[.]");
+						// System.out.println("ONE is: "+one+"  "+split.length);
+
+						if (split[0].charAt(0) == '-')
+							split[0] = split[0].substring(1, split[0].length());
+						if (split.length > 1)
 						{
 							String[] split2 = lengthOfType.split(",");
-							System.out.println(split2[0]+" "+split2[1]);
-							System.out.println(Integer.parseInt(split[0]) +" "+ Integer.parseInt(split2[0])+ " "+Integer.parseInt(split[1])+" "+ Integer.parseInt(split2[1]));
-							if(split[0].length() <= Integer.parseInt(split2[0]) && split[1].length() <= Integer.parseInt(split2[1]))
+							// System.out.println(split2[0]+" "+split2[1]);
+							// System.out.println(Integer.parseInt(split[0])
+							// +" "+ Integer.parseInt(split2[0])+
+							// " "+Integer.parseInt(split[1])+" "+
+							// Integer.parseInt(split2[1]));
+							if (split[0].length() <= Integer
+									.parseInt(split2[0])
+									&& split[1].length() <= Integer
+											.parseInt(split2[1]))
 							{
-								restrictions.add("where "+selectedAttribute+" "+operation+" "+one);
-								System.out.println("where "+selectedAttribute+" "+operation+" "+one);
+								restrictions.add("where " + selectedAttribute
+										+ " " + operation + " " + one);
+								// System.out.println("where "+selectedAttribute+" "+operation+" "+one);
 								addRestriction(restriction);
 							}
 						}
 					}
 				}
-				else if(dataType.equalsIgnoreCase("int"))
+				else if (dataType.equalsIgnoreCase("int"))
 				{
-					if(operation.equals("between")||operation.equals("not between"))
+					if (operation.equals("between")
+							|| operation.equals("not between"))
 					{
 						String one = value1.getText().toString();
 						String two = value2.getText().toString();
-						restrictions.add("where "+selectedAttribute+" "+operation+" "+one+" and "+two);
-						System.out.println("where "+selectedAttribute+" "+operation+" "+one+" and "+two);
+						restrictions.add("where " + selectedAttribute + " "
+								+ operation + " " + one + " and " + two);
+						// System.out.println("where "+selectedAttribute+" "+operation+" "+one+" and "+two);
 						addRestriction(restriction);
 					}
 					else
 					{
 						String one = value1.getText().toString();
-						restrictions.add("where "+selectedAttribute+" "+operation+" "+one);
-						System.out.println("where "+selectedAttribute+" "+operation+" "+one);
+						restrictions.add("where " + selectedAttribute + " "
+								+ operation + " " + one);
+						// System.out.println("where "+selectedAttribute+" "+operation+" "+one);
 						addRestriction(restriction);
 					}
-					
+
 				}
-				else if(dataType.equalsIgnoreCase("char")||dataType.equalsIgnoreCase("varchar"))
+				else if (dataType.equalsIgnoreCase("char")
+						|| dataType.equalsIgnoreCase("varchar"))
 				{
-					if(operation.equals("between")||operation.equals("not between"))
+					if (operation.equals("between")
+							|| operation.equals("not between"))
 					{
 						String one = value1.getText().toString();
 						String two = value2.getText().toString();
-						if(dataType.equalsIgnoreCase("char"))
+						if (dataType.equalsIgnoreCase("char"))
 						{
-							if(lengthOfType.equals(one.length()+"") && lengthOfType.equals(two.length()+""))
+							if (lengthOfType.equals(one.length() + "")
+									&& lengthOfType.equals(two.length() + ""))
 							{
-								restrictions.add("where "+selectedAttribute+" "+operation+" '"+one+"' and '"+two+"'");
-								System.out.println("where "+selectedAttribute+" "+operation+" '"+one+"' and '"+two+"'");
-								addRestriction(restriction);	
+								restrictions.add("where " + selectedAttribute
+										+ " " + operation + " '" + one
+										+ "' and '" + two + "'");
+								// System.out.println("where "+selectedAttribute+" "+operation+" '"+one+"' and '"+two+"'");
+								addRestriction(restriction);
 							}
 						}
 						else
 						{
-							restrictions.add("where "+selectedAttribute+" "+operation+" '"+one+"' and '"+two+"'");
-							System.out.println("where "+selectedAttribute+" "+operation+" '"+one+"' and '"+two+"'");
+							restrictions.add("where " + selectedAttribute + " "
+									+ operation + " '" + one + "' and '" + two
+									+ "'");
+							// System.out.println("where "+selectedAttribute+" "+operation+" '"+one+"' and '"+two+"'");
 							addRestriction(restriction);
 						}
 					}
 					else
 					{
 						String one = value1.getText().toString();
-						if(dataType.equalsIgnoreCase("char"))
+						if (dataType.equalsIgnoreCase("char"))
 						{
-							System.out.println(lengthOfType + " len of type and one "+one.length());
-							if(lengthOfType.equals(one.length()+""))
+							// System.out.println(lengthOfType +
+							// " len of type and one "+one.length());
+							if (lengthOfType.equals(one.length() + ""))
 							{
-								restrictions.add("where "+selectedAttribute+" "+operation+" '"+one+"'");
-								System.out.println("where "+selectedAttribute+" "+operation+" '"+one+"'");
+								restrictions.add("where " + selectedAttribute
+										+ " " + operation + " '" + one + "'");
+								// System.out.println("where "+selectedAttribute+" "+operation+" '"+one+"'");
 								addRestriction(restriction);
 							}
 						}
 						else
 						{
-							restrictions.add("where "+selectedAttribute+" "+operation+" '"+one+"'");
-							System.out.println("where "+selectedAttribute+" "+operation+" '"+one+"'");
+							restrictions.add("where " + selectedAttribute + " "
+									+ operation + " '" + one + "'");
+							// System.out.println("where "+selectedAttribute+" "+operation+" '"+one+"'");
 							addRestriction(restriction);
 						}
 					}
 				}
-				
-				
-				
-			}});
-		
+
+			}
+		});
+
 		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this,R.array.DialogOptions, android.R.layout.simple_spinner_item);
-		
-		System.out.println("SELECTED ATTRIBUTE DATA TYPE: "+dataType+" "+lengthOfType);
-		
-		if(dataType.equalsIgnoreCase("int"))
+				this, R.array.DialogOptions,
+				android.R.layout.simple_spinner_item);
+
+		// System.out.println("SELECTED ATTRIBUTE DATA TYPE: "+dataType+" "+lengthOfType);
+
+		if (dataType.equalsIgnoreCase("int"))
 		{
 			value2.setVisibility(View.VISIBLE);
 			value1.setVisibility(View.VISIBLE);
 			InputFilter[] FilterArray = new InputFilter[1];
-			FilterArray[0] = new InputFilter.LengthFilter(Integer.parseInt(lengthOfType));
+			FilterArray[0] = new InputFilter.LengthFilter(
+					Integer.parseInt(lengthOfType));
 			value1.setInputType(InputType.TYPE_CLASS_NUMBER);
 			value1.setFilters(FilterArray);
 		}
-		else if(dataType.equalsIgnoreCase("varchar") || dataType.equalsIgnoreCase("char") )
+		else if (dataType.equalsIgnoreCase("varchar")
+				|| dataType.equalsIgnoreCase("char"))
 		{
 			value2.setVisibility(View.VISIBLE);
 			value1.setVisibility(View.VISIBLE);
 			InputFilter[] FilterArray = new InputFilter[1];
-			FilterArray[0] = new InputFilter.LengthFilter(Integer.parseInt(lengthOfType));
-			//value1.setInputType(InputType.TYPE_CLASS_NUMBER);
+			FilterArray[0] = new InputFilter.LengthFilter(
+					Integer.parseInt(lengthOfType));
+			// value1.setInputType(InputType.TYPE_CLASS_NUMBER);
 			value1.setFilters(FilterArray);
 		}
-		else if(dataType.equalsIgnoreCase("decimal"))
+		else if (dataType.equalsIgnoreCase("decimal"))
 		{
 			value2.setVisibility(View.VISIBLE);
 			value1.setVisibility(View.VISIBLE);
-			//InputFilter[] FilterArray = new InputFilter[1];
-			//FilterArray[0] = new InputFilter.LengthFilter(Integer.parseInt(lengthOfType));
+			// InputFilter[] FilterArray = new InputFilter[1];
+			// FilterArray[0] = new
+			// InputFilter.LengthFilter(Integer.parseInt(lengthOfType));
 			String[] split = lengthOfType.split(",");
-			//value1.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
-			//value1.setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
-			value1.setFilters(new InputFilter[] {new DecimalDigitsInputFilter(Integer.parseInt(split[0].trim())-Integer.parseInt(split[1].trim())+2,Integer.parseInt(split[1].trim()))});;
+			// value1.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
+			// value1.setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
+			value1.setFilters(new InputFilter[] { new DecimalDigitsInputFilter(
+					Integer.parseInt(split[0].trim())
+							- Integer.parseInt(split[1].trim()) + 2, Integer
+							.parseInt(split[1].trim())) });;
 		}
-		else if(dataType.trim().equalsIgnoreCase("date"))
+		else if (dataType.trim().equalsIgnoreCase("date"))
 		{
 			dp.setVisibility(View.VISIBLE);
-			//dp2.setVisibility(View.VISIBLE);
-			//InputFilter[] FilterArray = new InputFilter[1];
-			//FilterArray[0] = new InputFilter.LengthFilter(Integer.parseInt(lengthOfType));
-			//String[] split = lengthOfType.split(",");
-			//value1.setInputType(InputType.TYPE_DATETIME_VARIATION_DATE);
-			//value1.setFilters(new InputFilter[] {new DecimalDigitsInputFilter(Integer.parseInt(split[0].trim()),Integer.parseInt(split[1].trim()))});;
+			// dp2.setVisibility(View.VISIBLE);
+			// InputFilter[] FilterArray = new InputFilter[1];
+			// FilterArray[0] = new
+			// InputFilter.LengthFilter(Integer.parseInt(lengthOfType));
+			// String[] split = lengthOfType.split(",");
+			// value1.setInputType(InputType.TYPE_DATETIME_VARIATION_DATE);
+			// value1.setFilters(new InputFilter[] {new
+			// DecimalDigitsInputFilter(Integer.parseInt(split[0].trim()),Integer.parseInt(split[1].trim()))});;
 		}
-		 
-		 adapter.setDropDownViewResource
-		 (android.R.layout.simple_spinner_dropdown_item);
+
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		restriction.setTitle("Where Restriction");
 
-		 restrictionSpinner.setAdapter(adapter);
+		restrictionSpinner.setAdapter(adapter);
 
 		restrictionSpinner
-				.setOnItemSelectedListener(new OnItemSelectedListener() {
+				.setOnItemSelectedListener(new OnItemSelectedListener()
+				{
 					public void onItemSelected(AdapterView<?> parent,
-							View view, int position, long id) {
-						if(position == 0)
-							operation =">";
-						else if(position == 1)
-							operation ="<";
-						else if(position == 2)
-							operation ="=";
-						else if(position ==3)
-							operation =">=";
-						else if(position == 4)
-							operation ="<=";
-						else if(position ==5)
-							operation ="<>";
-						else if(position == 6)
-							operation ="between";
-						else if(position == 7)
-							operation ="not between";
-						
-						if(!dataType.trim().equalsIgnoreCase("date"))
+							View view, int position, long id)
+					{
+						if (position == 0)
+							operation = ">";
+						else if (position == 1)
+							operation = "<";
+						else if (position == 2)
+							operation = "=";
+						else if (position == 3)
+							operation = ">=";
+						else if (position == 4)
+							operation = "<=";
+						else if (position == 5)
+							operation = "<>";
+						else if (position == 6)
+							operation = "between";
+						else if (position == 7)
+							operation = "not between";
+
+						if (!dataType.trim().equalsIgnoreCase("date"))
 						{
-							if(position == 6 || position == 7)
-							 value2.setVisibility(View.VISIBLE);
+							if (position == 6 || position == 7)
+								value2.setVisibility(View.VISIBLE);
 							else
-							 value2.setVisibility(View.INVISIBLE);
+								value2.setVisibility(View.INVISIBLE);
 						}
 						else
 						{
-							if(position == 6 || position == 7)
+							if (position == 6 || position == 7)
 							{
-								System.out.println("LET THE DATES BE VISIBLE");
-								//dp.setVisibility(View.VISIBLE);
+								// System.out.println("LET THE DATES BE VISIBLE");
+								// dp.setVisibility(View.VISIBLE);
 								dp2.setVisibility(View.VISIBLE);
 							}
 							else
 							{
-								//dp.setVisibility(View.INVISIBLE);
+								// dp.setVisibility(View.INVISIBLE);
 								dp2.setVisibility(View.INVISIBLE);
 							}
-								
+
 						}
 					}
-					public void onNothingSelected(AdapterView<?> parent) {
+
+					public void onNothingSelected(AdapterView<?> parent)
+					{
 
 					}
 				});
 
 		restriction.show();
 
-
-		
 	}
-	
+
 	public void listViewDialog(final int position)
 	{
 		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-		 
-		   dialog.setTitle("Options");
 
-		   boolean [] choice = {false};
-	 	dialog.setMultiChoiceItems(R.array.ListViewOptions, choice, new OnMultiChoiceClickListener() 
-	 	{
+		dialog.setTitle("Options");
+
+		boolean[] choice = { false };
+		dialog.setMultiChoiceItems(R.array.ListViewOptions, choice,
+				new OnMultiChoiceClickListener()
+				{
 					public void onClick(DialogInterface arg0, int arg1,
-							boolean arg2) {
+							boolean arg2)
+					{
 						delete = arg2;
 					}
-			   });
-		  
-		   dialog.setCancelable(false);
+				});
 
-		   dialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() 
-		   {
-				
-				public void onClick(DialogInterface dialog, int which) 
+		dialog.setCancelable(false);
+
+		dialog.setPositiveButton(android.R.string.ok,
+				new DialogInterface.OnClickListener()
 				{
-					if(delete)
+
+					public void onClick(DialogInterface dialog, int which)
 					{
-						restrictions.remove(position);
-						dialog.cancel();
-						dial.dismiss();
-						viewRestrictions();
+						if (delete)
+						{
+							restrictions.remove(position);
+							dialog.cancel();
+							dial.dismiss();
+							viewRestrictions();
+						}
+						else
+						{
+							dialog.cancel();
+						}
 					}
-					else
+
+				});
+		dialog.setNegativeButton(android.R.string.cancel,
+				new DialogInterface.OnClickListener()
+				{
+
+					public void onClick(DialogInterface dialog, int which)
 					{
 						dialog.cancel();
 					}
-				}
-				
-		   });	   
-		   dialog.setNegativeButton(android.R.string.cancel,new DialogInterface.OnClickListener() {
-				
-				public void onClick(DialogInterface dialog, int which) {
-						dialog.cancel();
-				}
-			});
-		   
-		   dialog.show();
+				});
+
+		dialog.show();
 	}
-	
+
 	public void orderByDialog()
 	{
 		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-		 
-		   dialog.setTitle("Order By");
 
-		   ascendOrDescend = 0;
-	 	dialog.setSingleChoiceItems(R.array.OrderBy, 0, new DialogInterface.OnClickListener() 
-			   {
-					public void onClick(DialogInterface dialog, int which) 
+		dialog.setTitle("Order By");
+
+		ascendOrDescend = 0;
+		dialog.setSingleChoiceItems(R.array.OrderBy, 0,
+				new DialogInterface.OnClickListener()
+				{
+					public void onClick(DialogInterface dialog, int which)
 					{
 						ascendOrDescend = which;
 					}
-			   });
-		  
-		   dialog.setCancelable(false);
+				});
 
-		   dialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() 
-		   {
-				
-				public void onClick(DialogInterface dialog, int which) 
+		dialog.setCancelable(false);
+
+		dialog.setPositiveButton(android.R.string.ok,
+				new DialogInterface.OnClickListener()
 				{
-					if(ascendOrDescend == 0)
+
+					public void onClick(DialogInterface dialog, int which)
 					{
-						orderByString = "order by "+selectedAttribute;
-					}
-					else
-					{
-						orderByString = "order by "+selectedAttribute + " desc";
-					}
-					restrictions.add(orderByString);
-					System.out.println(orderByString);
-					dialog.cancel();
-					addRestriction(null);
-				}
-				
-		   });	   
-		   dialog.setNegativeButton(android.R.string.cancel,new DialogInterface.OnClickListener() {
-				
-				public void onClick(DialogInterface dialog, int which) {
+						if (ascendOrDescend == 0)
+						{
+							orderByString = "order by " + selectedAttribute;
+						}
+						else
+						{
+							orderByString = "order by " + selectedAttribute
+									+ " desc";
+						}
+						restrictions.add(orderByString);
+						// System.out.println(orderByString);
 						dialog.cancel();
-				}
-			});
-		   
-		   dialog.show();
+						addRestriction(null);
+					}
+
+				});
+		dialog.setNegativeButton(android.R.string.cancel,
+				new DialogInterface.OnClickListener()
+				{
+
+					public void onClick(DialogInterface dialog, int which)
+					{
+						dialog.cancel();
+					}
+				});
+
+		dialog.show();
 	}
-	
+
 	public void groupByDialog()
 	{
 		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-		 
-		  dialog.setTitle("Group By");
 
-	 	dialog.setMessage("Do you want to group by this attribute?");
-		  
-		   dialog.setCancelable(false);
+		dialog.setTitle("Group By");
 
-		   dialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() 
-		   {
-				
-				public void onClick(DialogInterface dialog, int which) 
-				{		
-					restrictions.add("group by "+selectedAttribute);
-					System.out.println("group by "+selectedAttribute);
-					dialog.cancel();
-					addRestriction(null);
-				}
-				
-		   });	   
-		   dialog.setNegativeButton(android.R.string.cancel,new DialogInterface.OnClickListener() {
-				
-				public void onClick(DialogInterface dialog, int which) {
+		dialog.setMessage("Do you want to group by this attribute?");
+
+		dialog.setCancelable(false);
+
+		dialog.setPositiveButton(android.R.string.ok,
+				new DialogInterface.OnClickListener()
+				{
+
+					public void onClick(DialogInterface dialog, int which)
+					{
+						restrictions.add("group by " + selectedAttribute);
+						// System.out.println("group by "+selectedAttribute);
 						dialog.cancel();
-				}
-			});
-		   
-		   dialog.show();
+						addRestriction(null);
+					}
+
+				});
+		dialog.setNegativeButton(android.R.string.cancel,
+				new DialogInterface.OnClickListener()
+				{
+
+					public void onClick(DialogInterface dialog, int which)
+					{
+						dialog.cancel();
+					}
+				});
+
+		dialog.show();
 	}
-	
+
 	public String findDataTypeByAttribute(String attribute)
 	{
-		for(int i=0; i<attributesAndDataTypes.length; i++)
+		for (int i = 0; i < attributesAndDataTypes.length; i++)
 		{
-			if(attributesAndDataTypes[i][4].equals(attribute))
+			if (attributesAndDataTypes[i][4].equals(attribute))
 			{
 				return attributesAndDataTypes[i][6];
 			}
 		}
 		return "Not Found";
 	}
-	
+
 	public String findDataLengthByAttribute(String attribute)
 	{
-		for(int i=0; i<attributesAndDataTypes.length; i++)
+		for (int i = 0; i < attributesAndDataTypes.length; i++)
 		{
-			if(attributesAndDataTypes[i][4].equals(attribute))
+			if (attributesAndDataTypes[i][4].equals(attribute))
 			{
 				return attributesAndDataTypes[i][5];
 			}
 		}
 		return "Not Found";
 	}
-	
-	public class DecimalDigitsInputFilter implements InputFilter 
+
+	public class DecimalDigitsInputFilter implements InputFilter
 	{
 
-		Pattern mPattern;
+		Pattern	mPattern;
 
-		public DecimalDigitsInputFilter(int digitsBeforeZero,int digitsAfterZero) {
-		    mPattern=Pattern.compile("[0-9,-]{0," + (digitsBeforeZero-1) + "}+((\\.[0-9]{0," + (digitsAfterZero-1) + "})?)||(\\.)?");
+		public DecimalDigitsInputFilter(int digitsBeforeZero,
+				int digitsAfterZero)
+		{
+			mPattern = Pattern.compile("[0-9,-]{0," + (digitsBeforeZero - 1)
+					+ "}+((\\.[0-9]{0," + (digitsAfterZero - 1)
+					+ "})?)||(\\.)?");
 		}
 
-	
-		public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+		public CharSequence filter(CharSequence source, int start, int end,
+				Spanned dest, int dstart, int dend)
+		{
 
-		        Matcher matcher=mPattern.matcher(dest);       
-		        if(!matcher.matches())
-		            return "";
-		        return null;
-		    }
+			Matcher matcher = mPattern.matcher(dest);
+			if (!matcher.matches())
+				return "";
+			return null;
+		}
 	}
 
-	public void tableDialog(final String title) {
+	public void tableDialog(final String title)
+	{
 		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 
 		noChange = true;
 		dialog.setTitle("Table Selection");
 		// dialog.setMessage(R.string.npMessage);
 
-		if (title.equals("Attribute Selection")) {
-
-			/*
-			 * int count =0;
-			 * 
-			 * for(int i=0; i<finalTableStructure.size(); i++) { for(int j=0;
-			 * j<finalTableStructure.get(i).length;j++) { count++; } }
-			 * 
-			 * options = new CharSequence[count];
-			 * 
-			 * int index =0; for(int i=0; i<finalTableStructure.size(); i++) {
-			 * for(int j=0; j<finalTableStructure.get(i).length;j++) {
-			 * options[index
-			 * ]=finalTableStructure.get(i)[j][0]+", "+finalTableStructure
-			 * .get(i)[j][2]+"("+finalTableStructure.get(i)[j][3]+")"; index++;
-			 * } }
-			 */
-
+		if (title.equals("Attribute Selection"))
+		{
 			options = new String[attributesAndDataTypes.length];
-			for (int i = 0; i < options.length; i++) {
+			for (int i = 0; i < options.length; i++)
+			{
 				options[i] = attributesAndDataTypes[i][0] + "\n\t-"
 						+ attributesAndDataTypes[i][2];
 			}
-			//for(int i=0; i<checkedAttributeList.length; i++)
-			//	checkedAttributeList[i]=true;
+			// for(int i=0; i<checkedAttributeList.length; i++)
+			// checkedAttributeList[i]=true;
 
 			dialog.setMultiChoiceItems(options, checkedAttributeList,
-					new DialogInterface.OnMultiChoiceClickListener() {
+					new DialogInterface.OnMultiChoiceClickListener()
+					{
 						public void onClick(DialogInterface d, int which,
-								boolean checked) {
+								boolean checked)
+						{
 							noChange = false;
-							if (checked) {
+							if (checked)
+							{
 								checkedAttributeArrayList.add(options[which]
 										.toString());
 								attributesAndDataTypes[which][3] = "true";
-							} else {
+							}
+							else
+							{
 								checkedAttributeArrayList.remove(which);
 								attributesAndDataTypes[which][3] = "false";
 							}
@@ -1635,11 +1610,14 @@ public class DBAdminController extends Activity implements OnClickListener {
 					});
 		}
 
-		else if (title.equals("Table Selection")) {
+		else if (title.equals("Table Selection"))
+		{
 			dialog.setMultiChoiceItems(R.array.TableOptions, checkedTableList,
-					new DialogInterface.OnMultiChoiceClickListener() {
+					new DialogInterface.OnMultiChoiceClickListener()
+					{
 						public void onClick(DialogInterface d, int which,
-								boolean checked) {
+								boolean checked)
+						{
 
 							noChange = false;
 							checkedTableList[which] = checked;
@@ -1650,211 +1628,92 @@ public class DBAdminController extends Activity implements OnClickListener {
 		dialog.setCancelable(false);
 
 		dialog.setPositiveButton(android.R.string.ok,
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						if (title.equals("Table Selection")) {
+				new DialogInterface.OnClickListener()
+				{
+					public void onClick(DialogInterface dialog, int which)
+					{
+						if (title.equals("Table Selection"))
+						{
 							finalTableStructure.clear();
 							if (noChange)
 								dialog.cancel();
-							else 
+							else
 							{
 								isEditable = true;
+								attributeButton.setEnabled(true);
+								restrictionButton.setEnabled(false);
 								restrictions.clear();
 								multiTableSelection();
 							}
-						} else if (title.equals("Attribute Selection")) {
-							
-							if(noChange)
+						}
+						else if (title.equals("Attribute Selection"))
+						{
+
+							if (noChange)
 								dialog.cancel();
 							else
 							{
+								restrictionButton.setEnabled(true);
 								isEditable = false;
 								restrictions.clear();
 								performTheBigQuery2(false);
 							}
-							
+
 						}
 
 					}
 				});
 
-		/*
-		 * dialog.setNegativeButton(android.R.string.cancel, new
-		 * DialogInterface.OnClickListener() {
-		 * 
-		 * @Override public void onClick(DialogInterface dialog, int which) {
-		 * 
-		 * dialog.cancel(); } });
-		 */
 		dialog.show();
 	}
 
-	/*
-	 * private String makeDataTypesFromCheckedAttributes() {
-	 * 
-	 * String entities; for(int i=0; i<checkedAttributeArrayList.size(); i++) {
-	 * entities += checkedAttributeArrayList.get(i); }
-	 * 
-	 * String dataTypes = ""; for(int i=0; i<attributesAndDataTypes.length; i++)
-	 * { if(attributesAndDataTypes[i][3].equals("true")) { dataTypes +=
-	 * attributesAndDataTypes[i][1]; } } attributes =
-	 * attributes.substring(0,attributes.length()-1);
-	 * 
-	 * return attributes; }
-	 */
-
-	private void multiTableSelection() {
+	private void multiTableSelection()
+	{
 		int count = 0;
-		for (int i = 0; i < checkedTableList.length; i++) {
-			if (checkedTableList[i]) {
+		for (int i = 0; i < checkedTableList.length; i++)
+		{
+			if (checkedTableList[i])
+			{
 				count++;
 			}
 		}
 		tablesToBeDescribed = new int[count];
-		System.out.println("NEW SIZE for ttbd: " + tablesToBeDescribed.length);
+		// System.out.println("NEW SIZE for ttbd: " +
+		// tablesToBeDescribed.length);
 		count = 0;
-		for (int i = 0; i < checkedTableList.length; i++) {
-			if (checkedTableList[i]) {
+		for (int i = 0; i < checkedTableList.length; i++)
+		{
+			if (checkedTableList[i])
+			{
 				tablesToBeDescribed[count] = i;
 				count++;
 			}
 		}
-		if (tablesToBeDescribed.length > 0) {
-			System.out.println("Describe " + tablesToBeDescribed.length
-					+ " tables");
+		if (tablesToBeDescribed.length > 0)
+		{
+			// System.out.println("Describe " + tablesToBeDescribed.length
+			// + " tables");
 			describeMultipleTables(findTableFromInt(tablesToBeDescribed[0]),
 					tablesToBeDescribed[0], 0);
 		}
 	}
 
-	/*
-	 * public void setUpSpinner() { String[] tables = { "character", "ability",
-	 * "backpackitems", "backpack", "player", "item", "characterabilities" };
-	 * ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-	 * android.R.layout.simple_spinner_item, tables); // new //
-	 * ArrayList<String>()); // ArrayAdapter<String> adapter =
-	 * ArrayAdapter.createFromResource( // this,new ArrayList<String>(),
-	 * android.R.layout.simple_spinner_item); // new ArrayAdapter<String>(this,
-	 * R.layout.itemrow, // );
-	 * adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item
-	 * );
-	 * 
-	 * s.setAdapter(adapter);
-	 * 
-	 * s.setSelected(false); s.setOnItemSelectedListener(new
-	 * OnItemSelectedListener() { public void onItemSelected(AdapterView<?>
-	 * parent, View view, int position, long id) { describeTable(((String)
-	 * s.getAdapter().getItem(position)) .trim()); table = (String)
-	 * s.getAdapter().getItem(position); System.out.println(position + " " +
-	 * table);
-	 * 
-	 * }
-	 * 
-	 * public void onNothingSelected(AdapterView<?> parent) { } }); }
-	 */
-
-	private void setTA() {
-		// 0 = ability
-		// 1 = backpack
-		// 2 = character
-		// 3 = item
-		// 4 = player
-		// 5 = backpackitems
-		// 6 = characterabilities
-		ta[0].add("abilityid");
-		ta[0].add("aname");
-		ta[0].add("effect");
-		ta[0].add("alevelrestriction");
-		ta[0].add("alevel");
-		ta[0].add("multiplierperlevel");
-		ta[1].add("backpackid");
-		ta[1].add("itemweightcount");
-		ta[1].add("capacity");
-		ta[2].add("characterid");
-		ta[2].add("cname");
-		ta[2].add("clevel");
-		ta[2].add("health");
-		ta[2].add("strength");
-		ta[2].add("defense");
-		ta[2].add("accuracy");
-		ta[2].add("evasion");
-		ta[3].add("itemid");
-		ta[3].add("ability");
-		ta[3].add("weight");
-		ta[3].add("cooldown");
-		ta[3].add("capturetime");
-		ta[3].add("numofuses");
-		ta[3].add("ilevelrestriction");
-		ta[3].add("iname");
-		ta[4].add("playerid");
-		ta[4].add("computerplayer");
-		ta[4].add("username");
-		ta[4].add("password");
-		ta[4].add("datejoined");
-		ta[4].add("locationx");
-		ta[4].add("locationy");
-		ta[4].add("safehousex");
-		ta[4].add("safehousey");
-		ta[4].add("backpackid");
-		ta[4].add("characterid");
-		ta[5].add("backpackid");
-		ta[5].add("itemid");
-		ta[5].add("itemcount");
-		ta[5].add("instorage");
-		ta[6].add("characterid");
-		ta[6].add("abilityid");
-	}
-
-	private void setDTOA() {
-		dtoa.put("itemid", "int");
-		dtoa.put("ability", "string");
-		dtoa.put("weight", "int");
-		dtoa.put("cooldown", "int");
-		dtoa.put("capturetime", "int");
-		dtoa.put("numofuses", "int");
-		dtoa.put("ilevelrestiriction", "int");
-		dtoa.put("iname", "string");
-		dtoa.put("playerid", "int");
-		dtoa.put("computerplayer", "string");
-		dtoa.put("username", "string");
-		dtoa.put("password", "string");
-		dtoa.put("datejoined", "string");
-		dtoa.put("locationx", "double");
-		dtoa.put("locationy", "double");
-		dtoa.put("safehousex", "double");
-		dtoa.put("safehousey", "double");
-		dtoa.put("backpackid", "int");
-		dtoa.put("characterid", "int");
-		dtoa.put("abilityid", "int");
-		dtoa.put("cname", "string");
-		dtoa.put("clevel", "int");
-		dtoa.put("health", "int");
-		dtoa.put("strength", "int");
-		dtoa.put("defense", "int");
-		dtoa.put("accuracy", "int");
-		dtoa.put("evasion", "int");
-		dtoa.put("itemcount", "int");
-		dtoa.put("instorage", "string");
-		dtoa.put("itemweightcount", "int");
-		dtoa.put("capacity", "int");
-		dtoa.put("aname", "string");
-		dtoa.put("effect", "string");
-		dtoa.put("alevelrestriction", "int");
-		dtoa.put("alevel", "int");
-		dtoa.put("multiplierperlevel", "int");
-	}
-
-	public void onClick(View v) {
-		if (v.getId() == R.id.Button_DBAdminTableSelection) {
+	public void onClick(View v)
+	{
+		if (v.getId() == R.id.Button_DBAdminTableSelection)
+		{
 			tableDialog("Table Selection");
-		} else if (v.getId() == R.id.Button_DBAdminAttributeSelection) {
+		}
+		else if (v.getId() == R.id.Button_DBAdminAttributeSelection)
+		{
 			tableDialog("Attribute Selection");
 		}
-		else if(v.getId() == R.id.Button_DBAdminRestrictionSelection)
+		else if (v.getId() == R.id.Button_DBAdminRestrictionSelection)
 		{
 			viewRestrictions();
 		}
-		if (v.getId() == -1) {
+		if (v.getId() == -1)
+		{
 			String search = query.getText().toString().trim();
 			String Esubstring = search.substring(7, search.indexOf("from"));
 			Esubstring = Esubstring.replace(" ", "");
@@ -1864,11 +1723,13 @@ public class DBAdminController extends Activity implements OnClickListener {
 			Dsubstring = Dsubstring.replace(" ", "");
 			String[] dataTypes = Dsubstring.split(",");
 
-			for (int i = 0; i < entities.length; i++) {
-				System.out.println(":" + entities[i] + ":");
+			for (int i = 0; i < entities.length; i++)
+			{
+				// System.out.println(":" + entities[i] + ":");
 			}
-			for (int i = 0; i < dataTypes.length; i++) {
-				System.out.println(":" + dataTypes[i] + ":");
+			for (int i = 0; i < dataTypes.length; i++)
+			{
+				// System.out.println(":" + dataTypes[i] + ":");
 			}
 
 			// String[] entities = {"USERNAME","PASSWORD"};
@@ -1876,7 +1737,7 @@ public class DBAdminController extends Activity implements OnClickListener {
 			// String[] dataTypes = {"string","string"};
 			String query = (search.substring(0, search.indexOf("datatypes"))
 					.trim());
-			System.out.println(":" + query + ":");
+			// System.out.println(":" + query + ":");
 			brain.prepareForQuery(entities, filename, dataTypes, query);
 			pd = ProgressDialog.show(this, "Processing...",
 					"Getting data from database", true, true);
@@ -1884,41 +1745,64 @@ public class DBAdminController extends Activity implements OnClickListener {
 		}
 	}
 
-	private void createHTMLTableRow(String[] info, boolean areTitles) {
+	private void createHTMLTableRow(String[] info, boolean areTitles)
+	{
 		String tag, endTag;
 		html += "<tr>";
 		boolean oneTableSelected = (tablesToBeDescribed.length == 1);
-		
-		for (int i = 0; i < info.length; i++) {
-			if (i != 0) {
-				if (areTitles) {
+
+		for (int i = 0; i < info.length; i++)
+		{
+			if (i != 0)
+			{
+				if (areTitles)
+				{
 					tag = "<th>";
 					endTag = "</th>";
-				} else {
-					if(oneTableSelected && isEditable)
+				}
+				else
+				{
+					if (oneTableSelected && isEditable)
 					{
 						tag = "<td><a href=\"javascript:void(0)\" onclick=\"showDialog('"
-							+ info[i] + "'," + i + ",'"+info[0]+"','"+info[1]+"')\"/>";
+								+ info[i]
+								+ "',"
+								+ i
+								+ ",'"
+								+ info[0]
+								+ "','"
+								+ info[1] + "')\"/>";
 						endTag = "</a></td>";
-					}	
+					}
 					else
 					{
 						tag = "<td>";
 						endTag = "</td>";
 					}
-					
+
 				}
-			} else {
-				if (areTitles) {
+			}
+			else
+			{
+				if (areTitles)
+				{
 					tag = "<th>";
 					endTag = "</th>";
-				} else {
-					if(oneTableSelected && isEditable)
+				}
+				else
+				{
+					if (oneTableSelected && isEditable)
 					{
 						tag = "<td><a href=\"javascript:void(0)\" onclick=\"showDialog('"
-							+ info[i] + "'," + i + ",'"+info[0]+"','"+info[1]+"')\"/>";
+								+ info[i]
+								+ "',"
+								+ i
+								+ ",'"
+								+ info[0]
+								+ "','"
+								+ info[1] + "')\"/>";
 						endTag = "</a></td>";
-					}	
+					}
 					else
 					{
 						tag = "<td>";
@@ -1932,7 +1816,8 @@ public class DBAdminController extends Activity implements OnClickListener {
 		html += "</tr>";
 	}
 
-	private void addRowToTable(String[] info, int textSize) {
+	private void addRowToTable(String[] info, int textSize)
+	{
 		TableRow tableRow = new TableRow(this);
 		tableRow.setBackgroundColor(Color.BLACK);
 		tableRow.setPadding(0, 0, 0, 2);
@@ -1943,7 +1828,8 @@ public class DBAdminController extends Activity implements OnClickListener {
 		// llp.gravity = Gravity.CENTER;
 		// TableLayout.LayoutParams tlParams = new TableLayout.LayoutParams();
 
-		for (int i = 0; i < info.length; i++) {
+		for (int i = 0; i < info.length; i++)
+		{
 			// TableRow.LayoutParams trParams = new TableRow.LayoutParams();
 			// trParams.span = 5;
 			LinearLayout cell = new LinearLayout(this);
@@ -1967,13 +1853,15 @@ public class DBAdminController extends Activity implements OnClickListener {
 		tl.invalidate();
 	}
 
-	class performQuery extends AsyncTask<String, Integer, String> {
-		boolean updated;
-		//String table;
-		int count;
+	class performQuery extends AsyncTask<String, Integer, String>
+	{
+		boolean	updated;
+		// String table;
+		int		count;
 
 		@Override
-		protected String doInBackground(String... parameters) {
+		protected String doInBackground(String... parameters)
+		{
 			if (parameters[0].equals("Describe")
 					|| parameters[0].equals("Select Star")
 					|| parameters[0].equals("Describe Tables")
@@ -1983,16 +1871,17 @@ public class DBAdminController extends Activity implements OnClickListener {
 			else
 				updated = brain.performQuery(false);
 
-			//System.out
-			//		.println(parameters[0] + " on " + parameters[1] + updated);
+			// System.out
+			// .println(parameters[0] + " on " + parameters[1] + updated);
 			if (parameters[0].equals("Describe Tables"))
 				return parameters[0] + " " + parameters[1] + " "
 						+ parameters[2];
-			//table = parameters[1];
+			// table = parameters[1];
 			return parameters[0];
 		}
 
-		private String findTableByInt(int pos) {
+		private String findTableByInt(int pos)
+		{
 			String table;
 			if (pos == 0)
 				table = "ability";
@@ -2013,29 +1902,30 @@ public class DBAdminController extends Activity implements OnClickListener {
 		}
 
 		@Override
-		protected void onPostExecute(String result) 
+		protected void onPostExecute(String result)
 		{
-			if(result.contains("Update"))
+			if (result.contains("Update"))
 			{
 				pd.dismiss();
-				if(updated)
+				if (updated)
 				{
 					Toast.makeText(DBAdminController.this, "Table Updated",
 							Toast.LENGTH_LONG).show();
 					performTheBigQuery();
 				}
 				else
-					Toast.makeText(DBAdminController.this, "Table Was Not Updated",
-							Toast.LENGTH_LONG).show();
+					Toast.makeText(DBAdminController.this,
+							"Table Was Not Updated", Toast.LENGTH_LONG).show();
 			}
-			if (result.contains("Describe Tables")) 
+			if (result.contains("Describe Tables"))
 			{
-				if (updated) 
+				if (updated)
 				{
 					if (brain.getSearchResults().length > 0
 							&& !(brain.getSearchResults()[0][0] instanceof String && ((String) brain
 									.getSearchResults()[0][0])
-									.equals("NO RESULTS"))) {
+									.equals("NO RESULTS")))
+					{
 						int pos = Integer.parseInt(result.split(" ")[2].trim());
 
 						int describePos = Integer.parseInt(result.split(" ")[3]
@@ -2047,7 +1937,8 @@ public class DBAdminController extends Activity implements OnClickListener {
 
 						finalTableStructure.add(tableStructure);
 						pd.dismiss();
-						if (describePos < tablesToBeDescribed.length - 1) {
+						if (describePos < tablesToBeDescribed.length - 1)
+						{
 							String table = findTableByInt(tablesToBeDescribed[describePos + 1]);
 							System.out
 									.println("Calling describe multiple tables again with "
@@ -2062,19 +1953,24 @@ public class DBAdminController extends Activity implements OnClickListener {
 									describePos + 1);
 						}
 
-						else {
-							System.out.println("PERFORM BIG QUERY");
+						else
+						{
+							// System.out.println("PERFORM BIG QUERY");
 							performTheBigQuery();
 						}
 
 					}
 				}
-			} else if (result.equals("Describe")) {
-				if (updated) {
+			}
+			else if (result.equals("Describe"))
+			{
+				if (updated)
+				{
 					if (brain.getSearchResults().length > 0
 							&& !(brain.getSearchResults()[0][0] instanceof String && ((String) brain
 									.getSearchResults()[0][0])
-									.equals("NO RESULTS"))) {
+									.equals("NO RESULTS")))
+					{
 
 						doTableStructure();
 
@@ -2082,55 +1978,42 @@ public class DBAdminController extends Activity implements OnClickListener {
 					}
 				}
 
-			} else if (result.equals("Select Star")) {
-				if (updated) {
+			}
+			else if (result.equals("Select Star"))
+			{
+				if (updated)
+				{
 					if (brain.getSearchResults().length > 0
 							&& !(brain.getSearchResults()[0][0] instanceof String && ((String) brain
 									.getSearchResults()[0][0])
-									.equals("NO RESULTS"))) {
+									.equals("NO RESULTS")))
+					{
 						html = "<html><head><script type=\"text/javascript\">function showDialog(id,pos) {Android.showDialog(id,pos);}</script><body><table border=\"1\">";
 
 						String[] theStuff;
 						theStuff = new String[tableStructure.length];
-						for (int i = 0; i < theStuff.length; i++) {
+						for (int i = 0; i < theStuff.length; i++)
+						{
 							theStuff[i] = tableStructure[i][0];
 						}
 						createHTMLTableRow(theStuff, true);
-						for (int i = 0; i < brain.getSearchResults().length; i++) {
+						for (int i = 0; i < brain.getSearchResults().length; i++)
+						{
 							theStuff = new String[brain.getSearchResults()[i].length];
 
-							for (int j = 0; j < brain.getSearchResults()[i].length; j++) {
+							for (int j = 0; j < brain.getSearchResults()[i].length; j++)
+							{
 								if (brain.getSearchResults()[i][j] instanceof String)
 									theStuff[j] = (String) brain
 											.getSearchResults()[i][j];
 								else
 									theStuff[j] = ""
 											+ brain.getSearchResults()[i][j];
-								System.out.println(":" + theStuff[j] + ":");
+								// System.out.println(":" + theStuff[j] + ":");
 							}
 
 							createHTMLTableRow(theStuff, false);
 
-							/*
-							 * String[] theStuff; theStuff = new
-							 * String[tableStructure.length]; for(int i=0; i<
-							 * theStuff.length; i++) { theStuff[i] =
-							 * tableStructure[i][0]; } addRowToTable(theStuff,
-							 * 45); for(int i=0;
-							 * i<brain.getSearchResults().length; i++) {
-							 * theStuff = new
-							 * String[brain.getSearchResults()[i].length];
-							 * 
-							 * for (int j = 0; j <
-							 * brain.getSearchResults()[i].length; j++) {
-							 * if(brain.getSearchResults()[i][j] instanceof
-							 * String) theStuff[j] = (String)
-							 * brain.getSearchResults()[i][j]; else theStuff[j]
-							 * = ""+brain.getSearchResults()[i][j];
-							 * System.out.println(":" + theStuff[j] + ":"); }
-							 * 
-							 * addRowToTable(theStuff,30);
-							 */
 						}
 						html += "</table></body></html>";
 						myWebView.loadDataWithBaseURL(null, html, mime,
@@ -2140,19 +2023,24 @@ public class DBAdminController extends Activity implements OnClickListener {
 				pd.dismiss();
 			}
 
-			else if (result.equals("Big Query")) {
-				if (updated) {
+			else if (result.equals("Big Query"))
+			{
+				if (updated)
+				{
 					if (brain.getSearchResults().length > 0
 							&& !(brain.getSearchResults()[0][0] instanceof String && ((String) brain
 									.getSearchResults()[0][0])
-									.equals("NO RESULTS"))) {
+									.equals("NO RESULTS")))
+					{
 						System.out
 								.println("Showing the big query on the table");
 						html = "<html><head><script type=\"text/javascript\">function showDialog(id,pos,pk1,pk2) {Android.showDialog(id,pos,pk1,pk2);}</script><body><table border=\"1\">";
 
 						int count = 0;
-						for (int i = 0; i < finalTableStructure.size(); i++) {
-							for (int j = 0; j < finalTableStructure.get(i).length; j++) {
+						for (int i = 0; i < finalTableStructure.size(); i++)
+						{
+							for (int j = 0; j < finalTableStructure.get(i).length; j++)
+							{
 								count++;
 							}
 						}
@@ -2161,27 +2049,32 @@ public class DBAdminController extends Activity implements OnClickListener {
 						theStuff = new String[count];
 
 						int index = 0;
-						for (int i = 0; i < finalTableStructure.size(); i++) {
-							for (int j = 0; j < finalTableStructure.get(i).length; j++) {
+						for (int i = 0; i < finalTableStructure.size(); i++)
+						{
+							for (int j = 0; j < finalTableStructure.get(i).length; j++)
+							{
 								theStuff[index] = finalTableStructure.get(i)[j][0];
-								System.out.println("BAH " + theStuff[index]);
+								// System.out.println("BAH " + theStuff[index]);
 								index++;
 							}
 						}
 
 						createHTMLTableRow(theStuff, true);
 
-						for (int i = 0; i < brain.getSearchResults().length; i++) {
+						for (int i = 0; i < brain.getSearchResults().length; i++)
+						{
 							theStuff = new String[brain.getSearchResults()[i].length];
 
-							for (int j = 0; j < brain.getSearchResults()[i].length; j++) {
+							for (int j = 0; j < brain.getSearchResults()[i].length; j++)
+							{
 								if (brain.getSearchResults()[i][j] instanceof String)
 									theStuff[j] = (String) brain
 											.getSearchResults()[i][j];
 								else
 									theStuff[j] = ""
 											+ brain.getSearchResults()[i][j];
-								// System.out.println(":" + theStuff[j] + ":");
+								// //System.out.println(":" + theStuff[j] +
+								// ":");
 							}
 
 							createHTMLTableRow(theStuff, false);
@@ -2194,19 +2087,25 @@ public class DBAdminController extends Activity implements OnClickListener {
 					}
 				}
 				pd.dismiss();
-			} else if (result.equals("Big Query 2")) {
-				if (updated) {
+			}
+			else if (result.equals("Big Query 2"))
+			{
+				if (updated)
+				{
 					if (brain.getSearchResults().length > 0
 							&& !(brain.getSearchResults()[0][0] instanceof String && ((String) brain
 									.getSearchResults()[0][0])
-									.equals("NO RESULTS"))) {
+									.equals("NO RESULTS")))
+					{
 						System.out
 								.println("Showing the big query 2 on the table");
 						html = "<html><head><script type=\"text/javascript\">function showDialog(id,pos,pk1,pk2) {Android.showDialog(id,pos,pk1,pk2);}</script><body><table border=\"1\">";
 
 						int count = 0;
-						for (int i = 0; i < attributesAndDataTypes.length; i++) {
-							if (attributesAndDataTypes[i][3].equals("true")) {
+						for (int i = 0; i < attributesAndDataTypes.length; i++)
+						{
+							if (attributesAndDataTypes[i][3].equals("true"))
+							{
 								count++;
 							}
 						}
@@ -2215,27 +2114,32 @@ public class DBAdminController extends Activity implements OnClickListener {
 						theStuff = new String[count];
 
 						int index = 0;
-						for (int i = 0; i < attributesAndDataTypes.length; i++) {
-							if (attributesAndDataTypes[i][3].equals("true")) {
+						for (int i = 0; i < attributesAndDataTypes.length; i++)
+						{
+							if (attributesAndDataTypes[i][3].equals("true"))
+							{
 								theStuff[index] = attributesAndDataTypes[i][4];
-								System.out.println("BAH " + theStuff[index]);
+								// System.out.println("BAH " + theStuff[index]);
 								index++;
 							}
 						}
 
 						createHTMLTableRow(theStuff, true);
 
-						for (int i = 0; i < brain.getSearchResults().length; i++) {
+						for (int i = 0; i < brain.getSearchResults().length; i++)
+						{
 							theStuff = new String[brain.getSearchResults()[i].length];
 
-							for (int j = 0; j < brain.getSearchResults()[i].length; j++) {
+							for (int j = 0; j < brain.getSearchResults()[i].length; j++)
+							{
 								if (brain.getSearchResults()[i][j] instanceof String)
 									theStuff[j] = (String) brain
 											.getSearchResults()[i][j];
 								else
 									theStuff[j] = ""
 											+ brain.getSearchResults()[i][j];
-								// System.out.println(":" + theStuff[j] + ":");
+								// //System.out.println(":" + theStuff[j] +
+								// ":");
 							}
 
 							createHTMLTableRow(theStuff, false);
@@ -2252,37 +2156,48 @@ public class DBAdminController extends Activity implements OnClickListener {
 
 		}
 
-		public void doTableStructure() {
+		public void doTableStructure()
+		{
 			Object[][] dbResults = brain.getSearchResults();
 			tableStructure = new String[dbResults.length][4];
-			for (int i = 0; i < dbResults.length; i++) {
+			for (int i = 0; i < dbResults.length; i++)
+			{
 				String field = (String) dbResults[i][0];
 				String type = (String) dbResults[i][1];
 
-				if (type.contains("int")) {
+				if (type.contains("int"))
+				{
 					String substring = type.substring(type.indexOf("(") + 1,
 							type.indexOf(")"));
 					tableStructure[i][1] = "int";
 					tableStructure[i][2] = "int";
 					tableStructure[i][3] = substring.trim();
-				} else if (type.contains("varchar")) {
+				}
+				else if (type.contains("varchar"))
+				{
 					String substring = type.substring(type.indexOf("(") + 1,
 							type.indexOf(")"));
 					tableStructure[i][1] = "string";
 					tableStructure[i][2] = "varchar";
 					tableStructure[i][3] = substring.trim();
 
-				} else if (type.contains("char")) {
+				}
+				else if (type.contains("char"))
+				{
 					String substring = type.substring(type.indexOf("(") + 1,
 							type.indexOf(")"));
 					tableStructure[i][1] = "string";
 					tableStructure[i][2] = "char";
 					tableStructure[i][3] = substring.trim();
-				} else if (type.contains("date")) {
+				}
+				else if (type.contains("date"))
+				{
 					tableStructure[i][1] = "string";
 					tableStructure[i][2] = "date";
 					tableStructure[i][3] = "0";
-				} else if (type.contains("decimal")) {
+				}
+				else if (type.contains("decimal"))
+				{
 					String substring = type.substring(type.indexOf("(") + 1,
 							type.indexOf(")"));
 					tableStructure[i][1] = "double";
@@ -2293,119 +2208,4 @@ public class DBAdminController extends Activity implements OnClickListener {
 			}
 		}
 	}
-
-	class performQueryOld extends AsyncTask<String, Integer, String> {
-		private boolean freeOfErrors;
-
-		@Override
-		protected String doInBackground(String... parameters) {
-			freeOfErrors = brain.performQuery(true);
-
-			return "";
-		}
-
-		@Override
-		protected void onProgressUpdate(Integer... values) {
-			super.onProgressUpdate(values);
-		}
-
-		@Override
-		protected void onPostExecute(String result) {
-			if (freeOfErrors) {
-				String[] theStuff;
-				Toast.makeText(DBAdminController.this, "User known",
-						Toast.LENGTH_LONG).show();
-
-				for (int i = 0; i < brain.getSearchResults().length; i++) {
-					theStuff = new String[brain.getSearchResults().length];
-
-					for (int j = 0; j < brain.getSearchResults()[i].length; j++) {
-						theStuff[j] = (String) brain.getSearchResults()[i][j];
-						System.out.println(":" + theStuff[j] + ":");
-					}
-
-					addRowToTable(theStuff, 30);
-				}
-			} else {
-				Toast.makeText(DBAdminController.this, "User unknown!",
-						Toast.LENGTH_LONG).show();
-			}
-
-			/*
-			 * if(brain.getSearchResults() == null)
-			 * System.out.println("NULLL bad"); if (!(brain.getSearchResults()
-			 * == null)) { if (brain.getSearchResults().length > 0) { String[]
-			 * theStuff; Toast.makeText(DBAdminController.this, "User known",
-			 * Toast.LENGTH_LONG).show();
-			 * 
-			 * for (int i = 0; i < brain.getSearchResults().length; i++) {
-			 * theStuff = new String[brain.getSearchResults().length];
-			 * 
-			 * for (int j = 0; j < brain.getSearchResults()[i].length; j++) {
-			 * theStuff[j] = (String) brain.getSearchResults()[i][j];
-			 * System.out.println(":" + theStuff[j] + ":"); }
-			 * 
-			 * addRowToTable(theStuff); } } else {
-			 * Toast.makeText(DBAdminController.this, "User unknown!",
-			 * Toast.LENGTH_LONG).show(); } } else {
-			 * Toast.makeText(DBAdminController.this, "User unknown!! null",
-			 * Toast.LENGTH_LONG).show(); }
-			 */
-			pd.dismiss();
-
-		}
-	}
-
-	class SpaceTokenizer implements Tokenizer {
-
-		public int findTokenStart(CharSequence text, int cursor) {
-			int i = cursor;
-
-			while (i > 0 && text.charAt(i - 1) != ' ') {
-				i--;
-			}
-			while (i < cursor && text.charAt(i) == ' ') {
-				i++;
-			}
-
-			return i;
-		}
-
-		public int findTokenEnd(CharSequence text, int cursor) {
-			int i = cursor;
-			int len = text.length();
-
-			while (i < len) {
-				if (text.charAt(i) == ' ') {
-					return i;
-				} else {
-					i++;
-				}
-			}
-
-			return len;
-		}
-
-		public CharSequence terminateToken(CharSequence text) {
-			int i = text.length();
-
-			while (i > 0 && text.charAt(i - 1) == ' ') {
-				i--;
-			}
-
-			if (i > 0 && text.charAt(i - 1) == ' ') {
-				return text;
-			} else {
-				if (text instanceof Spanned) {
-					SpannableString sp = new SpannableString(text + " ");
-					TextUtils.copySpansFrom((Spanned) text, 0, text.length(),
-							Object.class, sp, 0);
-					return sp;
-				} else {
-					return text;
-				}
-			}
-		}
-	}
-
 }

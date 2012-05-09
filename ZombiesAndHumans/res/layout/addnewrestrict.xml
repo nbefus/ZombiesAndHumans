@@ -22,7 +22,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:text="Next" />
+        android:text="Done" />
 
     <Spinner
         android:id="@+id/restrictionSpinner"
