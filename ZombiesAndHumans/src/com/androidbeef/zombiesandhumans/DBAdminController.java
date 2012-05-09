@@ -48,7 +48,6 @@ public class DBAdminController extends Activity implements OnClickListener
 	private ZombiesAndHumansBrain	brain						= new ZombiesAndHumansBrain(
 																		this);
 	private ProgressDialog			pd;
-	private TableLayout				tl;
 	private EditText				query;
 	private int[]					tablesToBeDescribed;
 	private Dialog					dial;
@@ -65,9 +64,6 @@ public class DBAdminController extends Activity implements OnClickListener
 	private String[]				options;
 	private boolean					noChange;
 	private String					table;
-	private HashMap<String, String>	dtoa;
-	private Set<String>[]			ta;
-	private Spinner					s;
 	private String[][]				tableStructure;
 	private ArrayList<String[][]>	finalTableStructure			= new ArrayList<String[][]>();
 	private String					html;
@@ -76,7 +72,6 @@ public class DBAdminController extends Activity implements OnClickListener
 	private WebView					myWebView;
 	private JSInterface				myJSInterface;
 	private int						deleteOrEdit;
-	private String[]				relations;
 	private boolean[]				checkedTableList			= { false,
 			false, false, false, false, false, false			};
 	private ArrayList<String>		checkedAttributeArrayList	= new ArrayList<String>();
@@ -88,7 +83,6 @@ public class DBAdminController extends Activity implements OnClickListener
 
 	public class JSInterface
 	{
-
 		private WebView	mAppView;
 
 		public JSInterface(WebView appView)
@@ -96,6 +90,7 @@ public class DBAdminController extends Activity implements OnClickListener
 			this.mAppView = appView;
 		}
 
+		//When a player clicks on a cell
 		public void showDialog(final String id, final int pos,
 				final String pk1, final String pk2)
 		{
@@ -128,6 +123,7 @@ public class DBAdminController extends Activity implements OnClickListener
 									"Selected" + deleteOrEdit,
 									Toast.LENGTH_LONG).show();
 
+							//User chose to edit
 							if (deleteOrEdit == 1)
 							{
 								AlertDialog.Builder alert = new AlertDialog.Builder(
@@ -191,6 +187,7 @@ public class DBAdminController extends Activity implements OnClickListener
 
 								alert.show();
 							}
+							//User chose to delete
 							else if (deleteOrEdit == 2)
 							{
 								AlertDialog.Builder alert = new AlertDialog.Builder(
@@ -560,18 +557,13 @@ public class DBAdminController extends Activity implements OnClickListener
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.dbadmin);
-		// query = (EditText) findViewById(R.id.edit);
 
-		// ///tl = (TableLayout) findViewById(R.id.tableLayoutwork);
 		tableButton = ((Button) findViewById(R.id.Button_DBAdminTableSelection));
 		tableButton.setOnClickListener(this);
 		attributeButton = ((Button) findViewById(R.id.Button_DBAdminAttributeSelection));
 		attributeButton.setOnClickListener(this);
 		restrictionButton = ((Button) findViewById(R.id.Button_DBAdminRestrictionSelection));
 		restrictionButton.setOnClickListener(this);
-		// s = (Spinner) findViewById(R.id.spinner1);
-		// ////tl.setBackgroundColor(Color.RED);
-		// setUpSpinner();
 
 		attributeButton.setEnabled(false);
 		restrictionButton.setEnabled(false);
@@ -581,13 +573,6 @@ public class DBAdminController extends Activity implements OnClickListener
 		myWebView.getSettings().setJavaScriptEnabled(true);
 		myWebView.getSettings().setBuiltInZoomControls(true);
 		myWebView.addJavascriptInterface(myJSInterface, "Android");
-
-		// ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-		// android.R.layout.simple_dropdown_item_1line, KEYWORDS);
-		// MultiAutoCompleteTextView textView = (MultiAutoCompleteTextView)
-		// findViewById(R.id.edit);
-		// textView.setAdapter(adapter);
-		// textView.setTokenizer(new SpaceTokenizer());
 	}
 
 	private String findTableFromInt(int pos)
@@ -699,7 +684,7 @@ public class DBAdminController extends Activity implements OnClickListener
 		// String query = "select "+entitystring+" from `" + table + "`";
 
 		String query = tablestring;
-		// System.out.println("The big query is: " + query);
+		 System.out.println("The big query is: " + query);
 
 		// tl.removeAllViews();
 		brain.prepareForQuery(entities, filename, dataTypes, query);
@@ -744,7 +729,7 @@ public class DBAdminController extends Activity implements OnClickListener
 			query = tablestring;
 		else
 			query = tablestring + " " + makeRestrictionString();
-		// System.out.println("The big query 2 is: " + query);
+	 System.out.println("The big query 2 is: " + query);
 
 		brain.prepareForQuery(entities, filename, dataTypes, query);
 		pd = ProgressDialog.show(this, "Processing...",
@@ -979,7 +964,7 @@ public class DBAdminController extends Activity implements OnClickListener
 		{
 			if (attributesAndDataTypes[i][3].equals("true"))
 			{
-				newOptions[position] = attributesAndDataTypes[i][4];
+				newOptions[position] = attributesAndDataTypes[i][0];
 				position++;
 			}
 		}
@@ -1044,9 +1029,11 @@ public class DBAdminController extends Activity implements OnClickListener
 		value1.setVisibility(View.INVISIBLE);
 		dp.setVisibility(View.INVISIBLE);
 		dp2.setVisibility(View.INVISIBLE);
-		final String dataType = findDataTypeByAttribute(selectedAttribute);
-		final String lengthOfType = findDataLengthByAttribute(selectedAttribute);
-
+		
+		String[] s = selectedAttribute.split("[.]");
+		final String dataType = findDataTypeByAttribute(s[1]);
+		final String lengthOfType = findDataLengthByAttribute(s[1]);
+System.out.println(s[0]+" DT" +dataType + " LOT "+lengthOfType);
 		final Spinner restrictionSpinner = (Spinner) restriction
 				.findViewById(R.id.spinner1);
 
@@ -1816,43 +1803,6 @@ public class DBAdminController extends Activity implements OnClickListener
 		html += "</tr>";
 	}
 
-	private void addRowToTable(String[] info, int textSize)
-	{
-		TableRow tableRow = new TableRow(this);
-		tableRow.setBackgroundColor(Color.BLACK);
-		tableRow.setPadding(0, 0, 0, 2);
-
-		TableRow.LayoutParams llp = new TableRow.LayoutParams(
-				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		llp.setMargins(2, 2, 2, 2);
-		// llp.gravity = Gravity.CENTER;
-		// TableLayout.LayoutParams tlParams = new TableLayout.LayoutParams();
-
-		for (int i = 0; i < info.length; i++)
-		{
-			// TableRow.LayoutParams trParams = new TableRow.LayoutParams();
-			// trParams.span = 5;
-			LinearLayout cell = new LinearLayout(this);
-
-			TextView title = new TextView(this);
-			title.setText(info[i]);
-			title.setTextSize(textSize);
-			title.setPadding(0, 0, 0, 3);
-			title.setTextColor(Color.BLACK);
-			// title.setGravity(Gravity.CENTER);
-
-			cell.setLayoutParams(llp);
-			cell.setBackgroundColor(Color.WHITE);
-			// title.setBackgroundColor(Color.BLUE);
-			cell.addView(title);
-			// title.setTextSize(60);
-			// title.setLayoutParams(trParams);
-			tableRow.addView(cell);
-		}
-		tl.addView(tableRow);
-		tl.invalidate();
-	}
-
 	class performQuery extends AsyncTask<String, Integer, String>
 	{
 		boolean	updated;
@@ -1926,8 +1876,6 @@ public class DBAdminController extends Activity implements OnClickListener
 									.getSearchResults()[0][0])
 									.equals("NO RESULTS")))
 					{
-						int pos = Integer.parseInt(result.split(" ")[2].trim());
-
 						int describePos = Integer.parseInt(result.split(" ")[3]
 								.trim());
 
