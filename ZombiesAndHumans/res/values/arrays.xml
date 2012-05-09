@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="Options">
+        <item>Create A Row</item>
     	<item>Edit</item>
     	<item>Delete The Whole Row</item>
     </string-array>
@@ -30,7 +31,5 @@
     	<item>Not Equal To</item>
     	<item>Between</item>
     	<item>Not Between</item>
-    	<item>In</item>
-    	<item>Not In</item>
     </string-array>
 </resources>
