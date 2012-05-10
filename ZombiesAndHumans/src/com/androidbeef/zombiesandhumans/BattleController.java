@@ -237,13 +237,14 @@ public class BattleController extends Activity implements OnClickListener
 		else if(currentHealth>=50)
 		{
 			randomNum=randomGenerator.nextInt(100);
-			if(randomNum%2==1)
+			if(randomNum%2==1&&eItemCount<=enemyItemUses)
 			{
-				cp.attack();
+				cp.useItem();
+				eItemCount++;
 			}
 			else
 			{
-				cp.useItem();
+				cp.attack();
 			}
 		}
 	}
