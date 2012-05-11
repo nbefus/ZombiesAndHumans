@@ -51,10 +51,7 @@ public class BattleController extends Activity implements OnClickListener
 	private int userBP=5;
 	private int enemyBP=5;
 	private String userItem="bat";
-	private boolean isRetreat = false;
 	private String enemyItem="none";
-	//private String[]				itemNames = {"medkit","waterbottle","canned food"};
-	//private double[]					numOfItem = {0.2,0.1,0.1};
 	private HashMap<String, Number>	itemNameAndNum;
 	private String attackCooldown="5000"; //in milliseconds
 	private String enemyAttackTime="1000";
@@ -93,7 +90,6 @@ public class BattleController extends Activity implements OnClickListener
 		itemsView=(ListView) findViewById(R.id.itemsView);
 		cp=new ComputerPlayer();
 		randomGenerator=new Random();
-		itemNameAndNum=new HashMap();
 		
 		getAllItems();
 		//setItems();
