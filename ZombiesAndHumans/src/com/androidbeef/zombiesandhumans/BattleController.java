@@ -51,6 +51,7 @@ public class BattleController extends Activity implements OnClickListener
 	private int userBP=5;
 	private int enemyBP=5;
 	private String userItem="bat";
+	private boolean isRetreat = false;
 	private String enemyItem="none";
 	private HashMap<String, Number>	itemNameAndNum;
 	private String attackCooldown="5000"; //in milliseconds
