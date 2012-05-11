@@ -14,6 +14,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -91,8 +92,11 @@ public class BattleController extends Activity implements OnClickListener
 		this.getECurrentIDisplay().setText(enemyItem);
 		itemsView=(ListView) findViewById(R.id.itemsView);
 		cp=new ComputerPlayer();
+		randomGenerator=new Random();
+		itemNameAndNum=new HashMap();
 		
 		getAllItems();
+		//setItems();
 	}
 	
 	private void setItems()
@@ -229,6 +233,7 @@ public class BattleController extends Activity implements OnClickListener
 	}
 	private void cpAction(int currentHealth)
 	{
+		Log.d("BATTLE CONTROLLER:", "Computer is attacking/using an item.");
 		int randomNum=0;
 		if(currentHealth>=75)
 		{
@@ -237,9 +242,9 @@ public class BattleController extends Activity implements OnClickListener
 		else if(currentHealth>=50)
 		{
 			randomNum=randomGenerator.nextInt(100);
-			if(randomNum%2==1&&eItemCount<=enemyItemUses)
+			if(randomNum%2==1&&eItemCount<enemyItemUses)
 			{
-				cp.useItem();
+				//cp.useItem();
 				eItemCount++;
 			}
 			else
@@ -507,8 +512,10 @@ public class BattleController extends Activity implements OnClickListener
 		}
 		private void attack()
 		{
+			Log.d("BATTLE CONTROLLER:", "Attacking the player.");
 			int currentUHealth=0;
 			currentUHealth=Integer.parseInt((String) getEHealthDisplay().getText());
+			Log.d("BATTLE CONTROLLER:", "Enemy damage to be done is: "+enemyBP+", User's Health: "+currentUHealth);
 			if((currentUHealth-enemyBP)>=0)
 			{
 				getEHealthDisplay().setText(""+(currentUHealth-enemyBP));

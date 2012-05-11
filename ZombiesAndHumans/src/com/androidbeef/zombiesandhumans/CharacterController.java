@@ -1,6 +1,7 @@
 package com.androidbeef.zombiesandhumans;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -23,6 +24,7 @@ public class CharacterController extends Activity implements OnClickListener
 	private TextView defenseDisplay;
 	private TextView accuracyDisplay;
 	private TextView evasionDisplay;
+	private TextView upgradeTokensDisplay;
 	
 	protected void onCreate(Bundle savedInstanceState) 
 	{
@@ -114,6 +116,14 @@ public class CharacterController extends Activity implements OnClickListener
 		}
 		return evasionDisplay;
 	}
+	public TextView getUpgradeTokensDisplay()
+	{
+		if(upgradeTokensDisplay==null)
+		{
+			upgradeTokensDisplay=(TextView) findViewById(R.id.upgradeTokensDisplay);			
+		}
+		return upgradeTokensDisplay;
+	}
 	
 	public void onClick(View v)
 	{
@@ -185,7 +195,10 @@ public class CharacterController extends Activity implements OnClickListener
 		else if(v.getId()==R.id.done)
 		{
 			//this will carry over all the changes made to the character
-			
+			Intent c = new Intent(CharacterController.this, HomeScreenController.class);
+			c.putExtra("self", brain.getSelf());
+			c.putExtra("char", brain.getCharacter());
+			startActivity(c);
 		}
 	}
 }
