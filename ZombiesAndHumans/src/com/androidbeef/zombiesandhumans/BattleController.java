@@ -50,11 +50,13 @@ public class BattleController extends Activity implements OnClickListener
 	private int enemyHealth;//=100;
 	private int userBP=5;
 	private int enemyBP=5;
+	//these items are set but we should probably randomize these.
+	//I'll just text you the values.
 	private String userItem="bat";
 	private boolean isRetreat = false;
 	private String enemyItem="none";
 	private HashMap<String, Number>	itemNameAndNum;
-	private String attackCooldown="5000"; //in milliseconds
+	private String attackCooldown="3000"; //in milliseconds
 	private String enemyAttackTime="1000";
 	private ZombiesAndHumansBrain brain = new ZombiesAndHumansBrain(this);
 	private ProgressDialog	pd;
@@ -205,6 +207,12 @@ public class BattleController extends Activity implements OnClickListener
 		
 		if(v.getId()==R.id.attackButton)
 		{
+			//a modifier here would be handy for the user if they're using a weapon then it will
+			//up their attack power.
+			if(userItem=="bat")
+			{
+				userBP+=5;
+			}
 			currentEHealth=Integer.parseInt((String) getEHealthDisplay().getText());
 			if((currentEHealth-userBP)>=0)
 			{
@@ -365,21 +373,19 @@ public class BattleController extends Activity implements OnClickListener
 	private void retreat()
 	{
 		isRetreat = true;
-			//Intent a = new Intent(PreBattleController.this, CharacterController.class);
-			//startActivity(a);
-			Context context=getApplicationContext();
-			CharSequence fleeText="You are now leaving the battle and will take "+enemyBP+" of damage.";
-			updateHealth(true,true);//,Integer.parseInt((String) getUHealthDisplay().getText().toString()),Integer.parseInt((String) getEHealthDisplay().getText().toString()));
-			//updateHealth(false,false);
-			int duration=Toast.LENGTH_SHORT;
-			Toast.makeText(context, fleeText, duration).show();
-			
-			Intent a = new Intent(BattleController.this,
-					HomeScreenController.class);
-			a.putExtra("self", brain.getSelf());
-			a.putExtra("char", brain.getCharacter());
-			startActivity(a);
-			this.finish();
+		Context context=getApplicationContext();
+		CharSequence fleeText="You are now leaving the battle and will take "+enemyBP+" of damage.";
+		updateHealth(true,true);//,Integer.parseInt((String) getUHealthDisplay().getText().toString()),Integer.parseInt((String) getEHealthDisplay().getText().toString()));
+		//updateHealth(false,false);
+		int duration=Toast.LENGTH_SHORT;
+		Toast.makeText(context, fleeText, duration).show();
+		
+		Intent a = new Intent(BattleController.this,
+				HomeScreenController.class);
+		a.putExtra("self", brain.getSelf());
+		a.putExtra("char", brain.getCharacter());
+		startActivity(a);
+		this.finish();
 	}	
 	//to disable the attackButton
 		private class ButtonDisabled extends AsyncTask<String,Integer,String>
@@ -509,6 +515,7 @@ public class BattleController extends Activity implements OnClickListener
 		}
 		private void attack()
 		{
+			//here is where the AI should be reacting but it doesn't.
 			Log.d("BATTLE CONTROLLER:", "Attacking the player.");
 			int currentUHealth=0;
 			currentUHealth=Integer.parseInt((String) getEHealthDisplay().getText());

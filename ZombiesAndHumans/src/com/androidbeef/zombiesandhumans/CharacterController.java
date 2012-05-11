@@ -194,11 +194,12 @@ public class CharacterController extends Activity implements OnClickListener
 		}
 		else if(v.getId()==R.id.done)
 		{
-			//this will carry over all the changes made to the character
+			//we should upload here and for some reason this intent doesn't want to work.
 			Intent c = new Intent(CharacterController.this, HomeScreenController.class);
 			c.putExtra("self", brain.getSelf());
 			c.putExtra("char", brain.getCharacter());
 			startActivity(c);
+			this.finish();
 		}
 	}
 }
