@@ -52,7 +52,7 @@ public class BattleController extends Activity implements OnClickListener
 	private int enemyBP=5;
 	//these items are set but we should probably randomize these.
 	//I'll just text you the values.
-	private String userItem="bat";
+	private String userItem="none";
 	private boolean isRetreat = false;
 	private String enemyItem="none";
 	private HashMap<String, Number>	itemNameAndNum;
@@ -107,6 +107,8 @@ public class BattleController extends Activity implements OnClickListener
 			String[] abil = brain.getItems().get(i).getAbility().split(" ");
 			if((abil[0].equals("+") && abil[2].equals("hp")) && brain.getItems().get(i).getInbackpackcount()>0)
 				itemNameAndNum.put(brain.getItems().get(i).getIname(),Double.parseDouble(abil[1]));/// brain.getItems().get(i).getItemcount());
+			else if((abil[0].equals("+") && abil[2].equals("bp")) && brain.getItems().get(i).getInbackpackcount()>0)
+				itemNameAndNum.put(brain.getItems().get(i).getIname(),Double.parseDouble(abil[1]));
 		}
 		
 		createListView(itemsView, itemNameAndNum);
@@ -209,9 +211,9 @@ public class BattleController extends Activity implements OnClickListener
 		{
 			//a modifier here would be handy for the user if they're using a weapon then it will
 			//up their attack power.
-			if(userItem=="bat")
+			if(!userItem.equals("none"))
 			{
-				userBP+=5;
+				userBP+=itemNameAndNum.get(userItem).intValue();
 			}
 			currentEHealth=Integer.parseInt((String) getEHealthDisplay().getText());
 			if((currentEHealth-userBP)>=0)
@@ -238,18 +240,19 @@ public class BattleController extends Activity implements OnClickListener
 	}
 	private void cpAction(int currentHealth)
 	{
-		Log.d("BATTLE CONTROLLER:", "Computer is attacking/using an item.");
 		int randomNum=0;
 		if(currentHealth>=75)
 		{
+			Log.d("BATTLE CONTROLLER:", "Computer is attacking and the health is: "+currentHealth);
 			cp.attack();
 		}
-		else if(currentHealth>=50)
+		if(currentHealth>=50)
 		{
 			randomNum=randomGenerator.nextInt(100);
 			if(randomNum%2==1&&eItemCount<enemyItemUses)
 			{
-				//cp.useItem();
+				Log.d("BATTLE CONTROLLER:", "Computer is using an item.");
+				cp.useItem(currentHealth);
 				eItemCount++;
 			}
 			else
@@ -289,52 +292,93 @@ public class BattleController extends Activity implements OnClickListener
 	private void itemDialog(final ListView v, final String name, final double abilityAmt)
 	{
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("The "+name+" adds "+abilityAmt+" of health. " +
-				"Are you sure you want to equip "+name+"?")
-				.setTitle("Confirmation")
-				.setCancelable(true)
-				.setPositiveButton("Use " + name,
-						new DialogInterface.OnClickListener()
-						{
-							public void onClick(DialogInterface dialog, int id)
+		if(name.equals("Health Pack"))
+		{
+			builder.setMessage("The "+name+" adds "+abilityAmt+" of health. " +
+					"Are you sure you want to equip "+name+"?")
+					.setTitle("Confirmation")
+					.setCancelable(true)
+					.setPositiveButton("Use " + name,
+							new DialogInterface.OnClickListener()
 							{
-								int currentUHealth=0;
-								int currentEHealth=0;
-								currentUHealth=Integer.parseInt((String) getUHealthDisplay().getText());
-								currentUHealth=(int) (currentUHealth*(1+abilityAmt));
-								if(currentUHealth<150)
+								public void onClick(DialogInterface dialog, int id)
 								{
-									//update itemcount and health
-									itemNameAndNum.put(name, (itemNameAndNum.get(name).intValue()-1));
-									v.invalidate();
-									updateItem(name.trim());
-									setItems();
-									getUHealthDisplay().setText(""+currentUHealth);
-									//the computer is attacking the player
-									currentEHealth=Integer.parseInt((String) getEHealthDisplay().getText());
-									cpAction(currentEHealth);
+									int currentUHealth=0;
+									int currentEHealth=0;
+									currentUHealth=Integer.parseInt((String) getUHealthDisplay().getText());
+									currentUHealth=(int) (currentUHealth*(1+abilityAmt));
+									if(currentUHealth<150)
+									{
+										//update itemcount and health
+										itemNameAndNum.put(name, (itemNameAndNum.get(name).intValue()-1));
+										v.invalidate();
+										updateItem(name.trim());
+										setItems();
+										getUHealthDisplay().setText(""+currentUHealth);
+										//the computer is attacking the player
+										currentEHealth=Integer.parseInt((String) getEHealthDisplay().getText());
+										cpAction(currentEHealth);
+									}
+									else
+									{
+										Context context=getApplicationContext();
+										CharSequence fleeText="Sorry, but you can't use anymore health" +
+												" boosts beyond 150 HP.";
+										int duration=Toast.LENGTH_SHORT;
+										Toast.makeText(context, fleeText, duration).show();
+									}
 								}
-								else
-								{
-									Context context=getApplicationContext();
-									CharSequence fleeText="Sorry, but you can't use anymore health" +
-											" boosts beyond 150 HP.";
-									int duration=Toast.LENGTH_SHORT;
-									Toast.makeText(context, fleeText, duration).show();
-								}
-							}
-						})
-				.setNegativeButton("No",
-						new DialogInterface.OnClickListener()
-						{
-							public void onClick(DialogInterface dialog, int id)
+							})
+					.setNegativeButton("No",
+							new DialogInterface.OnClickListener()
 							{
-								dialog.cancel();
-							}
-						});
+								public void onClick(DialogInterface dialog, int id)
+								{
+									dialog.cancel();
+								}
+							});
 
-		AlertDialog alert = builder.create();
-		alert.show();
+			AlertDialog alert = builder.create();
+			alert.show();
+		}
+		else
+		{
+			builder.setMessage("The "+name+" will be equipped to your character. " +
+					"Are you sure you want to equip "+name+"?")
+					.setTitle("Confirmation")
+					.setCancelable(true)
+					.setPositiveButton("Use " + name,
+							new DialogInterface.OnClickListener()
+							{
+								public void onClick(DialogInterface dialog, int id)
+								{
+									if(userItem.equals("none"))
+									{
+										userItem=name;
+										getUCurrentIDisplay().setText(""+userItem);
+									}
+									else
+									{
+										Context context=getApplicationContext();
+										CharSequence fleeText="Sorry, but you already have an item equipped";
+										int duration=Toast.LENGTH_SHORT;
+										Toast.makeText(context, fleeText, duration).show();
+									}
+								}
+							})
+					.setNegativeButton("No",
+							new DialogInterface.OnClickListener()
+							{
+								public void onClick(DialogInterface dialog, int id)
+								{
+									dialog.cancel();
+								}
+							});
+
+			AlertDialog alert = builder.create();
+			alert.show();
+		}
+		
 	}
 	private void winDialog()
 	{
@@ -518,34 +562,24 @@ public class BattleController extends Activity implements OnClickListener
 			//here is where the AI should be reacting but it doesn't.
 			Log.d("BATTLE CONTROLLER:", "Attacking the player.");
 			int currentUHealth=0;
-			currentUHealth=Integer.parseInt((String) getEHealthDisplay().getText());
+			currentUHealth=Integer.parseInt((String) getUHealthDisplay().getText());
 			Log.d("BATTLE CONTROLLER:", "Enemy damage to be done is: "+enemyBP+", User's Health: "+currentUHealth);
 			if((currentUHealth-enemyBP)>=0)
 			{
-				getEHealthDisplay().setText(""+(currentUHealth-enemyBP));
+				getUHealthDisplay().setText(""+(currentUHealth-enemyBP));
 			}
 		}
-		private void useItem()
+		private void useItem(int currentHealth)
 		{
-			double abilityAmt=0;
-			randomGenerator= new Random();
-			int randomNum=randomGenerator.nextInt(10);
-			if(randomNum>5)
+			double abilityAmt=(Double) itemNameAndNum.get("Health Pack");
+			if(currentHealth<150)
 			{
-				abilityAmt=(Double) itemNameAndNum.get("canned food");
+				getEHealthDisplay().setText(""+currentHealth);
 			}
 			else
 			{
-				abilityAmt=(Double) itemNameAndNum.get("waterBottle");
-			}
-			
-			int currentEHealth=0;
-			
-			currentEHealth=Integer.parseInt((String) getEHealthDisplay().getText());
-			currentEHealth=(int) (currentEHealth*(1+abilityAmt));
-			if(currentEHealth<150)
-			{
-				getUHealthDisplay().setText(""+currentEHealth);
+				currentHealth=(int) (currentHealth*(1+abilityAmt));
+				getEHealthDisplay().setText(""+currentHealth);
 			}
 		}
 		//The enemy will attack 3 second after the user has attacked.
