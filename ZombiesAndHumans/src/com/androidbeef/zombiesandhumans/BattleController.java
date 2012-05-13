@@ -56,7 +56,7 @@ public class BattleController extends Activity implements OnClickListener
 	private boolean isRetreat = false;
 	private String enemyItem="none";
 	private HashMap<String, Number>	itemNameAndNum;
-	private String attackCooldown="3000"; //in milliseconds
+	private String attackCooldown="1000"; //in milliseconds this is the default time
 	private String enemyAttackTime="1000";
 	private ZombiesAndHumansBrain brain = new ZombiesAndHumansBrain(this);
 	private ProgressDialog	pd;
@@ -341,13 +341,13 @@ public class BattleController extends Activity implements OnClickListener
 			AlertDialog alert = builder.create();
 			alert.show();
 		}
-		else
+		else if(userItem.equals("none"))
 		{
 			builder.setMessage("The "+name+" will be equipped to your character. " +
 					"Are you sure you want to equip "+name+"?")
 					.setTitle("Confirmation")
 					.setCancelable(true)
-					.setPositiveButton("Use " + name,
+					.setPositiveButton("Equip",
 							new DialogInterface.OnClickListener()
 							{
 								public void onClick(DialogInterface dialog, int id)
@@ -356,13 +356,7 @@ public class BattleController extends Activity implements OnClickListener
 									{
 										userItem=name;
 										getUCurrentIDisplay().setText(""+userItem);
-									}
-									else
-									{
-										Context context=getApplicationContext();
-										CharSequence fleeText="Sorry, but you already have an item equipped";
-										int duration=Toast.LENGTH_SHORT;
-										Toast.makeText(context, fleeText, duration).show();
+										//here we need to set the item cooldown to the user's attack cooldown
 									}
 								}
 							})
@@ -378,7 +372,38 @@ public class BattleController extends Activity implements OnClickListener
 			AlertDialog alert = builder.create();
 			alert.show();
 		}
-		
+		else
+		{
+			builder.setMessage("The "+name+" will be equipped to your character and you already have another" +
+					"item equipped. " +
+					"Are you sure you want to equip "+name+"?")
+					.setTitle("Confirmation")
+					.setCancelable(true)
+					.setPositiveButton("Equip",
+							new DialogInterface.OnClickListener()
+							{
+								public void onClick(DialogInterface dialog, int id)
+								{
+									if(userItem.equals("none"))
+									{
+										userItem=name;
+										getUCurrentIDisplay().setText(""+userItem);
+										//here we need to set the item cooldown to the user's attack cooldown
+									}
+								}
+							})
+					.setNegativeButton("No",
+							new DialogInterface.OnClickListener()
+							{
+								public void onClick(DialogInterface dialog, int id)
+								{
+									dialog.cancel();
+								}
+							});
+
+			AlertDialog alert = builder.create();
+			alert.show();
+		}
 	}
 	private void winDialog()
 	{
