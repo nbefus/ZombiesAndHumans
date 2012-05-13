@@ -5,10 +5,10 @@ import java.io.Serializable;
 @SuppressWarnings("serial")
 public class Character implements Serializable
 {
-	private int characterid,clevel,health,strength,defense,accuracy,evasion;
+	private int characterid,clevel,health,strength,defense,accuracy,evasion, tokens;
 	private String cname;
 	public Character(int characterid, String cname, int clevel, int health, int strength,
-			int defense, int accuracy, int evasion)
+			int defense, int accuracy, int evasion, int tokens)
 	{
 		this.characterid = characterid;
 		this.clevel = clevel;
@@ -18,6 +18,7 @@ public class Character implements Serializable
 		this.accuracy = accuracy;
 		this.evasion = evasion;
 		this.cname = cname;
+		this.tokens = tokens;
 	}
 	
 	public int getCharacterid()
@@ -91,6 +92,16 @@ public class Character implements Serializable
 	public void setCname(String cname)
 	{
 		this.cname = cname;
+	}
+
+	public int getTokens()
+	{
+		return tokens;
+	}
+
+	public void setTokens(int tokens)
+	{
+		this.tokens = tokens;
 	}
 	
 	

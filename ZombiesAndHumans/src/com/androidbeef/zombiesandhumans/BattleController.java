@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
-import com.androidbeef.zombiesandhumans.ItemController.performQuery;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -110,10 +108,13 @@ public class BattleController extends Activity implements OnClickListener
 				itemNameAndNum.put(brain.getItems().get(i).getIname(),Double.parseDouble(abil[1]));/// brain.getItems().get(i).getItemcount());
 			else if((abil[0].equals("+") && abil[2].equals("bp")) && brain.getItems().get(i).getInbackpackcount()>0)
 				itemNameAndNum.put(brain.getItems().get(i).getIname(),Double.parseDouble(abil[1]));
-			//else if((abil[0].trim().equals("+") && abil[2].trim().equals("bp")) && brain.getItems().get(i).getInbackpackcount()>0)
+			
+			//Would be if you wanted to automatically assign a weapon upon entering a battle. Not sure if you want this
+			//if((abil[0].trim().equals("+") && abil[2].trim().equals("bp")) && brain.getItems().get(i).getInbackpackcount()>0)
 			//{
 				//System.out.println("THERE WAS AN ITEM FOUND");
 			//	userItem = brain.getItems().get(i).getIname();
+			//	getUCurrentIDisplay().setText(""+userItem);
 			//	attackCooldown = brain.getItems().get(i).getCooldown();
 			//	userBP = Integer.parseInt(abil[1].trim());
 			//}

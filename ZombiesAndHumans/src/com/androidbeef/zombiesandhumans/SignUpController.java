@@ -149,11 +149,11 @@ public class SignUpController extends Activity implements OnClickListener
 	private void newCharacter()
 	{
 		String filename = "testing";
-		String query6 = "INSERT INTO `character`(`characterid`,`cname`,`clevel`,`health`,`strength`,`defense`,`accuracy`,`evasion`) VALUES"
-				+ " (" + (numOfCharacters + 1) + ",'Unamed',1,1,1,1,1,1)";
+		String query6 = "INSERT INTO `character`(`characterid`,`cname`,`clevel`,`health`,`strength`,`defense`,`accuracy`,`evasion`,`tokens`) VALUES"
+				+ " (" + (numOfCharacters + 1) + ",'Unamed',1,1,1,1,1,1,3)";
 
 		Character character = new Character((numOfCharacters + 1), "Unamed", 1,
-				1, 1, 1, 1, 1);
+				1, 1, 1, 1, 1, 3);
 		brain.setCharacter(character);
 
 		brain.prepareForQuery(null, filename, null, query6);

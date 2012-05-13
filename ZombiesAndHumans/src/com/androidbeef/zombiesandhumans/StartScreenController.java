@@ -41,11 +41,11 @@ public class StartScreenController extends Activity implements OnClickListener
 					"password", "locationx", "locationy", "safehousex",
 					"safehousey", "backpackid", "characterid", "characterid",
 					"cname", "clevel", "health", "strength", "defense",
-					"accuracy", "evasion" };
+					"accuracy", "evasion", "tokens" };
 			String filename = "testing";
 			String[] dataTypes = { "int", "string", "string", "string",
 					"double", "double", "double", "double", "int", "int",
-					"int", "string", "int", "int", "int", "int", "int", "int" };
+					"int", "string", "int", "int", "int", "int", "int", "int","int" };
 			String query = "select * from player p join `character` c on p.characterid = c.characterid where username = '"
 					+ username.getText().toString().trim()
 					+ "' AND password = '"
@@ -126,7 +126,9 @@ public class StartScreenController extends Activity implements OnClickListener
 								((Integer) results[0][14]).intValue(),
 								((Integer) results[0][15]).intValue(),
 								((Integer) results[0][16]).intValue(),
-								((Integer) results[0][17]));
+								((Integer) results[0][17]).intValue(),
+								((Integer) results[0][18]).intValue()
+								);
 						brain.setCharacter(character);
 
 						Intent i = new Intent(StartScreenController.this,

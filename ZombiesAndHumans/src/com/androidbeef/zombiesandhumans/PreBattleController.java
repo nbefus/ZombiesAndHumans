@@ -189,11 +189,11 @@ public class PreBattleController extends MapActivity
 				"password", "locationx", "locationy", "safehousex",
 				"safehousey", "backpackid", "characterid", "characterid",
 				"cname", "clevel", "health", "strength", "defense", "accuracy",
-				"evasion" };
+				"evasion","tokens" };
 		String filename = "testing";
 		String[] dataTypes = { "int", "string", "string", "string", "double",
 				"double", "double", "double", "int", "int", "int", "string",
-				"int", "int", "int", "int", "int", "int" };
+				"int", "int", "int", "int", "int", "int","int" };
 		String query = "select * from player p join `character` c on p.characterid = c.characterid where (locationx BETWEEN "
 				+ (brain.getSelf().getLocationx() - 5)
 				+ " and "
@@ -255,7 +255,8 @@ public class PreBattleController extends MapActivity
 								((Integer) results[i][14]).intValue(),
 								((Integer) results[i][15]).intValue(),
 								((Integer) results[i][16]).intValue(),
-								((Integer) results[i][17])));
+								((Integer) results[i][17]).intValue(),
+								((Integer) results[i][18]).intValue()));
 					}
 					pd.dismiss();
 					brain.setEnemies(enemies);
