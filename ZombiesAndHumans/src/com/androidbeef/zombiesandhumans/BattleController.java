@@ -222,6 +222,7 @@ public class BattleController extends Activity implements OnClickListener
 			//up their attack power.
 			if(!userItem.equals("none"))
 			{
+				//***Nathaniel for Matt: Not sure what this is for or doing. Is it supposed to multiply userBP by the number of the equipped weapon the user has?
 				userBP+=itemNameAndNum.get(userItem).intValue();
 			}
 			currentEHealth=Integer.parseInt((String) getEHealthDisplay().getText());
@@ -361,10 +362,15 @@ public class BattleController extends Activity implements OnClickListener
 							{
 								public void onClick(DialogInterface dialog, int id)
 								{
+									
 									if(userItem.equals("none"))
 									{
 										userItem=name;
+										int itemPos = brain.findItemByName(name);
+										
+										userBP = Integer.parseInt(brain.getItems().get(itemPos).getAbility().split(" ")[1].trim());
 										getUCurrentIDisplay().setText(""+userItem);
+										attackCooldown = brain.getItems().get(itemPos).getCooldown();
 										//here we need to set the item cooldown to the user's attack cooldown
 									}
 								}
@@ -393,12 +399,17 @@ public class BattleController extends Activity implements OnClickListener
 							{
 								public void onClick(DialogInterface dialog, int id)
 								{
-									if(userItem.equals("none"))
-									{
+									//I dont think we want to only do this if userItem eqals none
+									//if(userItem.equals("none"))
+									//{
 										userItem=name;
+										int itemPos = brain.findItemByName(name);
+										
+										userBP = Integer.parseInt(brain.getItems().get(itemPos).getAbility().split(" ")[1].trim());
 										getUCurrentIDisplay().setText(""+userItem);
+										attackCooldown = brain.getItems().get(itemPos).getCooldown();
 										//here we need to set the item cooldown to the user's attack cooldown
-									}
+									//}
 								}
 							})
 					.setNegativeButton("No",
