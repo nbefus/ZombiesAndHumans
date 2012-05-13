@@ -26,6 +26,7 @@ public class CharacterController extends Activity implements OnClickListener
 	private TextView evasionDisplay;
 	private TextView upgradeTokensDisplay;
 	
+	@Override
 	protected void onCreate(Bundle savedInstanceState) 
 	{
 		super.onCreate(savedInstanceState);

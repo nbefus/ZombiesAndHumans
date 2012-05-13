@@ -48,7 +48,7 @@ public class BattleController extends Activity implements OnClickListener
 	private int enemyLevel;//=1;
 	private int userHealth;//=100;
 	private int enemyHealth;//=100;
-	private int userBP=5;
+	private int userBP;//=5;
 	private int enemyBP=5;
 	//these items are set but we should probably randomize these.
 	//I'll just text you the values.
@@ -56,11 +56,12 @@ public class BattleController extends Activity implements OnClickListener
 	private boolean isRetreat = false;
 	private String enemyItem="none";
 	private HashMap<String, Number>	itemNameAndNum;
-	private String attackCooldown="3000"; //in milliseconds
+	private int attackCooldown;//="3000"; //in milliseconds
 	private String enemyAttackTime="1000";
 	private ZombiesAndHumansBrain brain = new ZombiesAndHumansBrain(this);
 	private ProgressDialog	pd;
 	
+	@Override
 	protected void onCreate(Bundle savedInstanceState) 
 	{
 		super.onCreate(savedInstanceState);
@@ -109,6 +110,13 @@ public class BattleController extends Activity implements OnClickListener
 				itemNameAndNum.put(brain.getItems().get(i).getIname(),Double.parseDouble(abil[1]));/// brain.getItems().get(i).getItemcount());
 			else if((abil[0].equals("+") && abil[2].equals("bp")) && brain.getItems().get(i).getInbackpackcount()>0)
 				itemNameAndNum.put(brain.getItems().get(i).getIname(),Double.parseDouble(abil[1]));
+			//else if((abil[0].trim().equals("+") && abil[2].trim().equals("bp")) && brain.getItems().get(i).getInbackpackcount()>0)
+			//{
+				//System.out.println("THERE WAS AN ITEM FOUND");
+			//	userItem = brain.getItems().get(i).getIname();
+			//	attackCooldown = brain.getItems().get(i).getCooldown();
+			//	userBP = Integer.parseInt(abil[1].trim());
+			//}
 		}
 		
 		createListView(itemsView, itemNameAndNum);
@@ -116,10 +124,10 @@ public class BattleController extends Activity implements OnClickListener
 	
 	private void getAllItems()
 	{
-		String[] entities = {"itemid","iname","ability","inbackpackcount","instoragecount"};
+		String[] entities = {"itemid","iname","ability","cooldown","inbackpackcount","instoragecount"};
 		String filename = "testing";
-		String[] dataTypes = {"int","string","string","int","int"};
-		String query = "SELECT i.itemid, iname, ability, inbackpackcount, instoragecount FROM backpack b JOIN backpackitems p ON b.backpackid = p.backpackid JOIN item i ON p.itemid = i.itemid WHERE b.backpackid="+brain.getSelf().getBackpackid();
+		String[] dataTypes = {"int","string","string","int","int","int"};
+		String query = "SELECT i.itemid, iname, ability, cooldown, inbackpackcount, instoragecount FROM backpack b JOIN backpackitems p ON b.backpackid = p.backpackid JOIN item i ON p.itemid = i.itemid WHERE b.backpackid="+brain.getSelf().getBackpackid();
 				
 		brain.prepareForQuery(entities, filename, dataTypes, query);
 		pd = ProgressDialog.show(this, "Processing...", "Checking with database", true, true);
@@ -220,7 +228,7 @@ public class BattleController extends Activity implements OnClickListener
 			{
 				getEHealthDisplay().setText(""+(currentEHealth-userBP));
 				getAttackButton().setEnabled(false);
-				new ButtonDisabled().execute(attackCooldown);
+				new ButtonDisabled().execute(""+attackCooldown);
 				//now the computer will react to the player
 				cpAction(currentEHealth);
 			}
@@ -670,7 +678,7 @@ public class BattleController extends Activity implements OnClickListener
 						
 						for(int i=0; i<dbItems.length; i++)
 						{
-							items.add(new Item(((Integer)dbItems[i][0]).intValue(), (String)dbItems[i][1], (String)dbItems[i][2], ((Integer)dbItems[i][3]).intValue(),((Integer)dbItems[i][4]).intValue()));
+							items.add(new Item(((Integer)dbItems[i][0]).intValue(), (String)dbItems[i][1], (String)dbItems[i][2], ((Integer)dbItems[i][3]).intValue(),((Integer)dbItems[i][4]).intValue(),((Integer)dbItems[i][5]).intValue()));
 						}
 						
 						brain.setItems(items);

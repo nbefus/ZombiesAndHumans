@@ -24,6 +24,7 @@ public class ItemController extends Activity
 	public ProgressDialog	pd;
 	public ZombiesAndHumansBrain	brain = new ZombiesAndHumansBrain(this);
 
+	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
@@ -57,10 +58,10 @@ public class ItemController extends Activity
 	
 	private void getAllItems()
 	{
-		String[] entities = {"itemid","iname","ability","inbackpackcount","instoragecount"};
+		String[] entities = {"itemid","iname","ability","cooldown","inbackpackcount","instoragecount"};
 		String filename = "testing";
-		String[] dataTypes = {"int","string","string","int","int"};
-		String query = "SELECT i.itemid, iname, ability, inbackpackcount, instoragecount FROM backpack b JOIN backpackitems p ON b.backpackid = p.backpackid JOIN item i ON p.itemid = i.itemid WHERE b.backpackid="+brain.getSelf().getBackpackid();
+		String[] dataTypes = {"int","string","string","int","int","int"};
+		String query = "SELECT i.itemid, iname, ability, cooldown, inbackpackcount, instoragecount FROM backpack b JOIN backpackitems p ON b.backpackid = p.backpackid JOIN item i ON p.itemid = i.itemid WHERE b.backpackid="+brain.getSelf().getBackpackid();
 				
 		brain.prepareForQuery(entities, filename, dataTypes, query);
 		pd = ProgressDialog.show(this, "Processing...", "Checking with database", true, true);
@@ -219,7 +220,7 @@ public class ItemController extends Activity
 						
 						for(int i=0; i<dbItems.length; i++)
 						{
-							items.add(new Item(((Integer)dbItems[i][0]).intValue(), (String)dbItems[i][1], (String)dbItems[i][2], ((Integer)dbItems[i][3]).intValue(),((Integer)dbItems[i][4]).intValue()));
+							items.add(new Item(((Integer)dbItems[i][0]).intValue(), (String)dbItems[i][1], (String)dbItems[i][2], ((Integer)dbItems[i][3]).intValue(),((Integer)dbItems[i][4]).intValue(),((Integer)dbItems[i][5]).intValue()));
 						}
 						
 						brain.setItems(items);

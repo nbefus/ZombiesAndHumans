@@ -2,16 +2,17 @@ package com.androidbeef.zombiesandhumans;
 
 public class Item
 {
-	private int itemid,inbackpackcount,instoragecount;
+	private int itemid,inbackpackcount,instoragecount, cooldown;
 	private String iname, ability;
 	
-	public Item(int itemid, String iname,String ability,int inbackpackcount, int instoragecount)
+	public Item(int itemid, String iname,String ability, int cooldown, int inbackpackcount, int instoragecount)
 	{
 		this.ability = ability;
 		this.itemid = itemid;
 		this.inbackpackcount = inbackpackcount;
 		this.iname = iname;
 		this.instoragecount = instoragecount;
+		this.cooldown = cooldown;
 	}
 
 	public int getItemid()
@@ -72,5 +73,15 @@ public class Item
 	public void setInstoragecount(int instoragecount)
 	{
 		this.instoragecount = instoragecount;
+	}
+
+	public int getCooldown()
+	{
+		return cooldown;
+	}
+
+	public void setCooldown(int cooldown)
+	{
+		this.cooldown = cooldown;
 	}
 }
